@@ -48,17 +48,46 @@ var hideList = function hideList(list) {
   };
 };
 
+var selectItem = function selectItem(valueInput, labelInput, li) {
+  valueInput.value = li.key;
+  labelInput.value = li.innerText;
+};
+
 var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
   return function (e) {
-    valueInput.value = e.target.key;
-    labelInput.value = e.target.innerText;
+    selectItem(valueInput, labelInput, e.target);
     hideList(list)();
   };
 };
 
 var onKeyUpped = function onKeyUpped(valueInput, labelInput, list) {
   return function (e) {
-    if (e.which === 13) {}
+    var currActiveItem;
+    var nextActiveItem;
+
+    if (e.which === 38) {
+      currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+      nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem.previousSibling ? currActiveItem.previousSibling : currActiveItem;
+      currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+      nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+    }
+
+    if (e.which === 40) {
+      if (!list.classList.contains('as24-autocomplete__list--visible')) {
+        list.classList.add('as24-autocomplete__list--visible');
+        return;
+      }
+      currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+      nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem.nextSibling ? currActiveItem.nextSibling : currActiveItem;
+      currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+      nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+    }
+
+    if (e.which === 13) {
+      selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+      hideList(list)();
+    }
+
     if (e.which === 27) {
       hideList(list)();
     }

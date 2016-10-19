@@ -1,4 +1,5 @@
 const $ = (selector, root) => root.querySelector(selector);
+const $$ = (selector, root) => root.querySelectorAll(selector);
 const on = (event, cb, el) => el.addEventListener(event, cb);
 const off = (event, cb, el) => el.removeEventListener(event, cb);
 
@@ -29,14 +30,51 @@ const onInputKeyup = dataSource => e => dataSource.reduceItems(e.target.value).t
 
 const hideList = list => e => list.classList.remove('as24-autocomplete__list--visible');
 
+const selectItem = (valueInput, labelInput, li) => {
+  valueInput.value = li.key;
+  labelInput.value = li.innerText;
+}
+
 const onItemClicked = (valueInput, labelInput, list) => e => {
-  valueInput.value = e.target.key;
-  labelInput.value = e.target.innerText;
+  selectItem(valueInput, labelInput, e.target);
   hideList(list)();
 }
 
 const onKeyUpped = (valueInput, labelInput, list) => e => {
-  if (e.which === 13) {}
+  var currActiveItem;
+  var nextActiveItem;
+
+  if (e.which === 38) {
+    currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+    nextActiveItem = currActiveItem === null
+      ? $('.as24-autocomplete__list-item', list)
+      : !!currActiveItem.previousSibling
+        ? currActiveItem.previousSibling
+        : currActiveItem;
+    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+  }
+
+  if (e.which === 40) {
+    if (!list.classList.contains('as24-autocomplete__list--visible')) {
+      list.classList.add('as24-autocomplete__list--visible')
+      return;
+    }
+    currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+    nextActiveItem = currActiveItem === null
+      ? $('.as24-autocomplete__list-item', list)
+      : !!currActiveItem.nextSibling
+        ? currActiveItem.nextSibling
+        : currActiveItem;
+    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+  }
+
+  if (e.which === 13) {
+    selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+    hideList(list)();
+  }
+
   if (e.which === 27) {
     hideList(list)();
   }
