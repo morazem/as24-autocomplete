@@ -1,5 +1,10 @@
 @import "node_modules/showcar-ui/src/scss/mixins/inputs";
 
+as24-autocomplete {
+  display: flex;
+  flex-direction: column;
+}
+
 .as24-autocomplete {
 
   &__input {
@@ -8,11 +13,19 @@
 
   &__list {
     display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
     &--visible {
       display: block;
     }
 
+  }
+
+  &__list-item {
+    padding: 12px;
+    border-bottom: solid 1px #ccc;
   }
 
 }

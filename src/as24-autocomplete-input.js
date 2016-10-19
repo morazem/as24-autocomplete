@@ -2,10 +2,11 @@ const $ = (selector, root) => root.querySelector(selector);
 const on = (event, cb, el) => el.addEventListener(event, cb);
 const off = (event, cb, el) => el.removeEventListener(event, cb);
 
-const appendTo = target => child => target.appendChild(child), target;
+const appendTo = target => child => {target.appendChild(child); return target};
 
 const renderLI = item => {
   var li = document.createElement('li');
+  li.classList.add('as24-autocomplete__list-item');
   li.key = item.key;
   li.innerText = item.value;
   return li;

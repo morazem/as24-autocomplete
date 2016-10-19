@@ -3,7 +3,18 @@
   padding: 4px 12px;
   height: 40px; }
 
+as24-autocomplete {
+  display: flex;
+  flex-direction: column; }
+
 .as24-autocomplete__list {
-  display: none; }
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0; }
   .as24-autocomplete__list--visible {
     display: block; }
+
+.as24-autocomplete__list-item {
+  padding: 12px;
+  border-bottom: solid 1px #ccc; }

@@ -16,8 +16,8 @@
 
   <as24-autocomplete data-source="makes-data-source">
     <input type="hidden" name="makeId">
-    <input type="text" class="as24-autocomplete__input">
-    <ul class="as24-autocomplete__list"></ul>
+    <input id="A1" type="text" class="as24-autocomplete__input">
+    <ul id="L1" class="as24-autocomplete__list"></ul>
   </as24-autocomplete>
 
   <as24-tags-data-source id="makes-data-source">
@@ -28,14 +28,12 @@
     <item key="5" value="Option 5"></item>
   </as24-tags-data-source>
 
-  <hr>
-
   <h3>Autocomplete using XHR simulation</h3>
 
   <as24-autocomplete data-source="makes-data-source2">
     <input type="hidden" name="makeId">
-    <input type="text" class="as24-autocomplete__input">
-    <ul class="as24-autocomplete__list"></ul>
+    <input id="A2" type="text" class="as24-autocomplete__input">
+    <ul id="L1" class="as24-autocomplete__list"></ul>
   </as24-autocomplete>
 
   <as24-tags-data-source id="makes-data-source2">
@@ -46,6 +44,7 @@
     <item key="50" value="Option 50"></item>
   </as24-tags-data-source>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.2.0/document-register-element.js"></script>
   <script src="../dist/as24-autocomplete.js"></script>
 
 </body>

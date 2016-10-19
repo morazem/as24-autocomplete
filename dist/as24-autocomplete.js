@@ -9,13 +9,13 @@ var on = function on(event, cb, el) {
 };
 var appendTo = function appendTo(target) {
   return function (child) {
-    target.appendChild(child);
-    return target;
+    target.appendChild(child);return target;
   };
 };
 
 var renderLI = function renderLI(item) {
   var li = document.createElement('li');
+  li.classList.add('as24-autocomplete__list-item');
   li.key = item.key;
   li.innerText = item.value;
   return li;
