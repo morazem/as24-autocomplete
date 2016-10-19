@@ -18,14 +18,28 @@ const renderList = list => itemsModel => {
   list.classList.add('as24-autocomplete__list--visible');
 }
 
-const onInputFocused = (list, dataSource) => e => dataSource.fetchItems().then(renderList(list));
+const toggleList = (list, dataSource) => e => {
+  e.stopPropagation();
+  e.target.tagName === 'INPUT'
+    ? dataSource.fetchItems().then(renderList(list))
+    : hideList(list)();
+}
 
 const onInputKeyup = dataSource => e => dataSource.reduceItems(e.target.value).then(renderList);
+
+const hideList = list => e => list.classList.remove('as24-autocomplete__list--visible');
 
 const onItemClicked = (valueInput, labelInput, list) => e => {
   valueInput.value = e.target.key;
   labelInput.value = e.target.innerText;
-  list.classList.remove('as24-autocomplete__list--visible');
+  hideList(list)();
+}
+
+const onKeyUpped = (valueInput, labelInput, list) => e => {
+  if (e.which === 13) {}
+  if (e.which === 27) {
+    hideList(list)();
+  }
 }
 
 function elementAttached() {
@@ -33,9 +47,12 @@ function elementAttached() {
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
   var dataSource = $('#' + this.getAttribute('data-source'), document);
-  on('focus', onInputFocused(list, dataSource), labelInput);
+  on('click', hideList(list), document);
+  on('click', toggleList(list, dataSource), labelInput);
+  on('focus', toggleList(list, dataSource), labelInput);
   on('keyup', onInputKeyup(dataSource), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
+  on('keyup', onKeyUpped(valueInput, labelInput, list), this);
 }
 
 function elementDetached() {}

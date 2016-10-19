@@ -29,9 +29,10 @@ var renderList = function renderList(list) {
   };
 };
 
-var onInputFocused = function onInputFocused(list, dataSource) {
+var toggleList = function toggleList(list, dataSource) {
   return function (e) {
-    return dataSource.fetchItems().then(renderList(list));
+    e.stopPropagation();
+    e.target.tagName === 'INPUT' ? dataSource.fetchItems().then(renderList(list)) : hideList(list)();
   };
 };
 
@@ -41,11 +42,26 @@ var onInputKeyup = function onInputKeyup(dataSource) {
   };
 };
 
+var hideList = function hideList(list) {
+  return function (e) {
+    return list.classList.remove('as24-autocomplete__list--visible');
+  };
+};
+
 var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
   return function (e) {
     valueInput.value = e.target.key;
     labelInput.value = e.target.innerText;
-    list.classList.remove('as24-autocomplete__list--visible');
+    hideList(list)();
+  };
+};
+
+var onKeyUpped = function onKeyUpped(valueInput, labelInput, list) {
+  return function (e) {
+    if (e.which === 13) {}
+    if (e.which === 27) {
+      hideList(list)();
+    }
   };
 };
 
@@ -54,9 +70,12 @@ function elementAttached() {
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
   var dataSource = $('#' + this.getAttribute('data-source'), document);
-  on('focus', onInputFocused(list, dataSource), labelInput);
+  on('click', hideList(list), document);
+  on('click', toggleList(list, dataSource), labelInput);
+  on('focus', toggleList(list, dataSource), labelInput);
   on('keyup', onInputKeyup(dataSource), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
+  on('keyup', onKeyUpped(valueInput, labelInput, list), this);
 }
 
 function elementDetached() {}

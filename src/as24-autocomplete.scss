@@ -1,21 +1,32 @@
 @import "node_modules/showcar-ui/src/scss/mixins/inputs";
+@import "node_modules/showcar-ui/src/scss/inputs";
+@import "node_modules/showcar-ui/src/scss/variables";
 
 as24-autocomplete {
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .as24-autocomplete {
 
   &__input {
+    box-sizing: border-box;
     @include input();
+    @extend %customInputStyles;
   }
 
   &__list {
+    position: absolute;
+    background: $white;
     display: none;
     list-style: none;
     margin: 0;
     padding: 0;
+    border: solid 1px $black-50;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 12rem;
+    z-index: 1;
+    width: 100%;
 
     &--visible {
       display: block;
@@ -24,8 +35,13 @@ as24-autocomplete {
   }
 
   &__list-item {
-    padding: 12px;
-    border-bottom: solid 1px #ccc;
+    padding: $XS $M;
+
+    &--selected,
+    &:hover {
+      background: $black-30;
+    }
+
   }
 
 }
