@@ -1,0 +1,18 @@
+@import "node_modules/showcar-ui/src/scss/mixins/inputs";
+
+.as24-autocomplete {
+
+  &__input {
+    @include input();
+  }
+
+  &__list {
+    display: none;
+
+    &--visible {
+      display: block;
+    }
+
+  }
+
+}

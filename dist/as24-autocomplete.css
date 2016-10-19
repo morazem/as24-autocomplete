@@ -1,0 +1,9 @@
+.as24-autocomplete__input {
+  font-size: 1rem;
+  padding: 4px 12px;
+  height: 40px; }
+
+.as24-autocomplete__list {
+  display: none; }
+  .as24-autocomplete__list--visible {
+    display: block; }
