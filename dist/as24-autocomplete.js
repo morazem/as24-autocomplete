@@ -47,7 +47,8 @@ var renderList = function renderList(list) {
 
 var fetchList = function fetchList(dataSource, labelInput, list) {
   return function (e) {
-    return dataSource.fetchItems(labelInput.value).then(renderList(list));
+    e.stopPropagation();
+    dataSource.fetchItems(labelInput.value).then(renderList(list));
   };
 };
 
@@ -72,7 +73,7 @@ var moveSelection = function moveSelection(dir, list) {
   nextActiveItem.scrollIntoView();
 };
 
-var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
+var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
   return function (e) {
     switch (e.which) {
       case 38:
@@ -81,14 +82,19 @@ var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
         return isListVisible(list) ? moveSelection(1, list) : showList(list);
       case 27:
         return hideList(list)();
-      case 13:
-        {
-          selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-          hideList(list)();
-          return;
-        }
-      default:
-        return fetchList(dataSource, labelInput, list)(e);
+    }
+  };
+};
+
+var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list) {
+  return function (e) {
+    if (e.which === 13) {
+      selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+      hideList(list)();
+      return;
+    }
+    if ([38, 40, 27].indexOf(e.which) === -1) {
+      return fetchList(dataSource, labelInput, list)(e);
     }
   };
 };
@@ -98,11 +104,12 @@ function elementAttached() {
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
   var dataSource = $('#' + this.getAttribute('data-source'), document);
-  // on('click', hideList(list), document);
+  on('click', hideList(list), document);
   on('click', fetchList(dataSource, labelInput, list), labelInput);
   on('focus', fetchList(dataSource, labelInput, list), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keydown', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
+  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list), labelInput);
+  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
 }
 
 function elementDetached() {}
