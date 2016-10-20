@@ -17,12 +17,12 @@ gulp.task('sass', () => {
 
 gulp.task('js', function() {
   gulp.src('./src/as24-autocomplete.js')
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(rollup(
       { plugins: [ babel(babelrc()) ] },
       [ { dest: pkg['main'], format: 'iife' } ]
     ))
-    .pipe(sourcemaps.write(''))
+    // .pipe(sourcemaps.write(''))
     .pipe(gulp.dest('dist'))
 });
 

@@ -1,30 +1,25 @@
 var elementsCache = {};
 var itemsCache = {};
 
-function fetchItems() {
-  var thisID = this.id;
-  return new Promise(res => {
-    var thisElement = elementsCache[thisID];
-    var items = thisElement.querySelectorAll('item');
-    itemsCache[thisID] = Array.from(items).map(tag => ({
-      key: tag.getAttribute('key'),
-      value: tag.getAttribute('value')
-    }));
-    res(itemsCache[thisID]);
-  });
-}
+const extractKeyValues = root =>
+  Array.prototype.slice.call(root.querySelectorAll('item')).map(tag => ({
+    key: tag.getAttribute('key'),
+    value: tag.getAttribute('value')
+  }));
 
-function reduceItems(queryString) {
+const valuePredicate = queryString => item =>
+  item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+
+function fetchItems(queryString) {
   var thisID = this.id;
   return new Promise(res => {
-    res((itemsCache[thisID] || []).filter(item => {
-      return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
-    }));
+    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(elementsCache[thisID]);
+    res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID])
   });
 }
 
 function elementAttached() {
-  itemsCache[this.id] = [];
+  itemsCache[this.id] = null;
   elementsCache[this.id] = this;
 }
 
@@ -42,8 +37,7 @@ export default function() {
                 detachedCallback: { value: elementDetached },
                 attributeChangedCallback: { value: function () { } }
             }), {
-                fetchItems: fetchItems,
-                reduceItems: reduceItems
+                fetchItems: fetchItems
             }
         )
     });

@@ -5,6 +5,15 @@ const off = (event, cb, el) => el.removeEventListener(event, cb);
 
 const appendTo = target => child => { target.appendChild(child); return target };
 
+const showList = list =>
+  list.classList.add('as24-autocomplete__list--visible');
+
+const hideList = list => e =>
+  list.classList.remove('as24-autocomplete__list--visible');
+
+const isListVisible = list =>
+  list.classList.contains('as24-autocomplete__list--visible');
+
 const renderLI = item => {
   var li = document.createElement('li');
   li.classList.add('as24-autocomplete__list-item');
@@ -15,19 +24,14 @@ const renderLI = item => {
 
 const renderList = list => itemsModel => {
   list.innerHTML = '';
-  itemsModel.map(renderLI).forEach(appendTo(list));
-  list.classList.add('as24-autocomplete__list--visible');
+  var df = document.createDocumentFragment();
+  itemsModel.map(renderLI).forEach(appendTo(df));
+  appendTo(list)(df);
+  showList(list);
 }
 
-const toggleList = (list, dataSource) => e => {
-  e.stopPropagation();
-  e.target.tagName === 'INPUT'
-    ? dataSource.fetchItems().then(renderList(list))
-    : hideList(list)();
-}
-
-const hideList = list => e =>
-  list.classList.remove('as24-autocomplete__list--visible');
+const fetchList = (dataSource, labelInput, list) => e =>
+  dataSource.fetchItems(labelInput.value).then(renderList(list))
 
 const selectItem = (valueInput, labelInput, li) => {
   valueInput.value = li.key;
@@ -49,19 +53,20 @@ const moveSelection = (dir, list) => {
       : currActiveItem;
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+  nextActiveItem.scrollIntoView();
 }
 
 const onKeyUpped = (dataSource, valueInput, labelInput, list) => e => {
   switch(e.which) {
     case 38: return moveSelection(-1, list);
-    case 40: return moveSelection(1, list);
+    case 40: return isListVisible(list) ? moveSelection(1, list) : showList(list)
     case 27: return hideList(list)();
     case 13: {
       selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
       hideList(list)();
       return;
     }
-    default: return dataSource.reduceItems(e.target.value).then(renderList(list));
+    default: return fetchList(dataSource, labelInput, list)(e);
   }
 }
 
@@ -70,11 +75,11 @@ function elementAttached() {
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
   var dataSource = $('#' + this.getAttribute('data-source'), document);
-  on('click', hideList(list), document);
-  on('click', toggleList(list, dataSource), labelInput);
-  on('focus', toggleList(list, dataSource), labelInput);
+  // on('click', hideList(list), document);
+  on('click', fetchList(dataSource, labelInput, list), labelInput);
+  on('focus', fetchList(dataSource, labelInput, list), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
+  on('keydown', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
 }
 
 function elementDetached() {}

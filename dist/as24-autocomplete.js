@@ -13,6 +13,20 @@ var appendTo = function appendTo(target) {
   };
 };
 
+var showList = function showList(list) {
+  return list.classList.add('as24-autocomplete__list--visible');
+};
+
+var hideList = function hideList(list) {
+  return function (e) {
+    return list.classList.remove('as24-autocomplete__list--visible');
+  };
+};
+
+var isListVisible = function isListVisible(list) {
+  return list.classList.contains('as24-autocomplete__list--visible');
+};
+
 var renderLI = function renderLI(item) {
   var li = document.createElement('li');
   li.classList.add('as24-autocomplete__list-item');
@@ -24,21 +38,16 @@ var renderLI = function renderLI(item) {
 var renderList = function renderList(list) {
   return function (itemsModel) {
     list.innerHTML = '';
-    itemsModel.map(renderLI).forEach(appendTo(list));
-    list.classList.add('as24-autocomplete__list--visible');
+    var df = document.createDocumentFragment();
+    itemsModel.map(renderLI).forEach(appendTo(df));
+    appendTo(list)(df);
+    showList(list);
   };
 };
 
-var toggleList = function toggleList(list, dataSource) {
+var fetchList = function fetchList(dataSource, labelInput, list) {
   return function (e) {
-    e.stopPropagation();
-    e.target.tagName === 'INPUT' ? dataSource.fetchItems().then(renderList(list)) : hideList(list)();
-  };
-};
-
-var hideList = function hideList(list) {
-  return function (e) {
-    return list.classList.remove('as24-autocomplete__list--visible');
+    return dataSource.fetchItems(labelInput.value).then(renderList(list));
   };
 };
 
@@ -60,6 +69,7 @@ var moveSelection = function moveSelection(dir, list) {
   var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+  nextActiveItem.scrollIntoView();
 };
 
 var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
@@ -68,7 +78,7 @@ var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
       case 38:
         return moveSelection(-1, list);
       case 40:
-        return moveSelection(1, list);
+        return isListVisible(list) ? moveSelection(1, list) : showList(list);
       case 27:
         return hideList(list)();
       case 13:
@@ -78,7 +88,7 @@ var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
           return;
         }
       default:
-        return dataSource.reduceItems(e.target.value).then(renderList(list));
+        return fetchList(dataSource, labelInput, list)(e);
     }
   };
 };
@@ -88,11 +98,11 @@ function elementAttached() {
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
   var dataSource = $('#' + this.getAttribute('data-source'), document);
-  on('click', hideList(list), document);
-  on('click', toggleList(list, dataSource), labelInput);
-  on('focus', toggleList(list, dataSource), labelInput);
+  // on('click', hideList(list), document);
+  on('click', fetchList(dataSource, labelInput, list), labelInput);
+  on('focus', fetchList(dataSource, labelInput, list), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
+  on('keydown', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
 }
 
 function elementDetached() {}
@@ -116,32 +126,31 @@ var input = function () {
 var elementsCache = {};
 var itemsCache = {};
 
-function fetchItems() {
-  var thisID = this.id;
-  return new Promise(function (res) {
-    var thisElement = elementsCache[thisID];
-    var items = thisElement.querySelectorAll('item');
-    itemsCache[thisID] = Array.from(items).map(function (tag) {
-      return {
-        key: tag.getAttribute('key'),
-        value: tag.getAttribute('value')
-      };
-    });
-    res(itemsCache[thisID]);
+var extractKeyValues = function extractKeyValues(root) {
+  return Array.prototype.slice.call(root.querySelectorAll('item')).map(function (tag) {
+    return {
+      key: tag.getAttribute('key'),
+      value: tag.getAttribute('value')
+    };
   });
-}
+};
 
-function reduceItems(queryString) {
+var valuePredicate = function valuePredicate(queryString) {
+  return function (item) {
+    return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+  };
+};
+
+function fetchItems(queryString) {
   var thisID = this.id;
   return new Promise(function (res) {
-    res((itemsCache[thisID] || []).filter(function (item) {
-      return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
-    }));
+    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(elementsCache[thisID]);
+    res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID]);
   });
 }
 
 function elementAttached$1() {
-  itemsCache[this.id] = [];
+  itemsCache[this.id] = null;
   elementsCache[this.id] = this;
 }
 
@@ -158,8 +167,7 @@ var tagsDataSourse = function () {
         detachedCallback: { value: elementDetached$1 },
         attributeChangedCallback: { value: function value() {} }
       }), {
-        fetchItems: fetchItems,
-        reduceItems: reduceItems
+        fetchItems: fetchItems
       })
     });
   } catch (e) {}
@@ -169,5 +177,3 @@ input();
 tagsDataSourse();
 
 }());
-
-//# sourceMappingURL=as24-autocomplete.js.map
