@@ -36,12 +36,6 @@ var toggleList = function toggleList(list, dataSource) {
   };
 };
 
-var onInputKeyup = function onInputKeyup(dataSource) {
-  return function (e) {
-    return dataSource.reduceItems(e.target.value).then(renderList);
-  };
-};
-
 var hideList = function hideList(list) {
   return function (e) {
     return list.classList.remove('as24-autocomplete__list--visible');
@@ -60,36 +54,31 @@ var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
   };
 };
 
-var onKeyUpped = function onKeyUpped(valueInput, labelInput, list) {
+var moveSelection = function moveSelection(dir, list) {
+  var next = dir === 1 ? 'nextSibling' : 'previousSibling';
+  var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+  var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
+  currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+  nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+};
+
+var onKeyUpped = function onKeyUpped(dataSource, valueInput, labelInput, list) {
   return function (e) {
-    var currActiveItem;
-    var nextActiveItem;
-
-    if (e.which === 38) {
-      currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-      nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem.previousSibling ? currActiveItem.previousSibling : currActiveItem;
-      currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-      nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-    }
-
-    if (e.which === 40) {
-      if (!list.classList.contains('as24-autocomplete__list--visible')) {
-        list.classList.add('as24-autocomplete__list--visible');
-        return;
-      }
-      currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-      nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem.nextSibling ? currActiveItem.nextSibling : currActiveItem;
-      currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-      nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-    }
-
-    if (e.which === 13) {
-      selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-      hideList(list)();
-    }
-
-    if (e.which === 27) {
-      hideList(list)();
+    switch (e.which) {
+      case 38:
+        return moveSelection(-1, list);
+      case 40:
+        return moveSelection(1, list);
+      case 27:
+        return hideList(list)();
+      case 13:
+        {
+          selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+          hideList(list)();
+          return;
+        }
+      default:
+        return dataSource.reduceItems(e.target.value).then(renderList(list));
     }
   };
 };
@@ -102,9 +91,8 @@ function elementAttached() {
   on('click', hideList(list), document);
   on('click', toggleList(list, dataSource), labelInput);
   on('focus', toggleList(list, dataSource), labelInput);
-  on('keyup', onInputKeyup(dataSource), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUpped(valueInput, labelInput, list), this);
+  on('keyup', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
 }
 
 function elementDetached() {}
@@ -132,24 +120,28 @@ function fetchItems() {
   var thisID = this.id;
   return new Promise(function (res) {
     var thisElement = elementsCache[thisID];
-    var result = itemsCache[thisID] ? itemsCache[thisID] : Array.from(thisElement.querySelectorAll('item')).map(function (tag) {
-      return { key: tag.getAttribute('key'), value: tag.getAttribute('value') };
+    var items = thisElement.querySelectorAll('item');
+    itemsCache[thisID] = Array.from(items).map(function (tag) {
+      return {
+        key: tag.getAttribute('key'),
+        value: tag.getAttribute('value')
+      };
     });
-    res(result);
+    res(itemsCache[thisID]);
   });
 }
 
 function reduceItems(queryString) {
   var thisID = this.id;
   return new Promise(function (res) {
-    var reducedItems = (itemsCache[thisID] || []).filter(function (item) {
+    res((itemsCache[thisID] || []).filter(function (item) {
       return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
-    });
-    res(reducedItems);
+    }));
   });
 }
 
 function elementAttached$1() {
+  itemsCache[this.id] = [];
   elementsCache[this.id] = this;
 }
 

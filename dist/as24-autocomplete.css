@@ -317,5 +317,7 @@ as24-autocomplete {
 
 .as24-autocomplete__list-item {
   padding: 4px 12px; }
-  .as24-autocomplete__list-item--selected, .as24-autocomplete__list-item:hover {
+  .as24-autocomplete__list-item:hover {
+    background: #f4f4f4; }
+  .as24-autocomplete__list-item--selected:hover, .as24-autocomplete__list-item--selected {
     background: #dcdcdc; }

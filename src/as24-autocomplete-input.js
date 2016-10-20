@@ -3,7 +3,7 @@ const $$ = (selector, root) => root.querySelectorAll(selector);
 const on = (event, cb, el) => el.addEventListener(event, cb);
 const off = (event, cb, el) => el.removeEventListener(event, cb);
 
-const appendTo = target => child => {target.appendChild(child); return target};
+const appendTo = target => child => { target.appendChild(child); return target };
 
 const renderLI = item => {
   var li = document.createElement('li');
@@ -26,9 +26,8 @@ const toggleList = (list, dataSource) => e => {
     : hideList(list)();
 }
 
-const onInputKeyup = dataSource => e => dataSource.reduceItems(e.target.value).then(renderList);
-
-const hideList = list => e => list.classList.remove('as24-autocomplete__list--visible');
+const hideList = list => e =>
+  list.classList.remove('as24-autocomplete__list--visible');
 
 const selectItem = (valueInput, labelInput, li) => {
   valueInput.value = li.key;
@@ -40,43 +39,29 @@ const onItemClicked = (valueInput, labelInput, list) => e => {
   hideList(list)();
 }
 
-const onKeyUpped = (valueInput, labelInput, list) => e => {
-  var currActiveItem;
-  var nextActiveItem;
+const moveSelection = (dir, list) => {
+  var next = dir === 1 ? 'nextSibling' : 'previousSibling';
+  var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+  var nextActiveItem = currActiveItem === null
+    ? $('.as24-autocomplete__list-item', list)
+    : !!currActiveItem[next]
+      ? currActiveItem[next]
+      : currActiveItem;
+  currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+  nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+}
 
-  if (e.which === 38) {
-    currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-    nextActiveItem = currActiveItem === null
-      ? $('.as24-autocomplete__list-item', list)
-      : !!currActiveItem.previousSibling
-        ? currActiveItem.previousSibling
-        : currActiveItem;
-    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  }
-
-  if (e.which === 40) {
-    if (!list.classList.contains('as24-autocomplete__list--visible')) {
-      list.classList.add('as24-autocomplete__list--visible')
+const onKeyUpped = (dataSource, valueInput, labelInput, list) => e => {
+  switch(e.which) {
+    case 38: return moveSelection(-1, list);
+    case 40: return moveSelection(1, list);
+    case 27: return hideList(list)();
+    case 13: {
+      selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+      hideList(list)();
       return;
     }
-    currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-    nextActiveItem = currActiveItem === null
-      ? $('.as24-autocomplete__list-item', list)
-      : !!currActiveItem.nextSibling
-        ? currActiveItem.nextSibling
-        : currActiveItem;
-    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  }
-
-  if (e.which === 13) {
-    selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-    hideList(list)();
-  }
-
-  if (e.which === 27) {
-    hideList(list)();
+    default: return dataSource.reduceItems(e.target.value).then(renderList(list));
   }
 }
 
@@ -88,9 +73,8 @@ function elementAttached() {
   on('click', hideList(list), document);
   on('click', toggleList(list, dataSource), labelInput);
   on('focus', toggleList(list, dataSource), labelInput);
-  on('keyup', onInputKeyup(dataSource), labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUpped(valueInput, labelInput, list), this);
+  on('keyup', onKeyUpped(dataSource, valueInput, labelInput, list), labelInput);
 }
 
 function elementDetached() {}

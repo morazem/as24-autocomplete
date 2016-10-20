@@ -37,8 +37,12 @@ as24-autocomplete {
   &__list-item {
     padding: $XS $M;
 
-    &--selected,
     &:hover {
+      background: $black-20;
+    }
+
+    &--selected:hover,
+    &--selected {
       background: $black-30;
     }
 

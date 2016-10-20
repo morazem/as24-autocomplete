@@ -5,26 +5,26 @@ function fetchItems() {
   var thisID = this.id;
   return new Promise(res => {
     var thisElement = elementsCache[thisID];
-    var result = itemsCache[thisID]
-      ? itemsCache[thisID]
-      : Array.from(thisElement.querySelectorAll('item')).map(tag => {
-        return { key: tag.getAttribute('key'), value: tag.getAttribute('value') };
-      });
-    res(result);
+    var items = thisElement.querySelectorAll('item');
+    itemsCache[thisID] = Array.from(items).map(tag => ({
+      key: tag.getAttribute('key'),
+      value: tag.getAttribute('value')
+    }));
+    res(itemsCache[thisID]);
   });
 }
 
 function reduceItems(queryString) {
   var thisID = this.id;
   return new Promise(res => {
-    var reducedItems = (itemsCache[thisID] || []).filter(item => {
+    res((itemsCache[thisID] || []).filter(item => {
       return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
-    });
-    res(reducedItems);
+    }));
   });
 }
 
 function elementAttached() {
+  itemsCache[this.id] = [];
   elementsCache[this.id] = this;
 }
 
