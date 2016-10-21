@@ -22,8 +22,8 @@ gulp.task('js', () => {
     .pipe(rollup(
       { plugins: [ babel(babelrc()) ] },
       [
-          { dest: pkg['main'], format: 'iife' },
-          { dest: pkg['jsnext:main'] }
+          { dest: pkg['main'], moduleName: 'as24Autocomplete', format: 'iife' },
+          { dest: pkg['jsnext:main'], moduleName: 'as24Autocomplete' }
       ],
     ))
     .pipe(sourcemaps.write(''))

@@ -1,4 +1,4 @@
-(function () {
+var as24Autocomplete = (function () {
 'use strict';
 
 var $ = function $(selector, root) {
@@ -116,7 +116,7 @@ function elementDetached() {}
 
 var input = function () {
   try {
-    document.registerElement('as24-autocomplete', {
+    return document.registerElement('as24-autocomplete', {
       prototype: Object.assign(Object.create(HTMLElement.prototype, {
         attachedCallback: { value: elementAttached },
         detachedCallback: { value: elementDetached },
@@ -126,6 +126,7 @@ var input = function () {
   } catch (e) {
     if (window && window.console) {
       window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
+      return null;
     }
   }
 };
@@ -166,9 +167,9 @@ function elementDetached$1() {
   itemsCache[this.id] = null;
 }
 
-var tagsDataSourse = function () {
+var tagsDataSource = function () {
   try {
-    document.registerElement('as24-tags-data-source', {
+    return document.registerElement('as24-tags-data-source', {
       prototype: Object.assign(Object.create(HTMLElement.prototype, {
         attachedCallback: { value: elementAttached$1 },
         detachedCallback: { value: elementDetached$1 },
@@ -177,11 +178,18 @@ var tagsDataSourse = function () {
         fetchItems: fetchItems
       })
     });
-  } catch (e) {}
+  } catch (e) {
+    return null;
+  }
 };
 
-input();
-tagsDataSourse();
+var as24Autocomplete = (function init() {
+    var inputCtr = input();
+    var tagsDataSourceCtr = tagsDataSource();
+    return { inputCtr: inputCtr, tagsDataSourceCtr: tagsDataSourceCtr };
+})();
+
+return as24Autocomplete;
 
 }());
 

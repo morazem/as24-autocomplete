@@ -30,7 +30,7 @@ function elementDetached() {
 
 export default function() {
   try {
-    document.registerElement('as24-tags-data-source', {
+    return document.registerElement('as24-tags-data-source', {
         prototype: Object.assign(
             Object.create(HTMLElement.prototype, {
                 attachedCallback: { value: elementAttached },
@@ -42,5 +42,6 @@ export default function() {
         )
     });
   } catch(e) {
+      return null;
   }
 }

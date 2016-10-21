@@ -20,7 +20,7 @@ const renderLI = item => {
   li.key = item.key;
   li.innerText = item.value;
   return li;
-}
+};
 
 const renderList = list => itemsModel => {
   list.innerHTML = '';
@@ -28,17 +28,17 @@ const renderList = list => itemsModel => {
   itemsModel.map(renderLI).forEach(appendTo(df));
   appendTo(list)(df);
   showList(list);
-}
+};
 
 const fetchList = (dataSource, labelInput, list) => e => {
   e.stopPropagation();
   dataSource.fetchItems(labelInput.value).then(renderList(list));
-}
+};
 
 const selectItem = (valueInput, labelInput, li) => {
   valueInput.value = li.key;
   labelInput.value = li.innerText;
-}
+};
 
 const onItemClicked = (valueInput, labelInput, list) => e => {
   selectItem(valueInput, labelInput, e.target);
@@ -56,7 +56,7 @@ const moveSelection = (dir, list) => {
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
   nextActiveItem.scrollIntoView();
-}
+};
 
 const onKeyDown = (dataSource, valueInput, labelInput, list) => e => {
   switch(e.which) {
@@ -64,7 +64,7 @@ const onKeyDown = (dataSource, valueInput, labelInput, list) => e => {
     case 40: return isListVisible(list) ? moveSelection(1, list) : showList(list);
     case 27: return hideList(list)();
   }
-}
+};
 
 const onKeyUp = (dataSource, valueInput, labelInput, list) => e => {
   if (e.which === 13) {
@@ -75,7 +75,7 @@ const onKeyUp = (dataSource, valueInput, labelInput, list) => e => {
   if ([38,40,27].indexOf(e.which) === -1) {
     return fetchList(dataSource, labelInput, list)(e);
   }
-}
+};
 
 function elementAttached() {
   var labelInput = $('[type=text]', this);
@@ -94,7 +94,7 @@ function elementDetached() {}
 
 export default function() {
   try {
-    document.registerElement('as24-autocomplete', {
+    return document.registerElement('as24-autocomplete', {
         prototype: Object.assign(
             Object.create(HTMLElement.prototype, {
                 attachedCallback: { value: elementAttached },
@@ -106,6 +106,7 @@ export default function() {
   } catch (e) {
     if (window && window.console) {
         window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
+        return null;
     }
   }
 }

@@ -1,5 +1,8 @@
 import input from './as24-autocomplete-input';
-import tagsDataSourse from './data-sources/tags-data-source';
+import tagsDataSource from './data-sources/tags-data-source';
 
-input();
-tagsDataSourse();
+export default (function init() {
+    const inputCtr = input();
+    const tagsDataSourceCtr = tagsDataSource();
+    return {inputCtr, tagsDataSourceCtr};
+})();
