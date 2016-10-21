@@ -21,6 +21,7 @@ Check the [demo](https://autoscout24.github.io/as24-autocomplete/) out
 ### Run the demo
 
 ```
+npm install
 npm run serve 
 ```
 
