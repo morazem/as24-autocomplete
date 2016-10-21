@@ -16,19 +16,22 @@ gulp.task('sass', () => {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('js', function() {
-  gulp.src('./src/as24-autocomplete.js')
+gulp.task('js', () => {
+  return gulp.src('./src/as24-autocomplete.js')
     .pipe(sourcemaps.init())
     .pipe(rollup(
       { plugins: [ babel(babelrc()) ] },
-      [ { dest: pkg['main'], format: 'iife' } ]
+      [
+          { dest: pkg['main'], format: 'iife' },
+          { dest: pkg['jsnext:main'] }
+      ],
     ))
     .pipe(sourcemaps.write(''))
     .pipe(gulp.dest('dist'))
 });
 
-gulp.task('copy', function() {
-    gulp.src('dist/*')
+gulp.task('copy', () => {
+    return gulp.src('dist/*')
         .pipe(copy())
         .pipe(gulp.dest('docs/'));
 });
@@ -36,7 +39,7 @@ gulp.task('copy', function() {
 gulp.task('sass-watch', ['sass', 'copy'], done => {browserSync.reload(); done()});
 gulp.task('js-watch', ['js', 'copy'], done => {browserSync.reload(); done()});
 
-gulp.task('serve', ['sass', 'js', 'copy'], function() {
+gulp.task('serve', ['sass', 'js', 'copy'], () => {
     browserSync.init({
       ghostMode: {
         clicks: true,

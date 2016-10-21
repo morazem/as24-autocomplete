@@ -1,10 +1,9 @@
 {
   "name": "as24-autocomplete",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Autocomplete component",
   "main": "dist/as24-autocomplete.js",
-  "module": "src/as24-autocomplete.js",
-  "jsnext:main": "src/as24-autocomplete.js",
+  "jsnext:main": "dist/as24-autocomplete.es6.js",
   "style": "src/as24-autocomplete.scss",
   "scripts": {
     "build": "gulp",
