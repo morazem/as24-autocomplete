@@ -1,6 +1,6 @@
 {
   "name": "as24-autocomplete",
-  "version": "0.0.0",
+  "version": "0.0.8",
   "description": "Autocomplete component",
   "main": "dist/as24-autocomplete.js",
   "module": "src/as24-autocomplete.js",
@@ -8,6 +8,7 @@
   "style": "src/as24-autocomplete.scss",
   "scripts": {
     "build": "gulp",
+    "serve": "gulp serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "browser-sync": "^2.17.5",
     "gulp": "^3.9.1",
     "gulp-better-rollup": "^1.0.0",
+    "gulp-contrib-copy": "^0.1.2",
     "gulp-sass": "^2.3.2",
     "gulp-sourcemaps": "^2.1.1",
     "node-sass": "^3.10.1",
