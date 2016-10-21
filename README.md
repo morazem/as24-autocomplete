@@ -14,7 +14,7 @@ function fetchItems(queryString) {
 
 Thus, data source can fetch items from API, for example, and filter them according to what user has typed in.
 
-Checkout the [demo](https://autoscout24.github.io/as24-autocomplete/)
+Check the [demo](https://autoscout24.github.io/as24-autocomplete/) out
 
 ## Getting Started
 
