@@ -25,7 +25,7 @@ npm install
 npm run serve 
 ```
 
-### Installing
+### Use/Add to you project
 
 ```
 npm install --save-dev as24-autocomplete
