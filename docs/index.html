@@ -17,7 +17,7 @@
 
   <h3>Autocomplete using tags</h3>
 
-  <as24-autocomplete data-source="makes-data-source">
+  <as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
     <input type="hidden" name="makeId">
     <input type="text" class="as24-autocomplete__input">
     <ul class="as24-autocomplete__list"></ul>
@@ -39,7 +39,7 @@
 
   <h3>Autocomplete using XHR simulation</h3>
 
-  <as24-autocomplete data-source="makes-data-source2">
+  <as24-autocomplete data-source="makes-data-source2" empty-list-message="Well... nothing.">
     <input type="hidden" name="makeId">
     <input type="text" class="as24-autocomplete__input">
     <ul class="as24-autocomplete__list"></ul>

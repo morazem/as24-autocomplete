@@ -4,6 +4,7 @@ var $ = function $(selector, root) {
 var on = function on(event, cb, el) {
   return el.addEventListener(event, cb);
 };
+
 var appendTo = function appendTo(target) {
   return function (child) {
     target.appendChild(child);return target;
@@ -24,6 +25,11 @@ var isListVisible = function isListVisible(list) {
   return list.classList.contains('as24-autocomplete__list--visible');
 };
 
+/**
+ * Renders a li item for the suggestions list
+ * @param {{key: string, value: string}} item
+ * @returns {HTMLElement} {Element}
+ */
 var renderLI = function renderLI(item) {
   var li = document.createElement('li');
   li.classList.add('as24-autocomplete__list-item');
@@ -32,20 +38,36 @@ var renderLI = function renderLI(item) {
   return li;
 };
 
-var renderList = function renderList(list) {
+var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
+  var li = document.createElement('li');
+  li.classList.add('as24-autocomplete__list-item');
+  li.key = '';
+  li.innerText = emptyMessage;
+  return li;
+};
+
+/**
+ * Renders a collection of raw suggestions to the list
+ * @param {string} emptyMessage
+ * @param {HTMLElement} list
+ * @returns {Function}
+ */
+var renderList = function renderList(emptyMessage, list) {
   return function (itemsModel) {
     list.innerHTML = '';
+    var listClassName = itemsModel.length ? '' : 'as24-autocomplete__list--empty';
     var df = document.createDocumentFragment();
-    itemsModel.map(renderLI).forEach(appendTo(df));
+    (itemsModel.length ? itemsModel.map(renderLI) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+    list.classList.add(listClassName);
     appendTo(list)(df);
     showList(list);
   };
 };
 
-var fetchList = function fetchList(dataSource, labelInput, list) {
+var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage) {
   return function (e) {
     e.stopPropagation();
-    dataSource.fetchItems(labelInput.value).then(renderList(list));
+    dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list));
   };
 };
 
@@ -57,7 +79,7 @@ var selectItem = function selectItem(valueInput, labelInput, li) {
 var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
   return function (e) {
     selectItem(valueInput, labelInput, e.target);
-    hideList(list)();
+    hideList(list)(e);
   };
 };
 
@@ -83,7 +105,7 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
   };
 };
 
-var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list) {
+var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage) {
   return function (e) {
     if (e.which === 13) {
       selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
@@ -91,21 +113,27 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list) {
       return;
     }
     if ([38, 40, 27].indexOf(e.which) === -1) {
-      return fetchList(dataSource, labelInput, list)(e);
+      return fetchList(dataSource, labelInput, list, emptyListMessage)(e);
     }
   };
 };
 
 function elementAttached() {
+  var emptyListMessage = this.getAttribute('empty-list-message') || "---";
+  var dataSourceName = this.getAttribute('data-source');
+  if (!dataSourceName) {
+    throw "The data source is missing";
+  }
   var labelInput = $('[type=text]', this);
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
-  var dataSource = $('#' + this.getAttribute('data-source'), document);
+  var dataSource = $('#' + dataSourceName, document);
+  var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
   on('click', hideList(list), document);
-  on('click', fetchList(dataSource, labelInput, list), labelInput);
-  on('focus', fetchList(dataSource, labelInput, list), labelInput);
+  on('click', fetchListCallback, labelInput);
+  on('focus', fetchListCallback, labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list), labelInput);
+  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
   on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
 }
 
