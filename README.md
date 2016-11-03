@@ -60,7 +60,7 @@ Or just `@import` it from `node_modules`:
 This is how you add the autocomplete itself:
 
 ```html
-<as24-autocomplete data-source="your-data-source-id">
+<as24-autocomplete data-source="your-data-source-id" empty-list-message="No items satisfying your request">
     <input type="hidden" name="makeId"> <!-- This field has the selected value -->
     <input type="text" class="as24-autocomplete__input">
     <ul class="as24-autocomplete__list"></ul>
