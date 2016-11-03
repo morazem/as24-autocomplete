@@ -1,4 +1,3 @@
-var elementsCache = {};
 var itemsCache = {};
 
 const extractKeyValues = root =>
@@ -11,20 +10,19 @@ const valuePredicate = queryString => item =>
   item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
 
 function fetchItems(queryString) {
-  var thisID = this.id;
+  var root = this;
+  var thisID = root.id;
   return new Promise(res => {
-    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(elementsCache[thisID]);
+    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
     res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID])
   });
 }
 
 function elementAttached() {
   itemsCache[this.id] = null;
-  elementsCache[this.id] = this;
 }
 
 function elementDetached() {
-  elementsCache[this.id] = null;
   itemsCache[this.id] = null;
 }
 

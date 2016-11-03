@@ -41,13 +41,12 @@ const renderEmptyListItem = (emptyMessage) => {
  */
 const renderList = (emptyMessage, list) => itemsModel => {
   list.innerHTML = '';
-  var listClassName = itemsModel.length ? '' : 'as24-autocomplete__list--empty';
   var df = document.createDocumentFragment();
   (itemsModel.length
       ? itemsModel.map(renderLI)
       : [renderEmptyListItem(emptyMessage)]
   ).forEach(appendTo(df));
-  list.classList.add(listClassName);
+  list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
   appendTo(list)(df);
   showList(list);
 };

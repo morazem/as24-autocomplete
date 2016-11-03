@@ -58,10 +58,9 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
 var renderList = function renderList(emptyMessage, list) {
   return function (itemsModel) {
     list.innerHTML = '';
-    var listClassName = itemsModel.length ? '' : 'as24-autocomplete__list--empty';
     var df = document.createDocumentFragment();
     (itemsModel.length ? itemsModel.map(renderLI) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
-    list.classList.add(listClassName);
+    list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
     appendTo(list)(df);
     showList(list);
   };
@@ -159,7 +158,6 @@ var input = function () {
   }
 };
 
-var elementsCache = {};
 var itemsCache = {};
 
 var extractKeyValues = function extractKeyValues(root) {
@@ -178,20 +176,19 @@ var valuePredicate = function valuePredicate(queryString) {
 };
 
 function fetchItems(queryString) {
-  var thisID = this.id;
+  var root = this;
+  var thisID = root.id;
   return new Promise(function (res) {
-    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(elementsCache[thisID]);
+    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
     res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID]);
   });
 }
 
 function elementAttached$1() {
   itemsCache[this.id] = null;
-  elementsCache[this.id] = this;
 }
 
 function elementDetached$1() {
-  elementsCache[this.id] = null;
   itemsCache[this.id] = null;
 }
 
