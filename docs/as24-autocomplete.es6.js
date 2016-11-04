@@ -12,12 +12,14 @@ var appendTo = function appendTo(target) {
 };
 
 var showList = function showList(list) {
-  return list.classList.add('as24-autocomplete__list--visible');
+  list.classList.add('as24-autocomplete__list--visible');
+  return false;
 };
 
 var hideList = function hideList(list) {
   return function (e) {
-    return list.classList.remove('as24-autocomplete__list--visible');
+    list.classList.remove('as24-autocomplete__list--visible');
+    return false;
   };
 };
 
@@ -82,30 +84,57 @@ var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
   };
 };
 
+/**
+ *
+ * @param {HTMLElement} list
+ * @param {HTMLElement} selected
+ */
+var followSelectedItem = function followSelectedItem(dir, list, selected) {
+  var listHeight = list.getBoundingClientRect().height;
+  var selectedTop = selected.offsetTop;
+  var selectedHeight = selected.offsetHeight;
+  var scrollDist = dir === 1 ? -1 * (listHeight - (selectedTop + selectedHeight)) : selectedTop;
+  if (dir === 1 && scrollDist > 0) {
+    list.scrollTop = scrollDist;
+  }
+  if (dir === -1 && selectedTop < listHeight) {
+    list.scrollTop = scrollDist;
+  }
+};
+
 var moveSelection = function moveSelection(dir, list) {
   var next = dir === 1 ? 'nextSibling' : 'previousSibling';
   var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
   var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  nextActiveItem.scrollIntoView();
+  followSelectedItem(dir, list, nextActiveItem);
+  return false;
 };
 
 var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
   return function (e) {
-    switch (e.which) {
-      case 38:
+    if (e.target === labelInput) {
+      if ([38, 40, 27].indexOf(e.which) >= 0) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      if (e.which === 38) {
         return moveSelection(-1, list);
-      case 40:
+      }
+      if (e.which === 40) {
         return isListVisible(list) ? moveSelection(1, list) : showList(list);
-      case 27:
+      }
+      if (e.which === 27) {
         return hideList(list)();
+      }
     }
   };
 };
 
 var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage) {
   return function (e) {
+    e.stopPropagation();
     if (e.which === 13) {
       selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
       hideList(list)();
@@ -133,7 +162,8 @@ function elementAttached() {
   on('focus', fetchListCallback, labelInput);
   on('click', onItemClicked(valueInput, labelInput, list), list);
   on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
+  // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
+  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
 }
 
 function elementDetached() {}
