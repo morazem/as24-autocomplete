@@ -15,7 +15,7 @@ as24-autocomplete {
   }
 
   &__list {
-    position: absolute;
+    box-sizing: border-box;
     background: $white;
     display: none;
     list-style: none;
