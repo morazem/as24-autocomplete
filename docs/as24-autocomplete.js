@@ -35,12 +35,16 @@ var isListVisible = function isListVisible(list) {
  * @param {{key: string, value: string}} item
  * @returns {HTMLElement} {Element}
  */
-var renderLI = function renderLI(item) {
-  var li = document.createElement('li');
-  li.classList.add('as24-autocomplete__list-item');
-  li.key = item.key;
-  li.innerText = item.value;
-  return li;
+var renderLI = function renderLI(searchInput) {
+  return function (item) {
+    var li = document.createElement('li');
+    var searchValue = searchInput;
+    var resultValue = item.value.replace(new RegExp('^' + searchValue, 'i'), "");
+    li.classList.add('as24-autocomplete__list-item');
+    li.key = item.key;
+    li.innerHTML = searchInput.length ? searchValue + "<b>" + resultValue + "</b>" : resultValue;
+    return li;
+  };
 };
 
 var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
@@ -57,11 +61,11 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * @param {HTMLElement} list
  * @returns {Function}
  */
-var renderList = function renderList(emptyMessage, list) {
+var renderList = function renderList(emptyMessage, list, labelInput) {
   return function (itemsModel) {
     list.innerHTML = '';
     var df = document.createDocumentFragment();
-    (itemsModel.length ? itemsModel.map(renderLI) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+    (itemsModel.length ? itemsModel.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
     list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
     appendTo(list)(df);
     showList(list);
@@ -71,7 +75,7 @@ var renderList = function renderList(emptyMessage, list) {
 var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage) {
   return function (e) {
     e.stopPropagation();
-    dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list));
+    dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
   };
 };
 

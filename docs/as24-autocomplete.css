@@ -300,7 +300,6 @@ as24-autocomplete {
   box-sizing: border-box; }
 
 .as24-autocomplete__list {
-  /*position: absolute;*/
   box-sizing: border-box;
   background: #fff;
   display: none;
