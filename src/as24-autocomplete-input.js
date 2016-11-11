@@ -17,11 +17,15 @@ const isListVisible = list =>
  * @param {{key: string, value: string}} item
  * @returns {HTMLElement} {Element}
  */
-const renderLI = item => {
+const renderLI = searchInput => item => {
   var li = document.createElement('li');
+  var searchValue = searchInput;
+  var resultValue = item.value.replace( new RegExp('^' + searchValue, 'gi'), "");
   li.classList.add('as24-autocomplete__list-item');
   li.key = item.key;
-  li.innerText = item.value;
+  (li.innerHTML = searchInput.length
+    ? searchValue + "<b>" + resultValue + "</b>"
+    : resultValue);
   return li;
 };
 
@@ -39,11 +43,11 @@ const renderEmptyListItem = (emptyMessage) => {
  * @param {HTMLElement} list
  * @returns {Function}
  */
-const renderList = (emptyMessage, list) => itemsModel => {
+const renderList = (emptyMessage, list, labelInput) => itemsModel => {
   list.innerHTML = '';
   var df = document.createDocumentFragment();
   (itemsModel.length
-      ? itemsModel.map(renderLI)
+      ? itemsModel.map(renderLI(labelInput.value))
       : [renderEmptyListItem(emptyMessage)]
   ).forEach(appendTo(df));
   list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
@@ -53,7 +57,7 @@ const renderList = (emptyMessage, list) => itemsModel => {
 
 const fetchList = (dataSource, labelInput, list, emptyMessage) => e => {
   e.stopPropagation();
-  dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list));
+  dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
 };
 
 const selectItem = (valueInput, labelInput, li) => {
