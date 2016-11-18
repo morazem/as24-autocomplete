@@ -7,6 +7,7 @@ const appendTo = target => child => { target.appendChild(child); return target }
 
 const showList = list => {
   list.classList.add('as24-autocomplete__list--visible');
+  moveSelection(1, list);
   return false;
 };
 
@@ -81,19 +82,12 @@ const onItemClicked = (valueInput, labelInput, list) => e => {
  * @param {HTMLElement} list
  * @param {HTMLElement} selected
  */
-const followSelectedItem = (dir, list, selected) => {
+const followSelectedItem = (list, selected) => {
   const listHeight = list.getBoundingClientRect().height;
   const selectedTop = selected.offsetTop;
   const selectedHeight = selected.offsetHeight;
-  let scrollDist = dir === 1
-    ? -1 * (listHeight - (selectedTop + selectedHeight))
-    : selectedTop;
-  if (dir === 1 && scrollDist > 0) {
-    list.scrollTop = scrollDist;
-  }
-  if (dir === -1 && selectedTop < listHeight) {
-    list.scrollTop = scrollDist;
-  }
+  const scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
+  list.scrollTop = scrollDist;
 };
 
 
@@ -107,7 +101,7 @@ const moveSelection = (dir, list) => {
       : currActiveItem;
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  followSelectedItem(dir, list, nextActiveItem);
+  followSelectedItem(list, nextActiveItem);
   return false;
 };
 
@@ -154,7 +148,7 @@ function elementAttached() {
   var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
   on('click', hideList(list), document);
   on('click', fetchListCallback, labelInput);
-  on('focus', fetchListCallback, labelInput);
+  // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed'
   on('click', onItemClicked(valueInput, labelInput, list), list);
   on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
   // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);

@@ -13,6 +13,7 @@ var appendTo = function appendTo(target) {
 
 var showList = function showList(list) {
   list.classList.add('as24-autocomplete__list--visible');
+  moveSelection(1, list);
   return false;
 };
 
@@ -36,7 +37,7 @@ var renderLI = function renderLI(searchInput) {
   return function (item) {
     var li = document.createElement('li');
     var searchValue = searchInput;
-    var resultValue = item.value.replace(new RegExp('^' + searchValue, 'i'), "");
+    var resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), "");
     li.classList.add('as24-autocomplete__list-item');
     li.key = item.key;
     li.innerHTML = searchInput.length ? searchValue + "<b>" + resultValue + "</b>" : resultValue;
@@ -93,17 +94,12 @@ var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
  * @param {HTMLElement} list
  * @param {HTMLElement} selected
  */
-var followSelectedItem = function followSelectedItem(dir, list, selected) {
+var followSelectedItem = function followSelectedItem(list, selected) {
   var listHeight = list.getBoundingClientRect().height;
   var selectedTop = selected.offsetTop;
   var selectedHeight = selected.offsetHeight;
-  var scrollDist = dir === 1 ? -1 * (listHeight - (selectedTop + selectedHeight)) : selectedTop;
-  if (dir === 1 && scrollDist > 0) {
-    list.scrollTop = scrollDist;
-  }
-  if (dir === -1 && selectedTop < listHeight) {
-    list.scrollTop = scrollDist;
-  }
+  var scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
+  list.scrollTop = scrollDist;
 };
 
 var moveSelection = function moveSelection(dir, list) {
@@ -112,7 +108,7 @@ var moveSelection = function moveSelection(dir, list) {
   var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
   currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  followSelectedItem(dir, list, nextActiveItem);
+  followSelectedItem(list, nextActiveItem);
   return false;
 };
 
@@ -163,7 +159,7 @@ function elementAttached() {
   var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
   on('click', hideList(list), document);
   on('click', fetchListCallback, labelInput);
-  on('focus', fetchListCallback, labelInput);
+  // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed'
   on('click', onItemClicked(valueInput, labelInput, list), list);
   on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
   // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
