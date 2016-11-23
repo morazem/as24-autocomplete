@@ -10,6 +10,11 @@ as24-autocomplete {
 
   &__input {
     box-sizing: border-box;
+    
+    &:focus:enabled {
+      box-shadow: none;
+    }
+
     @include input();
     @extend %customInputStyles;
   }
@@ -43,11 +48,7 @@ as24-autocomplete {
   &__list-item {
     padding: $XS $M;
 
-    &:focus {
-      background: $black-20;
-    }
-
-    &--selected:focus,
+    &:hover,
     &--selected {
       background: $black-30;
     }
