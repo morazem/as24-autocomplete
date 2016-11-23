@@ -307,19 +307,21 @@ as24-autocomplete {
   margin: 0;
   padding: 0;
   border: solid 1px #acacac;
+  border-top-width: 0px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   max-height: 12rem;
   z-index: 1;
   width: 100%; }
   .as24-autocomplete__list--visible {
-    display: block; }
+    display: block;
+    margin-top: -3px; }
   .as24-autocomplete__list--empty {
     color: red; }
 
 .as24-autocomplete__list-item {
   padding: 4px 12px; }
-  .as24-autocomplete__list-item:hover {
+  .as24-autocomplete__list-item:focus {
     background: #f4f4f4; }
-  .as24-autocomplete__list-item--selected:hover, .as24-autocomplete__list-item--selected {
+  .as24-autocomplete__list-item--selected:focus, .as24-autocomplete__list-item--selected {
     background: #dcdcdc; }

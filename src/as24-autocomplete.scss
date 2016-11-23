@@ -22,6 +22,7 @@ as24-autocomplete {
     margin: 0;
     padding: 0;
     border: solid 1px $black-50;
+    border-top-width: 0px;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     max-height: 12rem;
@@ -30,6 +31,7 @@ as24-autocomplete {
 
     &--visible {
       display: block;
+      margin-top: -3px;
     }
 
     &--empty {
@@ -41,11 +43,11 @@ as24-autocomplete {
   &__list-item {
     padding: $XS $M;
 
-    &:hover {
+    &:focus {
       background: $black-20;
     }
 
-    &--selected:hover,
+    &--selected:focus,
     &--selected {
       background: $black-30;
     }
