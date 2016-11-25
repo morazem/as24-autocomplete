@@ -26,7 +26,6 @@ const isListVisible = list =>
  */
 const renderLI = (searchInput, list) => item => {
   var li = document.createElement('li');
-  on('mouseenter', onItemMouseOver(list), li);
   var searchValue = searchInput;
   var resultValue = item.value.replace( new RegExp('^' + searchValue, 'gi'), "");
   li.classList.add('as24-autocomplete__list-item');
@@ -91,10 +90,13 @@ const followSelectedItem = (list, selected) => {
   list.scrollTop = scrollDist;
 };
 
-const onItemMouseOver = (list) => e => {
+var x = false;
+
+const onItemMouseOver = list => e => {
+  if (x) { return; }
   var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
   var mouseOverElement = e.target;
-  console.log(currActiveItem);
+  console.log('fire');
   currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
   mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
 }
@@ -114,6 +116,15 @@ const moveSelection = (dir, list) => {
 };
 
 const onKeyDown = (dataSource, valueInput, labelInput, list) => e => {
+  if (!x) {
+    x = true;
+    const listener = e => {
+      x = false;
+      list.removeEventListener('mousemove', listener);
+    };
+    list.addEventListener('mousemove', listener);
+  }
+
   if (e.target === labelInput) {
     if ([38, 40, 27].indexOf(e.which) >= 0) {
       e.stopPropagation();
@@ -162,7 +173,7 @@ function elementAttached() {
   on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
   // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
   on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
-  // on('mouseenter', onItemMouseOver(valueInput, labelInput, list), item);
+  on('mouseover', onItemMouseOver(list), list);
 }
 
 function elementDetached() {}
