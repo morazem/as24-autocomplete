@@ -102,16 +102,15 @@ var followSelectedItem = function followSelectedItem(list, selected) {
   list.scrollTop = scrollDist;
 };
 
-var x = false;
+var mouseDisabled = false;
 
-var onItemMouseOver = function onItemMouseOver(list) {
+var onItemMouseOver = function onItemMouseOver(list, mouseDisabled) {
   return function (e) {
-    if (x) {
+    if (mouseDisabled) {
       return;
     }
     var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
     var mouseOverElement = e.target;
-    console.log('fire');
     currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
     mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
   };
@@ -129,14 +128,14 @@ var moveSelection = function moveSelection(dir, list) {
 
 var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
   return function (e) {
-    if (!x) {
+    if (!mouseDisabled) {
       (function () {
-        x = true;
+        mouseDisabled = true;
         var listener = function listener(e) {
-          x = false;
+          mouseDisabled = false;
           list.removeEventListener('mousemove', listener);
         };
-        list.addEventListener('mousemove', listener);
+        on('mousemove', listener, list);
       })();
     }
 
@@ -181,7 +180,6 @@ function elementAttached() {
   var labelInput = $('[type=text]', this);
   var valueInput = $('[type=hidden]', this);
   var list = $('.as24-autocomplete__list', this);
-  // var item = $('.as24-autocomplete__list-item', this);
   var dataSource = $('#' + dataSourceName, document);
   var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
   on('click', hideList(list), document);
@@ -189,7 +187,6 @@ function elementAttached() {
   // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
   on('click', onItemClicked(valueInput, labelInput, list), list);
   on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-  // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
   on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
   on('mouseover', onItemMouseOver(list), list);
 }
