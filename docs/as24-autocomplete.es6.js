@@ -1,31 +1,31 @@
 var $ = function $(selector, root) {
-  return root.querySelector(selector);
+    return root.querySelector(selector);
 };
 var on = function on(event, cb, el) {
-  return el.addEventListener(event, cb);
+    return el.addEventListener(event, cb);
 };
 
 var appendTo = function appendTo(target) {
-  return function (child) {
-    target.appendChild(child);return target;
-  };
+    return function (child) {
+        target.appendChild(child);return target;
+    };
 };
 
 var showList = function showList(list) {
-  list.classList.add('as24-autocomplete__list--visible');
-  moveSelection(1, list);
-  return false;
+    list.classList.add('as24-autocomplete__list--visible');
+    moveSelection(1, list);
+    return false;
 };
 
 var hideList = function hideList(list) {
-  return function (e) {
-    list.classList.remove('as24-autocomplete__list--visible');
-    return false;
-  };
+    return function (e) {
+        list.classList.remove('as24-autocomplete__list--visible');
+        return false;
+    };
 };
 
 var isListVisible = function isListVisible(list) {
-  return list.classList.contains('as24-autocomplete__list--visible');
+    return list.classList.contains('as24-autocomplete__list--visible');
 };
 
 /**
@@ -33,24 +33,24 @@ var isListVisible = function isListVisible(list) {
  * @param {{key: string, value: string}} item
  * @returns {HTMLElement} {Element}
  */
-var renderLI = function renderLI(searchInput, list) {
-  return function (item) {
-    var li = document.createElement('li');
-    var searchValue = searchInput;
-    var resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), "");
-    li.classList.add('as24-autocomplete__list-item');
-    li.key = item.key;
-    li.innerHTML = searchInput.length ? searchValue + "<b>" + resultValue + "</b>" : resultValue;
-    return li;
-  };
+var renderLI = function renderLI(searchInput) {
+    return function (item) {
+        var li = document.createElement('li');
+        var searchValue = searchInput;
+        var resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
+        li.classList.add('as24-autocomplete__list-item');
+        li.key = item.key;
+        li.innerHTML = searchInput.length ? searchValue + '<b>' + resultValue + '</b>' : resultValue;
+        return li;
+    };
 };
 
 var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
-  var li = document.createElement('li');
-  li.classList.add('as24-autocomplete__list-item');
-  li.key = '';
-  li.innerText = emptyMessage;
-  return li;
+    var li = document.createElement('li');
+    li.classList.add('as24-autocomplete__list-item');
+    li.key = '';
+    li.innerText = emptyMessage;
+    return li;
 };
 
 /**
@@ -60,33 +60,33 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * @returns {Function}
  */
 var renderList = function renderList(emptyMessage, list, labelInput) {
-  return function (itemsModel) {
-    list.innerHTML = '';
-    var df = document.createDocumentFragment();
-    (itemsModel.length ? itemsModel.map(renderLI(labelInput.value, list)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
-    list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
-    appendTo(list)(df);
-    showList(list);
-  };
+    return function (itemsModel) {
+        list.innerHTML = '';
+        var df = document.createDocumentFragment();
+        (itemsModel.length ? itemsModel.map(renderLI(labelInput.value, list)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+        list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
+        appendTo(list)(df);
+        showList(list);
+    };
 };
 
 var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage) {
-  return function (e) {
-    e.stopPropagation();
-    dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
-  };
+    return function (e) {
+        e.stopPropagation();
+        dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
+    };
 };
 
 var selectItem = function selectItem(valueInput, labelInput, li) {
-  valueInput.value = li.key;
-  labelInput.value = li.innerText;
+    valueInput.value = li.key;
+    labelInput.value = li.innerText;
 };
 
 var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
-  return function (e) {
-    selectItem(valueInput, labelInput, e.target);
-    hideList(list)(e);
-  };
+    return function (e) {
+        selectItem(valueInput, labelInput, e.target);
+        hideList(list)(e);
+    };
 };
 
 /**
@@ -95,172 +95,172 @@ var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
  * @param {HTMLElement} selected
  */
 var followSelectedItem = function followSelectedItem(list, selected) {
-  var listHeight = list.getBoundingClientRect().height;
-  var selectedTop = selected.offsetTop;
-  var selectedHeight = selected.offsetHeight;
-  var scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
-  list.scrollTop = scrollDist;
+    var listHeight = list.getBoundingClientRect().height;
+    var selectedTop = selected.offsetTop;
+    var selectedHeight = selected.offsetHeight;
+    var scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
+    list.scrollTop = scrollDist;
 };
 
-var mouseDisabled = false;
+var x = false;
 
-var onItemMouseOver = function onItemMouseOver(list, mouseDisabled) {
-  return function (e) {
-    if (mouseDisabled) {
-      return;
-    }
-    var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-    var mouseOverElement = e.target;
-    console.log('fire');
-    currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
-  };
+var onItemMouseOver = function onItemMouseOver(list) {
+    return function (e) {
+        if (x) {
+            return;
+        }
+        var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+        var mouseOverElement = e.target;
+        console.log('fire');
+        currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+        mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
+    };
 };
 
 var moveSelection = function moveSelection(dir, list) {
-  var next = dir === 1 ? 'nextSibling' : 'previousSibling';
-  var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-  var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
-  currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-  nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  followSelectedItem(list, nextActiveItem);
-  return false;
+    var next = dir === 1 ? 'nextSibling' : 'previousSibling';
+    var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+    var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
+    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+    followSelectedItem(list, nextActiveItem);
+    return false;
 };
 
 var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
-  return function (e) {
-    if (!mouseDisabled) {
-      (function () {
-        mouseDisabled = true;
-        var listener = function listener(e) {
-          mouseDisabled = false;
-          list.removeEventListener('mousemove', listener);
-        };
-        on('mousemove', listener, list);
-      })();
-    }
+    return function (e) {
+        if (!x) {
+            (function () {
+                x = true;
+                var listener = function listener(e) {
+                    x = false;
+                    list.removeEventListener('mousemove', listener);
+                };
+                list.addEventListener('mousemove', listener);
+            })();
+        }
 
-    if (e.target === labelInput) {
-      if ([38, 40, 27].indexOf(e.which) >= 0) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-      if (e.which === 38) {
-        return moveSelection(-1, list);
-      }
-      if (e.which === 40) {
-        return isListVisible(list) ? moveSelection(1, list) : showList(list);
-      }
-      if (e.which === 27) {
-        return hideList(list)();
-      }
-    }
-  };
+        if (e.target === labelInput) {
+            if ([38, 40, 27].indexOf(e.which) >= 0) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            if (e.which === 38) {
+                return moveSelection(-1, list);
+            }
+            if (e.which === 40) {
+                return isListVisible(list) ? moveSelection(1, list) : showList(list);
+            }
+            if (e.which === 27) {
+                return hideList(list)();
+            }
+        }
+    };
 };
 
 var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage) {
-  return function (e) {
-    e.stopPropagation();
-    if (e.which === 13) {
-      selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-      hideList(list)();
-      return;
-    }
-    if ([38, 40, 27].indexOf(e.which) === -1) {
-      return fetchList(dataSource, labelInput, list, emptyListMessage)(e);
-    }
-  };
+    return function (e) {
+        e.stopPropagation();
+        if (e.which === 13) {
+            selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+            hideList(list)();
+            return;
+        }
+        if ([38, 40, 27].indexOf(e.which) === -1) {
+            return fetchList(dataSource, labelInput, list, emptyListMessage)(e);
+        }
+    };
 };
 
 function elementAttached() {
-  var emptyListMessage = this.getAttribute('empty-list-message') || "---";
-  var dataSourceName = this.getAttribute('data-source');
-  if (!dataSourceName) {
-    throw "The data source is missing";
-  }
-  var labelInput = $('[type=text]', this);
-  var valueInput = $('[type=hidden]', this);
-  var list = $('.as24-autocomplete__list', this);
-  // var item = $('.as24-autocomplete__list-item', this);
-  var dataSource = $('#' + dataSourceName, document);
-  var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
-  on('click', hideList(list), document);
-  on('click', fetchListCallback, labelInput);
-  // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
-  on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-  // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
-  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
-  on('mouseover', onItemMouseOver(list), list);
+    var emptyListMessage = this.getAttribute('empty-list-message') || "---";
+    var dataSourceName = this.getAttribute('data-source');
+    if (!dataSourceName) {
+        throw "The data source is missing";
+    }
+    var labelInput = $('[type=text]', this);
+    var valueInput = $('[type=hidden]', this);
+    var list = $('.as24-autocomplete__list', this);
+    // var item = $('.as24-autocomplete__list-item', this);
+    var dataSource = $('#' + dataSourceName, document);
+    var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
+    on('click', hideList(list), document);
+    on('click', fetchListCallback, labelInput);
+    // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
+    on('click', onItemClicked(valueInput, labelInput, list), list);
+    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
+    // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
+    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
+    on('mouseover', onItemMouseOver(list), list);
 }
 
 function elementDetached() {}
 
 var input = function () {
-  try {
-    return document.registerElement('as24-autocomplete', {
-      prototype: Object.assign(Object.create(HTMLElement.prototype, {
-        attachedCallback: { value: elementAttached },
-        detachedCallback: { value: elementDetached },
-        attributeChangedCallback: { value: function value() {} }
-      }))
-    });
-  } catch (e) {
-    if (window && window.console) {
-      window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
-      return null;
+    try {
+        return document.registerElement('as24-autocomplete', {
+            prototype: Object.assign(Object.create(HTMLElement.prototype, {
+                attachedCallback: { value: elementAttached },
+                detachedCallback: { value: elementDetached },
+                attributeChangedCallback: { value: function value() {} }
+            }))
+        });
+    } catch (e) {
+        if (window && window.console) {
+            window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
+            return null;
+        }
     }
-  }
 };
 
 var itemsCache = {};
 
 var extractKeyValues = function extractKeyValues(root) {
-  return Array.prototype.slice.call(root.querySelectorAll('item')).map(function (tag) {
-    return {
-      key: tag.getAttribute('key'),
-      value: tag.getAttribute('value')
-    };
-  });
+    return Array.prototype.slice.call(root.querySelectorAll('item')).map(function (tag) {
+        return {
+            key: tag.getAttribute('key'),
+            value: tag.getAttribute('value')
+        };
+    });
 };
 
 var valuePredicate = function valuePredicate(queryString) {
-  return function (item) {
-    return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
-  };
+    return function (item) {
+        return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+    };
 };
 
 function fetchItems(queryString) {
-  var root = this;
-  var thisID = root.id;
-  return new Promise(function (res) {
-    itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
-    res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID]);
-  });
+    var root = this;
+    var thisID = root.id;
+    return new Promise(function (res) {
+        itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
+        res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID]);
+    });
 }
 
 function elementAttached$1() {
-  itemsCache[this.id] = null;
+    itemsCache[this.id] = null;
 }
 
 function elementDetached$1() {
-  itemsCache[this.id] = null;
+    itemsCache[this.id] = null;
 }
 
 var tagsDataSource = function () {
-  try {
-    return document.registerElement('as24-tags-data-source', {
-      prototype: Object.assign(Object.create(HTMLElement.prototype, {
-        attachedCallback: { value: elementAttached$1 },
-        detachedCallback: { value: elementDetached$1 },
-        attributeChangedCallback: { value: function value() {} }
-      }), {
-        fetchItems: fetchItems
-      })
-    });
-  } catch (e) {
-    return null;
-  }
+    try {
+        return document.registerElement('as24-tags-data-source', {
+            prototype: Object.assign(Object.create(HTMLElement.prototype, {
+                attachedCallback: { value: elementAttached$1 },
+                detachedCallback: { value: elementDetached$1 },
+                attributeChangedCallback: { value: function value() {} }
+            }), {
+                fetchItems: fetchItems
+            })
+        });
+    } catch (e) {
+        return null;
+    }
 };
 
 var as24Autocomplete = (function init() {

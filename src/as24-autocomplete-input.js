@@ -90,15 +90,16 @@ const followSelectedItem = (list, selected) => {
     list.scrollTop = scrollDist;
 };
 
-var mouseDisabled = false;
+var x = false;
 
-const onItemMouseOver = (list, mouseDisabled) => e => {
-    if (mouseDisabled) { return; }
-    var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-    var mouseOverElement = e.target;
-    currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
-};
+const onItemMouseOver = list => e => {
+  if (x) { return; }
+  var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+  var mouseOverElement = e.target;
+  console.log('fire');
+  currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+  mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
+}
 
 const moveSelection = (dir, list) => {
     var next = dir === 1 ? 'nextSibling' : 'previousSibling';
@@ -115,14 +116,14 @@ const moveSelection = (dir, list) => {
 };
 
 const onKeyDown = (dataSource, valueInput, labelInput, list) => e => {
-    if (!mouseDisabled) {
-        mouseDisabled = true;
-        const listener = e => {
-            mouseDisabled = false;
-            list.removeEventListener('mousemove', listener);
-        };
-        on('mousemove', listener, list);
-    }
+  if (!x) {
+    x = true;
+    const listener = e => {
+      x = false;
+      list.removeEventListener('mousemove', listener);
+    };
+    list.addEventListener('mousemove', listener);
+  }
 
     if (e.target === labelInput) {
         if ([38, 40, 27].indexOf(e.which) >= 0) {
@@ -154,23 +155,25 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage) => 
 };
 
 function elementAttached() {
-    var emptyListMessage = this.getAttribute('empty-list-message') || '---';
-    var dataSourceName = this.getAttribute('data-source');
-    if (!dataSourceName) {
-        throw 'The data source is missing';
-    }
-    var labelInput = $('[type=text]', this);
-    var valueInput = $('[type=hidden]', this);
-    var list = $('.as24-autocomplete__list', this);
-    var dataSource = $('#' + dataSourceName, document);
-    var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
-    on('click', hideList(list), document);
-    on('click', fetchListCallback, labelInput);
-    // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
-    on('click', onItemClicked(valueInput, labelInput, list), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
-    on('mouseover', onItemMouseOver(list), list);
+  var emptyListMessage = this.getAttribute('empty-list-message') || "---";
+  var dataSourceName = this.getAttribute('data-source');
+  if (!dataSourceName) {
+    throw "The data source is missing";
+  }
+  var labelInput = $('[type=text]', this);
+  var valueInput = $('[type=hidden]', this);
+  var list = $('.as24-autocomplete__list', this);
+  // var item = $('.as24-autocomplete__list-item', this);
+  var dataSource = $('#' + dataSourceName, document);
+  var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
+  on('click', hideList(list), document);
+  on('click', fetchListCallback, labelInput);
+  // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
+  on('click', onItemClicked(valueInput, labelInput, list), list);
+  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
+  // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
+  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
+  on('mouseover', onItemMouseOver(list), list);
 }
 
 function elementDetached() {}
