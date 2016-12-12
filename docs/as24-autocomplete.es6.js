@@ -1,29 +1,62 @@
+/**
+ * Selects an element using the root element.
+ * @param {string} selector
+ * @param {Element} root
+ */
+
 var $ = function $(selector, root) {
     return root.querySelector(selector);
 };
+
+/**
+ * Binds an event listener on the element
+ * @param event
+ * @param cb
+ * @param el
+ */
 var on = function on(event, cb, el) {
     return el.addEventListener(event, cb);
 };
 
+/**
+ * Appends a child element to a target element
+ * @param target
+ */
 var appendTo = function appendTo(target) {
     return function (child) {
-        target.appendChild(child);return target;
+        target.appendChild(child);
+        return target;
     };
 };
 
+/**
+ * Shows the suggestions list
+ * @param {Element} list
+ * @return {boolean}
+ */
 var showList = function showList(list) {
     list.classList.add('as24-autocomplete__list--visible');
     moveSelection(1, list);
     return false;
 };
 
-var hideList = function hideList(list) {
+/**
+ * Hides the list and deactivates the root elment
+ * @param {Element} list
+ * @param {Element} rootElement
+ */
+var hideList = function hideList(list, rootElement) {
     return function (e) {
+        rootElement.classList.remove('as24-autocomplete--active');
         list.classList.remove('as24-autocomplete__list--visible');
         return false;
     };
 };
 
+/**
+ * Checks whether the list is visisible
+ * @param {Element} list
+ */
 var isListVisible = function isListVisible(list) {
     return list.classList.contains('as24-autocomplete__list--visible');
 };
@@ -31,6 +64,7 @@ var isListVisible = function isListVisible(list) {
 /**
  * Renders a li item for the suggestions list
  * @param {{key: string, value: string}} item
+ * @param {string} searchInput
  * @returns {HTMLElement} {Element}
  */
 var renderLI = function renderLI(searchInput) {
@@ -45,6 +79,11 @@ var renderLI = function renderLI(searchInput) {
     };
 };
 
+/**
+ * What to render when there is nothing to suggest
+ * @param {String} emptyMessage
+ * @return {Element}
+ */
 var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
     var li = document.createElement('li');
     li.classList.add('as24-autocomplete__list-item');
@@ -57,6 +96,7 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
  * @param {HTMLElement} list
+ * @param {Element} labelInput
  * @returns {Function}
  */
 var renderList = function renderList(emptyMessage, list, labelInput) {
@@ -70,22 +110,44 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
     };
 };
 
-var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage) {
+/**
+ * Fetch data according to user input and renders the list
+ * @param {Element} dataSource
+ * @param {HTMLInputElement} labelInput
+ * @param {Element} list
+ * @param {String} emptyMessage
+ * @param {Element} rootElement
+ */
+var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, rootElement) {
     return function (e) {
         e.stopPropagation();
+        rootElement.classList.add('as24-autocomplete--active');
         dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
     };
 };
 
+/**
+ * This is what happens after the user selected an item
+ * @param valueInput
+ * @param labelInput
+ * @param li
+ */
 var selectItem = function selectItem(valueInput, labelInput, li) {
     valueInput.value = li.key;
     labelInput.value = li.innerText;
 };
 
-var onItemClicked = function onItemClicked(valueInput, labelInput, list) {
+/**
+ * This is what happens then user clicked in the suggestion item
+ * @param valueInput
+ * @param labelInput
+ * @param list
+ * @param rootElement
+ */
+var onItemClicked = function onItemClicked(valueInput, labelInput, list, rootElement) {
     return function (e) {
         selectItem(valueInput, labelInput, e.target);
-        hideList(list)(e);
+        hideList(list, rootElement)(e);
     };
 };
 
@@ -98,25 +160,28 @@ var followSelectedItem = function followSelectedItem(list, selected) {
     var listHeight = list.getBoundingClientRect().height;
     var selectedTop = selected.offsetTop;
     var selectedHeight = selected.offsetHeight;
-    var scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
-    list.scrollTop = scrollDist;
+    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
 };
 
-var x = false;
-
+/**
+ * When mouse goes over the suggestion item
+ * @param list
+ */
 var onItemMouseOver = function onItemMouseOver(list) {
     return function (e) {
-        if (x) {
-            return;
-        }
         var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
         var mouseOverElement = e.target;
-        console.log('fire');
         currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
         mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
     };
 };
 
+/**
+ * Selected next/prev suggestion item
+ * @param {number} dir
+ * @param {Element} list
+ * @return {boolean}
+ */
 var moveSelection = function moveSelection(dir, list) {
     var next = dir === 1 ? 'nextSibling' : 'previousSibling';
     var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
@@ -127,19 +192,16 @@ var moveSelection = function moveSelection(dir, list) {
     return false;
 };
 
-var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
+/**
+ * Handles key down
+ * @param dataSource
+ * @param valueInput
+ * @param labelInput
+ * @param list
+ * @param rootElement
+ */
+var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, rootElement) {
     return function (e) {
-        if (!x) {
-            (function () {
-                x = true;
-                var listener = function listener(e) {
-                    x = false;
-                    list.removeEventListener('mousemove', listener);
-                };
-                list.addEventListener('mousemove', listener);
-            })();
-        }
-
         if (e.target === labelInput) {
             if ([38, 40, 27].indexOf(e.which) >= 0) {
                 e.stopPropagation();
@@ -152,22 +214,31 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list) {
                 return isListVisible(list) ? moveSelection(1, list) : showList(list);
             }
             if (e.which === 27) {
-                return hideList(list)();
+                return hideList(list, rootElement)();
             }
         }
     };
 };
 
-var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage) {
+/**
+ * Handles key up
+ * @param dataSource
+ * @param valueInput
+ * @param labelInput
+ * @param list
+ * @param emptyListMessage
+ * @param rootElement
+ */
+var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) {
     return function (e) {
         e.stopPropagation();
         if (e.which === 13) {
             selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-            hideList(list)();
+            hideList(list, rootElement)();
             return;
         }
         if ([38, 40, 27].indexOf(e.which) === -1) {
-            return fetchList(dataSource, labelInput, list, emptyListMessage)(e);
+            return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
         }
     };
 };
@@ -181,16 +252,15 @@ function elementAttached() {
     var labelInput = $('[type=text]', this);
     var valueInput = $('[type=hidden]', this);
     var list = $('.as24-autocomplete__list', this);
-    // var item = $('.as24-autocomplete__list-item', this);
+
     var dataSource = $('#' + dataSourceName, document);
-    var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
-    on('click', hideList(list), document);
+    var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage, this);
+
+    on('click', hideList(list, this), document);
     on('click', fetchListCallback, labelInput);
-    // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed
-    on('click', onItemClicked(valueInput, labelInput, list), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-    // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
+    on('click', onItemClicked(valueInput, labelInput, list, this), list);
+    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, this), labelInput);
+    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, this), window);
     on('mouseover', onItemMouseOver(list), list);
 }
 
@@ -202,7 +272,9 @@ var input = function () {
             prototype: Object.assign(Object.create(HTMLElement.prototype, {
                 attachedCallback: { value: elementAttached },
                 detachedCallback: { value: elementDetached },
-                attributeChangedCallback: { value: function value() {} }
+                attributeChangedCallback: {
+                    value: function value() {}
+                }
             }))
         });
     } catch (e) {

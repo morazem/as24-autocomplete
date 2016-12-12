@@ -4,9 +4,20 @@
 
 as24-autocomplete {
   position: relative;
+  display: block;
 }
 
 .as24-autocomplete {
+
+  &--active {
+
+    .as24-autocomplete {
+      &__icon-wrapper {
+        transform: rotate(180deg);
+      }
+    }
+
+  }
 
   &__input {
     box-sizing: border-box;
@@ -24,6 +35,25 @@ as24-autocomplete {
     @extend %customInputStyles;
   }
 
+  &__input-wrapper {
+    position: relative;
+  }
+
+  &__icon-wrapper {
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    right: 1rem;
+    top: 50%;
+    margin-top: -.5rem;
+  }
+
+  &__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   &__list {
     box-sizing: border-box;
     background: $white;
@@ -38,10 +68,11 @@ as24-autocomplete {
     max-height: 12rem;
     z-index: 1;
     width: 100%;
+    position: relative;
+    top: -3px;
 
     &--visible {
       display: block;
-      margin-top: -3px;
     }
 
     &--empty {
