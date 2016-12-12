@@ -18,7 +18,7 @@ gulp.task('sass', () => {
 
 gulp.task('js', () => {
   return gulp.src('./src/as24-autocomplete.js')
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(rollup(
       { plugins: [ babel(babelrc()) ] },
       [
@@ -26,7 +26,7 @@ gulp.task('js', () => {
           { dest: pkg['jsnext:main'], moduleName: 'as24Autocomplete' }
       ],
     ))
-    .pipe(sourcemaps.write(''))
+    // .pipe(sourcemaps.write(''))
     .pipe(gulp.dest('dist'))
 });
 

@@ -84,9 +84,14 @@ as24-autocomplete {
   &__list-item {
     padding: $XS $M;
 
-    &--selected {
-      background: $black-20;
+    &--preselected {
+      background: $black-30;
     }
+
+    &--selected {
+      background: $orange-100;
+    }
+
   }
 
 }

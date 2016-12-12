@@ -347,5 +347,7 @@ as24-autocomplete {
 
 .as24-autocomplete__list-item {
   padding: 4px 12px; }
+  .as24-autocomplete__list-item--preselected {
+    background: #dcdcdc; }
   .as24-autocomplete__list-item--selected {
-    background: #f4f4f4; }
+    background: #ff7500; }

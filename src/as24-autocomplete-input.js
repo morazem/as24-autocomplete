@@ -1,6 +1,15 @@
 'use strict';
 
 /**
+ * Finds a closest element by class name
+ * @param className
+ */
+const closestByClassName = className => elem =>
+    elem.classList.contains(className)
+        ? elem
+        : closestByClassName(className)(elem.parentElement);
+
+/**
  * Selects an element using the root element.
  * @param {string} selector
  * @param {Element} root
@@ -9,11 +18,12 @@ const $ = (selector, root) => root.querySelector(selector);
 
 /**
  * Binds an event listener on the element
- * @param event
- * @param cb
- * @param el
+ * @param {string} event
+ * @param {Function} cb
+ * @param {Element} el
+ * @param {boolean} capturing
  */
-const on = (event, cb, el) => el.addEventListener(event, cb);
+const on = (event, cb, el, capturing = false) => el.addEventListener(event, cb, capturing);
 
 /**
  * Appends a child element to a target element
@@ -55,18 +65,17 @@ const isListVisible = list =>
 
 /**
  * Renders a li item for the suggestions list
- * @param {{key: string, value: string}} item
- * @param {string} searchInput
+ * @param {string} searchStr
  * @returns {HTMLElement} {Element}
  */
-const renderLI = searchInput => item => {
+const renderLI = searchStr => item => {
     const li = document.createElement('li');
-    const searchValue = searchInput;
+    const searchValue = searchStr;
     const resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
     li.classList.add('as24-autocomplete__list-item');
     li.key = item.key;
-    (li.innerHTML = searchInput.length
-        ? searchValue + '<b>' + resultValue + '</b>'
+    (li.innerHTML = searchStr.length
+        ? '<strong>' + searchValue + '</strong>' + resultValue
         : resultValue);
     return li;
 };
@@ -88,16 +97,18 @@ const renderEmptyListItem = emptyMessage => {
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
  * @param {HTMLElement} list
- * @param {Element} labelInput
+ * @param {HTMLInputElement} labelInput
  * @returns {Function}
  */
 const renderList = (emptyMessage, list, labelInput) => itemsModel => {
     list.innerHTML = '';
     const df = document.createDocumentFragment();
+
     (itemsModel.length
-            ? itemsModel.map(renderLI(labelInput.value, list))
-            : [renderEmptyListItem(emptyMessage)]
+        ? itemsModel.map(renderLI(labelInput.value))
+        : [renderEmptyListItem(emptyMessage)]
     ).forEach(appendTo(df));
+
     list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
     appendTo(list)(df);
     showList(list);
@@ -136,7 +147,7 @@ const selectItem = (valueInput, labelInput, li) => {
  * @param rootElement
  */
 const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
-    selectItem(valueInput, labelInput, e.target);
+    selectItem(valueInput, labelInput, closestByClassName('as24-autocomplete__list-item')(e.target));
     hideList(list, rootElement)(e);
 };
 
@@ -157,10 +168,14 @@ const followSelectedItem = (list, selected) => {
  * @param list
  */
 const onItemMouseOver = list => e => {
-    const currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-    const mouseOverElement = e.target;
-    currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
+    e.stopPropagation();
+    const preselected = $('.as24-autocomplete__list-item--preselected', list);
+    if (e.target.tagName === 'LI') {
+        if(preselected) {
+            preselected.classList.remove('as24-autocomplete__list-item--preselected');
+        }
+        e.target.classList.add('as24-autocomplete__list-item--preselected');
+    }
 };
 
 /**
@@ -231,24 +246,37 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, roo
 };
 
 function elementAttached() {
-    const emptyListMessage = this.getAttribute('empty-list-message') || "---";
-    const dataSourceName = this.getAttribute('data-source');
+    const root = this;
+    const emptyListMessage = root.getAttribute('empty-list-message') || "---";
+    const dataSourceName = root.getAttribute('data-source');
     if (!dataSourceName) {
         throw "The data source is missing";
     }
-    const labelInput = $('[type=text]', this);
-    const valueInput = $('[type=hidden]', this);
-    const list = $('.as24-autocomplete__list', this);
+    const labelInput = $('[type=text]', root);
+    const valueInput = $('[type=hidden]', root);
+    const list = $('.as24-autocomplete__list', root);
+    const arrow = $('.as24-autocomplete__icon-wrapper', root);
 
     const dataSource = $('#' + dataSourceName, document);
-    const fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage, this);
 
-    on('click', hideList(list, this), document);
-    on('click', fetchListCallback, labelInput);
-    on('click', onItemClicked(valueInput, labelInput, list, this), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, this), labelInput);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, this), window);
-    on('mouseover', onItemMouseOver(list), list);
+    if(arrow) {
+        on('click', (e) => {
+            e.stopPropagation();
+            if(isListVisible(list)) {
+                hideList(list, root)(e)
+            } else {
+                labelInput.focus();
+                fetchList(dataSource, labelInput, list, emptyListMessage, root)(e);
+            }
+        }, arrow);
+    }
+
+    on('click', hideList(list, root), document);
+    on('click', fetchList(dataSource, labelInput, list, emptyListMessage, root), labelInput);
+    on('click', onItemClicked(valueInput, labelInput, list, root), list);
+    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput);
+    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window);
+    on('mouseover', onItemMouseOver(list), list, true);
 }
 
 function elementDetached() {

@@ -1,21 +1,33 @@
 /**
+ * Finds a closest element by class name
+ * @param className
+ */
+
+var closestByClassName = function closestByClassName(className) {
+    return function (elem) {
+        return elem.classList.contains(className) ? elem : closestByClassName(className)(elem.parentElement);
+    };
+};
+
+/**
  * Selects an element using the root element.
  * @param {string} selector
  * @param {Element} root
  */
-
 var $ = function $(selector, root) {
     return root.querySelector(selector);
 };
 
 /**
  * Binds an event listener on the element
- * @param event
- * @param cb
- * @param el
+ * @param {string} event
+ * @param {Function} cb
+ * @param {Element} el
+ * @param {boolean} capturing
  */
 var on = function on(event, cb, el) {
-    return el.addEventListener(event, cb);
+    var capturing = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    return el.addEventListener(event, cb, capturing);
 };
 
 /**
@@ -63,18 +75,17 @@ var isListVisible = function isListVisible(list) {
 
 /**
  * Renders a li item for the suggestions list
- * @param {{key: string, value: string}} item
- * @param {string} searchInput
+ * @param {string} searchStr
  * @returns {HTMLElement} {Element}
  */
-var renderLI = function renderLI(searchInput) {
+var renderLI = function renderLI(searchStr) {
     return function (item) {
         var li = document.createElement('li');
-        var searchValue = searchInput;
+        var searchValue = searchStr;
         var resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
         li.classList.add('as24-autocomplete__list-item');
         li.key = item.key;
-        li.innerHTML = searchInput.length ? searchValue + '<b>' + resultValue + '</b>' : resultValue;
+        li.innerHTML = searchStr.length ? '<strong>' + searchValue + '</strong>' + resultValue : resultValue;
         return li;
     };
 };
@@ -96,14 +107,16 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
  * @param {HTMLElement} list
- * @param {Element} labelInput
+ * @param {HTMLInputElement} labelInput
  * @returns {Function}
  */
 var renderList = function renderList(emptyMessage, list, labelInput) {
     return function (itemsModel) {
         list.innerHTML = '';
         var df = document.createDocumentFragment();
-        (itemsModel.length ? itemsModel.map(renderLI(labelInput.value, list)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+
+        (itemsModel.length ? itemsModel.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+
         list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
         appendTo(list)(df);
         showList(list);
@@ -146,7 +159,7 @@ var selectItem = function selectItem(valueInput, labelInput, li) {
  */
 var onItemClicked = function onItemClicked(valueInput, labelInput, list, rootElement) {
     return function (e) {
-        selectItem(valueInput, labelInput, e.target);
+        selectItem(valueInput, labelInput, closestByClassName('as24-autocomplete__list-item')(e.target));
         hideList(list, rootElement)(e);
     };
 };
@@ -169,10 +182,14 @@ var followSelectedItem = function followSelectedItem(list, selected) {
  */
 var onItemMouseOver = function onItemMouseOver(list) {
     return function (e) {
-        var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-        var mouseOverElement = e.target;
-        currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-        mouseOverElement.classList.add('as24-autocomplete__list-item--selected');
+        e.stopPropagation();
+        var preselected = $('.as24-autocomplete__list-item--preselected', list);
+        if (e.target.tagName === 'LI') {
+            if (preselected) {
+                preselected.classList.remove('as24-autocomplete__list-item--preselected');
+            }
+            e.target.classList.add('as24-autocomplete__list-item--preselected');
+        }
     };
 };
 
@@ -244,24 +261,37 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyLi
 };
 
 function elementAttached() {
-    var emptyListMessage = this.getAttribute('empty-list-message') || "---";
-    var dataSourceName = this.getAttribute('data-source');
+    var root = this;
+    var emptyListMessage = root.getAttribute('empty-list-message') || "---";
+    var dataSourceName = root.getAttribute('data-source');
     if (!dataSourceName) {
         throw "The data source is missing";
     }
-    var labelInput = $('[type=text]', this);
-    var valueInput = $('[type=hidden]', this);
-    var list = $('.as24-autocomplete__list', this);
+    var labelInput = $('[type=text]', root);
+    var valueInput = $('[type=hidden]', root);
+    var list = $('.as24-autocomplete__list', root);
+    var arrow = $('.as24-autocomplete__icon-wrapper', root);
 
     var dataSource = $('#' + dataSourceName, document);
-    var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage, this);
 
-    on('click', hideList(list, this), document);
-    on('click', fetchListCallback, labelInput);
-    on('click', onItemClicked(valueInput, labelInput, list, this), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, this), labelInput);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, this), window);
-    on('mouseover', onItemMouseOver(list), list);
+    if (arrow) {
+        on('click', function (e) {
+            e.stopPropagation();
+            if (isListVisible(list)) {
+                hideList(list, root)(e);
+            } else {
+                labelInput.focus();
+                fetchList(dataSource, labelInput, list, emptyListMessage, root)(e);
+            }
+        }, arrow);
+    }
+
+    on('click', hideList(list, root), document);
+    on('click', fetchList(dataSource, labelInput, list, emptyListMessage, root), labelInput);
+    on('click', onItemClicked(valueInput, labelInput, list, root), list);
+    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput);
+    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window);
+    on('mouseover', onItemMouseOver(list), list, true);
 }
 
 function elementDetached() {}
@@ -342,5 +372,3 @@ var as24Autocomplete = (function init() {
 })();
 
 export default as24Autocomplete;
-
-//# sourceMappingURL=as24-autocomplete.es6.js.map
