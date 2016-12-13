@@ -1,20 +1,43 @@
 'use strict';
 
 /**
+ * @callback fetchItemsFn
+ * @param {string} userInput
+ * @return {Promise}
+ */
+
+/**
+ * @class DataSourceElement
+ * @property {fetchItemsFn} fetchItems
+ */
+
+/**
  * Finds a closest element by class name
  * @param className
+ * @returns {function}
  */
-const closestByClassName = className => elem =>
-    elem.classList.contains(className)
-        ? elem
-        : closestByClassName(className)(elem.parentElement);
+const closestByClassName = className =>
+    /**
+     * @param {HTMLElement} elem
+     * @return {HTMLElement}
+     */
+    elem =>
+        elem.classList.contains(className)
+            ? elem
+            : closestByClassName(className)(elem.parentElement);
+
+
 
 /**
  * Selects an element using the root element.
- * @param {string} selector
- * @param {Element} root
+ * @param {string} selector Specifies the selector for lookup
+ * @param {Element} root Specified within which element to perform the lookup
+ * @return {Element}
  */
-const $ = (selector, root) => root.querySelector(selector);
+const $ = (selector, root) =>
+    root.querySelector(selector);
+
+
 
 /**
  * Binds an event listener on the element
@@ -23,16 +46,27 @@ const $ = (selector, root) => root.querySelector(selector);
  * @param {Element} el
  * @param {boolean} capturing
  */
-const on = (event, cb, el, capturing = false) => el.addEventListener(event, cb, capturing);
+const on = (event, cb, el, capturing = false) =>
+    el.addEventListener(event, cb, capturing);
+
+
 
 /**
  * Appends a child element to a target element
- * @param target
+ * @param {HTMLElement|DocumentFragment} target
+ * @returns {function}
  */
-const appendTo = target => child => {
-    target.appendChild(child);
-    return target;
-};
+const appendTo = target =>
+    /**
+     * @param {HTMLElement} child
+     * @return {HTMLElement}
+     */
+    child => {
+        target.appendChild(child);
+        return target;
+    };
+
+
 
 /**
  * Shows the suggestions list
@@ -45,16 +79,20 @@ const showList = list => {
     return false;
 };
 
+
+
 /**
  * Hides the list and deactivates the root elment
  * @param {Element} list
  * @param {Element} rootElement
  */
-const hideList = (list, rootElement) => e => {
+const hideList = (list, rootElement) => () => {
     rootElement.classList.remove('as24-autocomplete--active');
     list.classList.remove('as24-autocomplete__list--visible');
     return false;
 };
+
+
 
 /**
  * Checks whether the list is visisible
@@ -63,35 +101,47 @@ const hideList = (list, rootElement) => e => {
 const isListVisible = list =>
     list.classList.contains('as24-autocomplete__list--visible');
 
+
+
 /**
  * Renders a li item for the suggestions list
  * @param {string} searchStr
- * @returns {HTMLElement} {Element}
+ * @returns {function}
  */
-const renderLI = searchStr => item => {
-    const li = document.createElement('li');
-    const searchValue = searchStr;
-    const resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
-    li.classList.add('as24-autocomplete__list-item');
-    li.key = item.key;
-    (li.innerHTML = searchStr.length
-        ? '<strong>' + searchValue + '</strong>' + resultValue
-        : resultValue);
-    return li;
-};
+const renderLI = searchStr =>
+    /**
+     * @param {{key:string, value:string}} item
+     * @return {HTMLLIElement}
+     */
+    item => {
+        const li = document.createElement('li');
+        const searchValue = searchStr;
+        const resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
+        li.classList.add('as24-autocomplete__list-item');
+        li.key = item.key;
+        (li.innerHTML = searchStr.length
+            ? '<strong>' + searchValue + '</strong>' + resultValue
+            : resultValue);
+        return li;
+    };
+
+
 
 /**
  * What to render when there is nothing to suggest
  * @param {String} emptyMessage
- * @return {Element}
+ * @returns {HTMLLIElement}
  */
 const renderEmptyListItem = emptyMessage => {
+    /** @type {HTMLLIElement} */
     const li = document.createElement('li');
     li.classList.add('as24-autocomplete__list-item');
     li.key = '';
     li.innerText = emptyMessage;
     return li;
 };
+
+
 
 /**
  * Renders a collection of raw suggestions to the list
@@ -114,19 +164,29 @@ const renderList = (emptyMessage, list, labelInput) => itemsModel => {
     showList(list);
 };
 
+
+
 /**
  * Fetch data according to user input and renders the list
- * @param {Element} dataSource
+ * @param {DataSourceElement} dataSource
  * @param {HTMLInputElement} labelInput
  * @param {Element} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
+ * @returns {function}
  */
-const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) => e => {
-    e.stopPropagation();
-    rootElement.classList.add('as24-autocomplete--active');
-    dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
-};
+const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
+    /**
+     * @param {{target:HTMLElement}} e
+     * @return {undefined}
+     */
+    e => {
+        e.stopPropagation();
+        rootElement.classList.add('as24-autocomplete--active');
+        dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
+    };
+
+
 
 /**
  * This is what happens after the user selected an item
@@ -138,6 +198,8 @@ const selectItem = (valueInput, labelInput, li) => {
     valueInput.value = li.key;
     labelInput.value = li.innerText;
 };
+
+
 
 /**
  * This is what happens then user clicked in the suggestion item
@@ -151,6 +213,8 @@ const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
     hideList(list, rootElement)(e);
 };
 
+
+
 /**
  *
  * @param {HTMLElement} list
@@ -163,20 +227,30 @@ const followSelectedItem = (list, selected) => {
     list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
 };
 
+
+
 /**
  * When mouse goes over the suggestion item
- * @param list
+ * @param {HTMLUListElement} list
+ * @return {function} a function that accepts an event
  */
-const onItemMouseOver = list => e => {
-    e.stopPropagation();
-    const preselected = $('.as24-autocomplete__list-item--preselected', list);
-    if (e.target.tagName === 'LI') {
-        if(preselected) {
-            preselected.classList.remove('as24-autocomplete__list-item--preselected');
+const onItemMouseOver = list =>
+    /**
+     * @param {{target:HTMLElement}} e
+     * @return {undefined}
+     */
+    e => {
+        e.stopPropagation();
+        const preselected = $('.as24-autocomplete__list-item--preselected', list);
+        if (e.target.tagName === 'LI') {
+            if(preselected) {
+                preselected.classList.remove('as24-autocomplete__list-item--preselected');
+            }
+            e.target.classList.add('as24-autocomplete__list-item--preselected');
         }
-        e.target.classList.add('as24-autocomplete__list-item--preselected');
-    }
-};
+    };
+
+
 
 /**
  * Selected next/prev suggestion item
@@ -197,6 +271,8 @@ const moveSelection = (dir, list) => {
     followSelectedItem(list, nextActiveItem);
     return false;
 };
+
+
 
 /**
  * Handles key down
@@ -224,6 +300,8 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, rootElement) => e =
     }
 };
 
+
+
 /**
  * Handles key up
  * @param dataSource
@@ -245,34 +323,95 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, roo
     }
 };
 
-function elementAttached() {
-    const root = this;
-    const emptyListMessage = root.getAttribute('empty-list-message') || "---";
-    const dataSourceName = root.getAttribute('data-source');
-    if (!dataSourceName) {
-        throw "The data source is missing";
+
+
+/**
+ * Handles the click on an arrow
+ * @param {Element} list
+ * @param {HTMLInputElement} labelInput
+ * @param {Function} fetchListFn
+ * @param {Element} root
+ */
+const handleArrowClick = (list, labelInput, fetchListFn, root) => e => {
+    e.stopPropagation();
+    if(isListVisible(list)) {
+        hideList(list, root)(e)
+    } else {
+        labelInput.focus();
+        fetchListFn(e);
     }
+};
+
+
+/**
+ * When the custom tag has been attached to DOM
+ * @this HTMLElement
+ */
+function elementAttached() {
+    /**
+     * The as24-autocomplete DOM element
+     * @type {HTMLElement}
+     */
+    const root = this;
+
+    /**
+     * The message about no items has been found
+     * @type {string}
+     */
+    const emptyListMessage = root.getAttribute('empty-list-message') || "---";
+
+    /**
+     * The id of the data-source element
+     * @type {string}
+     */
+    const dataSourceName = root.getAttribute('data-source');
+
+    if (!dataSourceName) {
+        throw new Error("The data source is missing");
+    }
+
+    /**
+     * The input with which the user can interract
+     * @type {HTMLInputElement}
+     */
     const labelInput = $('[type=text]', root);
+
+    /**
+     * Hidden input in which we actually set the value
+     * @type {HTMLInputElement}
+     */
     const valueInput = $('[type=hidden]', root);
+
+    /**
+     * The UL-element that represents the suggestion list
+     * @type {HTMLUListElement}
+     */
     const list = $('.as24-autocomplete__list', root);
+
+    /**
+     * The div that holds an arrow
+     * @type {HTMLDivElement}
+     */
     const arrow = $('.as24-autocomplete__icon-wrapper', root);
 
+    /**
+     * DataSource element
+     * @type {DataSourceElement}
+     */
     const dataSource = $('#' + dataSourceName, document);
 
+    /**
+     * The function that takes an Event and does call to DataSource
+     * @type {Function}
+     */
+    const fetchListFn = fetchList(dataSource, labelInput, list, emptyListMessage, root);
+
     if(arrow) {
-        on('click', (e) => {
-            e.stopPropagation();
-            if(isListVisible(list)) {
-                hideList(list, root)(e)
-            } else {
-                labelInput.focus();
-                fetchList(dataSource, labelInput, list, emptyListMessage, root)(e);
-            }
-        }, arrow);
+        on('click', handleArrowClick(list, labelInput, fetchListFn, this), arrow);
     }
 
     on('click', hideList(list, root), document);
-    on('click', fetchList(dataSource, labelInput, list, emptyListMessage, root), labelInput);
+    on('click', fetchListFn, labelInput);
     on('click', onItemClicked(valueInput, labelInput, list, root), list);
     on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput);
     on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window);
