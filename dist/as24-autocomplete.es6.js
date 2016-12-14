@@ -311,7 +311,7 @@ var moveSelection = function moveSelection(dir, list) {
  * @param {Element} rootElement
  * @return {function}
  */
-var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, rootElement) {
+var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) {
     return (
         /**
          * @function
@@ -334,7 +334,7 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, roo
                     return moveSelection(-1, list);
                 }
                 if (e.which === 40) {
-                    return isListVisible(list) ? moveSelection(1, list) : showList(list);
+                    return isListVisible(list) ? moveSelection(1, list) : fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
                 }
                 if (e.which === 27) {
                     cleanup(valueInput, labelInput, rootElement);
@@ -467,7 +467,7 @@ function elementAttached() {
      * The input with which the user can interact
      * @type {HTMLInputElement}
      */
-    var labelInput = $('[type=text]', root);
+    var userFacingInput = $('[type=text]', root);
 
     /**
      * Hidden input in which we actually set the value
@@ -503,21 +503,21 @@ function elementAttached() {
      * The function that takes an Event and does call to DataSource
      * @type {Function}
      */
-    var fetchListFn = fetchList(dataSource, labelInput, list, emptyListMessage, root);
+    var fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
 
     if (iconDropdown) {
-        on('click', handleArrowClick(list, labelInput, fetchListFn, this), iconDropdown);
+        on('click', handleArrowClick(list, userFacingInput, fetchListFn, this), iconDropdown);
     }
 
     if (iconCross) {
-        on('click', handleCrossClick(list, valueInput, labelInput, fetchListFn, this), iconCross);
+        on('click', handleCrossClick(list, valueInput, userFacingInput, fetchListFn, this), iconCross);
     }
 
     on('click', hideList(list, root), document);
-    on('click', fetchListFn, labelInput);
-    on('click', onItemClicked(valueInput, labelInput, list, root), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput, true);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window, true);
+    on('click', fetchListFn, userFacingInput);
+    on('click', onItemClicked(valueInput, userFacingInput, list, root), list);
+    on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
+    on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
 }
 
