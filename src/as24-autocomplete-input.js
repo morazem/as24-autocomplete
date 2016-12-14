@@ -1,10 +1,19 @@
 'use strict';
 
 /**
+ * @class DOMEvent
+ * @property {HTMLElement} target
+ * @property {number} which
+ * @property {function} stopPropagation
+ * @property {function} preventDefault
+ */
+
+/**
  * @callback fetchItemsFn
  * @param {string} userInput
  * @return {Promise}
  */
+
 
 /**
  * @class DataSourceElement
@@ -43,7 +52,7 @@ const $ = (selector, root) =>
  * Binds an event listener on the element
  * @param {string} event
  * @param {Function} cb
- * @param {Element} el
+ * @param {Element|Window|Document} el
  * @param {boolean} capturing
  */
 const on = (event, cb, el, capturing = false) =>
@@ -80,10 +89,18 @@ const showList = list => {
 };
 
 
+/**
+ * Finds the currently selected suggestion item
+ * @param {HTMLUListElement} list
+ */
+const getSelectedSuggestionItem = list =>
+    $('.as24-autocomplete__list-item--selected', list);
+
+
 
 /**
- * Hides the list and deactivates the root elment
- * @param {Element} list
+ * Hides the list and deactivates the root element
+ * @param {HTMLUListElement} list
  * @param {Element} rootElement
  */
 const hideList = (list, rootElement) => () => {
@@ -110,6 +127,7 @@ const isListVisible = list =>
  */
 const renderLI = searchStr =>
     /**
+     * @function
      * @param {{key:string, value:string}} item
      * @return {HTMLLIElement}
      */
@@ -118,7 +136,7 @@ const renderLI = searchStr =>
         const searchValue = searchStr;
         const resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
         li.classList.add('as24-autocomplete__list-item');
-        li.key = item.key;
+        li.dataset.key = item.key;
         (li.innerHTML = searchStr.length
             ? '<strong>' + searchValue + '</strong>' + resultValue
             : resultValue);
@@ -133,10 +151,12 @@ const renderLI = searchStr =>
  * @returns {HTMLLIElement}
  */
 const renderEmptyListItem = emptyMessage => {
-    /** @type {HTMLLIElement} */
+    /**
+     * @type {HTMLLIElement}
+     */
     const li = document.createElement('li');
     li.classList.add('as24-autocomplete__list-item');
-    li.key = '';
+    li.dataset.key = '';
     li.innerText = emptyMessage;
     return li;
 };
@@ -177,7 +197,8 @@ const renderList = (emptyMessage, list, labelInput) => itemsModel => {
  */
 const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
     /**
-     * @param {{target:HTMLElement}} e
+     * @function
+     * @param {DOMEvent} e
      * @return {undefined}
      */
     e => {
@@ -195,7 +216,7 @@ const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
  * @param li
  */
 const selectItem = (valueInput, labelInput, li) => {
-    valueInput.value = li.key;
+    valueInput.value = li.dataset.key;
     labelInput.value = li.innerText;
 };
 
@@ -203,10 +224,10 @@ const selectItem = (valueInput, labelInput, li) => {
 
 /**
  * This is what happens then user clicked in the suggestion item
- * @param valueInput
- * @param labelInput
- * @param list
- * @param rootElement
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLInputElement} labelInput
+ * @param {HTMLUListElement} list
+ * @param {HTMLElement} rootElement
  */
 const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
     selectItem(valueInput, labelInput, closestByClassName('as24-autocomplete__list-item')(e.target));
@@ -236,7 +257,8 @@ const followSelectedItem = (list, selected) => {
  */
 const onItemMouseOver = list =>
     /**
-     * @param {{target:HTMLElement}} e
+     * @function
+     * @param {DOMEvent} e
      * @return {undefined}
      */
     e => {
@@ -255,12 +277,12 @@ const onItemMouseOver = list =>
 /**
  * Selected next/prev suggestion item
  * @param {number} dir
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @return {boolean}
  */
 const moveSelection = (dir, list) => {
     const next = dir === 1 ? 'nextSibling' : 'previousSibling';
-    const currActiveItem = $('.as24-autocomplete__list-item--selected', list);
+    const currActiveItem = getSelectedSuggestionItem(list);
     const nextActiveItem = currActiveItem === null
         ? $('.as24-autocomplete__list-item', list)
         : !!currActiveItem[next]
@@ -275,72 +297,101 @@ const moveSelection = (dir, list) => {
 
 
 /**
- * Handles key down
- * @param dataSource
- * @param valueInput
- * @param labelInput
- * @param list
- * @param rootElement
+ * Handles key down event from the label input
+ * @param {DataSourceElement} dataSource
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLInputElement} labelInput
+ * @param {HTMLUListElement} list
+ * @param {Element} rootElement
+ * @return {function}
  */
-const onKeyDown = (dataSource, valueInput, labelInput, list, rootElement) => e => {
-    if (e.target === labelInput) {
-        if ([38, 40, 27].indexOf(e.which) >= 0) {
-            e.stopPropagation();
-            e.preventDefault();
+const onKeyDown = (dataSource, valueInput, labelInput, list, rootElement) =>
+    /**
+     * @function
+     * @param {DOMEvent} e
+     * @return {undefined}
+     */
+    e => {
+        if (e.target === labelInput) {
+            if ([38, 40, 27].indexOf(e.which) >= 0) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            if (e.which === 9) {
+                if (isListVisible(list)) {
+                    selectItem(valueInput, labelInput, getSelectedSuggestionItem(list));
+                    hideList(list, rootElement)(e);
+                }
+            }
+            if (e.which === 38) {
+                return moveSelection(-1, list);
+            }
+            if (e.which === 40) {
+                return isListVisible(list) ? moveSelection(1, list) : showList(list);
+            }
+            if (e.which === 27) {
+                return hideList(list, rootElement)();
+            }
         }
-        if (e.which === 38) {
-            return moveSelection(-1, list);
-        }
-        if (e.which === 40) {
-            return isListVisible(list) ? moveSelection(1, list) : showList(list);
-        }
-        if (e.which === 27) {
-            return hideList(list, rootElement)();
-        }
-    }
-};
+    };
 
 
 
 /**
- * Handles key up
- * @param dataSource
- * @param valueInput
- * @param labelInput
- * @param list
- * @param emptyListMessage
- * @param rootElement
+ * Handles key up event from the label input
+ * @param {DataSourceElement} dataSource
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLInputElement} labelInput
+ * @param {HTMLUListElement} list
+ * @param {string} emptyListMessage
+ * @param {Element} rootElement
+ * @return {function}
  */
-const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) => e => {
-    e.stopPropagation();
-    if (e.which === 13) {
-        selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-        hideList(list, rootElement)();
-        return;
-    }
-    if ([38, 40, 27].indexOf(e.which) === -1) {
-        return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
-    }
-};
+const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) =>
+    /**
+     * @function
+     * @param {DOMEvent} e
+     * @return {*}
+     */
+    e => {
+        if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
+            e.stopPropagation();
+            e.preventDefault();
+            selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
+            hideList(list, rootElement)();
+            return false;
+        }
+        if ([38, 40, 27].indexOf(e.which) === -1) {
+            e.stopPropagation();
+            return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
+        }
+    };
 
 
 
 /**
  * Handles the click on an arrow
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @param {HTMLInputElement} labelInput
  * @param {Function} fetchListFn
  * @param {Element} root
+ * @returns {function}
  */
-const handleArrowClick = (list, labelInput, fetchListFn, root) => e => {
-    e.stopPropagation();
-    if(isListVisible(list)) {
-        hideList(list, root)(e)
-    } else {
-        labelInput.focus();
-        fetchListFn(e);
-    }
-};
+const handleArrowClick = (list, labelInput, fetchListFn, root) =>
+    /**
+     * @function
+     * @param {DOMEvent} e
+     * @return {undefined}
+     */
+    e => {
+        e.stopPropagation();
+        if(isListVisible(list)) {
+            hideList(list, root)(e)
+        } else {
+            labelInput.focus();
+            fetchListFn(e);
+        }
+    };
 
 
 /**
@@ -371,7 +422,7 @@ function elementAttached() {
     }
 
     /**
-     * The input with which the user can interract
+     * The input with which the user can interact
      * @type {HTMLInputElement}
      */
     const labelInput = $('[type=text]', root);
@@ -413,8 +464,8 @@ function elementAttached() {
     on('click', hideList(list, root), document);
     on('click', fetchListFn, labelInput);
     on('click', onItemClicked(valueInput, labelInput, list, root), list);
-    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput);
-    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window);
+    on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, root), labelInput, true);
+    on('keydown', onKeyDown(dataSource, valueInput, labelInput, list, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
 }
 

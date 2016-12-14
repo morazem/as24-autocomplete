@@ -46,12 +46,14 @@ as24-autocomplete {
     right: 1rem;
     top: 50%;
     margin-top: -.5rem;
+    cursor: pointer;
   }
 
   &__icon {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    cursor: pointer;
   }
 
   &__list {

@@ -317,12 +317,14 @@ as24-autocomplete {
   height: 1rem;
   right: 1rem;
   top: 50%;
-  margin-top: -.5rem; }
+  margin-top: -.5rem;
+  cursor: pointer; }
 
 .as24-autocomplete__icon {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%); }
+  transform: translateY(-50%);
+  cursor: pointer; }
 
 .as24-autocomplete__list {
   box-sizing: border-box;
