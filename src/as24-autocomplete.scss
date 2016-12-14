@@ -10,13 +10,22 @@ as24-autocomplete {
 .as24-autocomplete {
 
   &--active {
-
     .as24-autocomplete {
       &__icon-wrapper {
         transform: rotate(180deg);
       }
     }
+  }
 
+  &--user-input {
+    .as24-autocomplete {
+      &__icon-dropdown {
+        display: none;
+      }
+      &__icon-cross {
+        display: block;
+      }
+    }
   }
 
   &__input {
@@ -49,11 +58,20 @@ as24-autocomplete {
     cursor: pointer;
   }
 
-  &__icon {
+  &__icon-dropdown,
+  &__icon-cross {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+  }
+
+  &__icon-dropdown {
+    display: block;
+  }
+
+  &__icon-cross {
+    display: none;
   }
 
   &__list {

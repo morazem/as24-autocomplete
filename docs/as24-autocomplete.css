@@ -300,6 +300,12 @@ as24-autocomplete {
 .as24-autocomplete--active .as24-autocomplete__icon-wrapper {
   transform: rotate(180deg); }
 
+.as24-autocomplete--user-input .as24-autocomplete__icon-dropdown {
+  display: none; }
+
+.as24-autocomplete--user-input .as24-autocomplete__icon-cross {
+  display: block; }
+
 .as24-autocomplete__input {
   box-sizing: border-box; }
   .as24-autocomplete__input:focus:enabled {
@@ -320,11 +326,17 @@ as24-autocomplete {
   margin-top: -.5rem;
   cursor: pointer; }
 
-.as24-autocomplete__icon {
+.as24-autocomplete__icon-dropdown, .as24-autocomplete__icon-cross {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer; }
+
+.as24-autocomplete__icon-dropdown {
+  display: block; }
+
+.as24-autocomplete__icon-cross {
+  display: none; }
 
 .as24-autocomplete__list {
   box-sizing: border-box;
