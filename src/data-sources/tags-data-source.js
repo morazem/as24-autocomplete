@@ -1,44 +1,53 @@
-var itemsCache = {};
+/**
+ * Test the string against item's value
+ * @param {string} queryString
+ * @returns {function}
+ */
+const valuePredicate = queryString =>
+    /**
+     * @function
+     * @param {{key:string, value:string}} item
+     */
+    item =>
+        item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
 
-const extractKeyValues = root =>
-  Array.prototype.slice.call(root.querySelectorAll('item')).map(tag => ({
-      key: tag.getAttribute('key'),
-      value: tag.getAttribute('value')
-  }));
 
-const valuePredicate = queryString => item =>
-  item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+/**
+ * @class
+ * @typedef DataSource
+ */
+class DataSource extends HTMLElement {
+    constructor() {
+        super();
+    }
 
-function fetchItems(queryString) {
-    var root = this;
-    var thisID = root.id;
-    return new Promise(res => {
-        itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
-        res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID])
-    });
+    /**
+     * @param {string} queryString
+     * @return {Promise<Array<{key: string, value: string}>>}
+     */
+    fetchItems(queryString) {
+        return new Promise(res => res(
+            this.extractKeyValues().filter(valuePredicate(queryString))
+        ));
+    }
+
+    /**
+     * Extracts a list of objects like { key:string, value:string }
+     * @returns {Array<{key:string, value:string}>}
+     */
+    extractKeyValues() {
+        return Array.prototype.slice.call(this.querySelectorAll('item')).map(tag => ({
+            key: tag.getAttribute('key'),
+            value: tag.getAttribute('value')
+        }));
+    }
 }
 
-function elementAttached() {
-    itemsCache[this.id] = null;
-}
 
-function elementDetached() {
-    itemsCache[this.id] = null;
-}
 
 export default function() {
     try {
-        return document.registerElement('as24-tags-data-source', {
-            prototype: Object.assign(
-            Object.create(HTMLElement.prototype, {
-                attachedCallback: { value: elementAttached },
-                detachedCallback: { value: elementDetached },
-                attributeChangedCallback: { value: function () { } }
-            }), {
-                fetchItems: fetchItems
-            }
-        )
-        });
+        return document.registerElement('as24-tags-data-source', DataSource);
     } catch(e) {
         return null;
     }

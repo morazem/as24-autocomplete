@@ -542,51 +542,304 @@ var input = function () {
     }
 };
 
-var itemsCache = {};
+var asyncGenerator = function () {
+  function AwaitValue(value) {
+    this.value = value;
+  }
 
-var extractKeyValues = function extractKeyValues(root) {
-    return Array.prototype.slice.call(root.querySelectorAll('item')).map(function (tag) {
-        return {
-            key: tag.getAttribute('key'),
-            value: tag.getAttribute('value')
+  function AsyncGenerator(gen) {
+    var front, back;
+
+    function send(key, arg) {
+      return new Promise(function (resolve, reject) {
+        var request = {
+          key: key,
+          arg: arg,
+          resolve: resolve,
+          reject: reject,
+          next: null
         };
-    });
-};
 
-var valuePredicate = function valuePredicate(queryString) {
-    return function (item) {
-        return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+        if (back) {
+          back = back.next = request;
+        } else {
+          front = back = request;
+          resume(key, arg);
+        }
+      });
+    }
+
+    function resume(key, arg) {
+      try {
+        var result = gen[key](arg);
+        var value = result.value;
+
+        if (value instanceof AwaitValue) {
+          Promise.resolve(value.value).then(function (arg) {
+            resume("next", arg);
+          }, function (arg) {
+            resume("throw", arg);
+          });
+        } else {
+          settle(result.done ? "return" : "normal", result.value);
+        }
+      } catch (err) {
+        settle("throw", err);
+      }
+    }
+
+    function settle(type, value) {
+      switch (type) {
+        case "return":
+          front.resolve({
+            value: value,
+            done: true
+          });
+          break;
+
+        case "throw":
+          front.reject(value);
+          break;
+
+        default:
+          front.resolve({
+            value: value,
+            done: false
+          });
+          break;
+      }
+
+      front = front.next;
+
+      if (front) {
+        resume(front.key, front.arg);
+      } else {
+        back = null;
+      }
+    }
+
+    this._invoke = send;
+
+    if (typeof gen.return !== "function") {
+      this.return = undefined;
+    }
+  }
+
+  if (typeof Symbol === "function" && Symbol.asyncIterator) {
+    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+      return this;
     };
+  }
+
+  AsyncGenerator.prototype.next = function (arg) {
+    return this._invoke("next", arg);
+  };
+
+  AsyncGenerator.prototype.throw = function (arg) {
+    return this._invoke("throw", arg);
+  };
+
+  AsyncGenerator.prototype.return = function (arg) {
+    return this._invoke("return", arg);
+  };
+
+  return {
+    wrap: function (fn) {
+      return function () {
+        return new AsyncGenerator(fn.apply(this, arguments));
+      };
+    },
+    await: function (value) {
+      return new AwaitValue(value);
+    }
+  };
+}();
+
+
+
+
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
 };
 
-function fetchItems(queryString) {
-    var root = this;
-    var thisID = root.id;
-    return new Promise(function (res) {
-        itemsCache[thisID] = itemsCache[thisID] || extractKeyValues(root);
-        res(queryString ? itemsCache[thisID].filter(valuePredicate(queryString)) : itemsCache[thisID]);
-    });
-}
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
 
-function elementAttached$1() {
-    itemsCache[this.id] = null;
-}
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
 
-function elementDetached$1() {
-    itemsCache[this.id] = null;
-}
+
+
+
+
+
+
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+
+
+
+
+
+
+
+
+
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
+
+
+var set = function set(object, property, value, receiver) {
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent !== null) {
+      set(parent, property, value, receiver);
+    }
+  } else if ("value" in desc && desc.writable) {
+    desc.value = value;
+  } else {
+    var setter = desc.set;
+
+    if (setter !== undefined) {
+      setter.call(receiver, value);
+    }
+  }
+
+  return value;
+};
+
+/**
+ * Test the string against item's value
+ * @param {string} queryString
+ * @returns {function}
+ */
+var valuePredicate = function valuePredicate(queryString) {
+    return (
+        /**
+         * @function
+         * @param {{key:string, value:string}} item
+         */
+        function (item) {
+            return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+        }
+    );
+};
+
+/**
+ * @class
+ * @typedef DataSource
+ */
+
+var DataSource = function (_HTMLElement) {
+    inherits(DataSource, _HTMLElement);
+
+    function DataSource() {
+        classCallCheck(this, DataSource);
+        return possibleConstructorReturn(this, (DataSource.__proto__ || Object.getPrototypeOf(DataSource)).call(this));
+    }
+
+    /**
+     * @param {string} queryString
+     * @return {Promise<Array<{key: string, value: string}>>}
+     */
+
+
+    createClass(DataSource, [{
+        key: 'fetchItems',
+        value: function fetchItems(queryString) {
+            var _this2 = this;
+
+            return new Promise(function (res) {
+                return res(_this2.extractKeyValues().filter(valuePredicate(queryString)));
+            });
+        }
+
+        /**
+         * Extracts a list of objects like { key:string, value:string }
+         * @returns {Array<{key:string, value:string}>}
+         */
+
+    }, {
+        key: 'extractKeyValues',
+        value: function extractKeyValues() {
+            return Array.prototype.slice.call(this.querySelectorAll('item')).map(function (tag) {
+                return {
+                    key: tag.getAttribute('key'),
+                    value: tag.getAttribute('value')
+                };
+            });
+        }
+    }]);
+    return DataSource;
+}(HTMLElement);
 
 var tagsDataSource = function () {
     try {
-        return document.registerElement('as24-tags-data-source', {
-            prototype: Object.assign(Object.create(HTMLElement.prototype, {
-                attachedCallback: { value: elementAttached$1 },
-                detachedCallback: { value: elementDetached$1 },
-                attributeChangedCallback: { value: function value() {} }
-            }), {
-                fetchItems: fetchItems
-            })
-        });
+        return document.registerElement('as24-tags-data-source', DataSource);
     } catch (e) {
         return null;
     }
