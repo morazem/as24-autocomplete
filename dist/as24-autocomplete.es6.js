@@ -13,11 +13,6 @@
  */
 
 /**
- * @class DataSourceElement
- * @property {fetchItemsFn} fetchItems
- */
-
-/**
  * Finds a closest element by class name
  * @param className
  * @returns {function}
@@ -77,7 +72,7 @@ var appendTo = function appendTo(target) {
 
 /**
  * Shows the suggestions list
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @return {boolean}
  */
 var showList = function showList(list) {
@@ -89,6 +84,7 @@ var showList = function showList(list) {
 /**
  * Finds the currently selected suggestion item
  * @param {HTMLUListElement} list
+ * @returns {HTMLLIElement}
  */
 var getSelectedSuggestionItem = function getSelectedSuggestionItem(list) {
     return $('.as24-autocomplete__list-item--selected', list);
@@ -145,9 +141,8 @@ var dirtifyInput = function dirtifyInput(rootElement) {
 var renderLI = function renderLI(searchStr) {
     return (
         /**
-         * @function
-         * @param {{key:string, value:string}} item
-         * @return {HTMLLIElement}
+         * @param {Suggestion} item
+         * @returns {HTMLLIElement}
          */
         function (item) {
             var li = document.createElement('li');
@@ -185,21 +180,26 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * @returns {Function}
  */
 var renderList = function renderList(emptyMessage, list, labelInput) {
-    return function (itemsModel) {
-        list.innerHTML = '';
-        var df = document.createDocumentFragment();
+    return (
+        /**
+         * @param {Array<Suggestion>} suggestions
+         */
+        function (suggestions) {
+            list.innerHTML = '';
+            var df = document.createDocumentFragment();
 
-        (itemsModel.length ? itemsModel.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+            (suggestions.length ? suggestions.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
 
-        list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
-        appendTo(list)(df);
-        showList(list);
-    };
+            list.classList[suggestions.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
+            appendTo(list)(df);
+            showList(list);
+        }
+    );
 };
 
 /**
  * Fetch data according to user input and renders the list
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} labelInput
  * @param {Element} list
  * @param {String} emptyMessage
@@ -222,6 +222,17 @@ var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, r
 };
 
 /**
+ *
+ * @param {string} eventName
+ * @param {HTMLInputElement} el
+ */
+var triggerChangeEvent = function triggerChangeEvent(eventName, el) {
+    var evt = document.createEvent("Event");
+    evt.initEvent(eventName, true, true);
+    el.dispatchEvent(evt);
+};
+
+/**
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
@@ -231,6 +242,7 @@ var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, r
 var selectItem = function selectItem(valueInput, labelInput, li, rootElement) {
     valueInput.value = li.dataset.key;
     labelInput.value = li.innerText;
+    triggerChangeEvent('change', valueInput);
     dirtifyInput(rootElement);
 };
 
@@ -304,10 +316,11 @@ var moveSelection = function moveSelection(dir, list) {
 
 /**
  * Handles key down event from the label input
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
  * @param {HTMLUListElement} list
+ * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
@@ -347,7 +360,7 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emp
 
 /**
  * Handles key up event from the label input
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
  * @param {HTMLUListElement} list
@@ -495,7 +508,7 @@ function elementAttached() {
 
     /**
      * DataSource element
-     * @type {DataSourceElement}
+     * @type {DataSource}
      */
     var dataSource = $('#' + dataSourceName, document);
 
@@ -773,15 +786,41 @@ var set = function set(object, property, value, receiver) {
 };
 
 /**
+ * @class
+ * @typedef Suggestion
+ */
+var Suggestion = function () {
+    /**
+     * @property {string} key
+     * @property {string} value
+     */
+    function Suggestion(key, value) {
+        classCallCheck(this, Suggestion);
+
+        this.key = key;
+        this.value = value;
+    }
+
+    createClass(Suggestion, [{
+        key: 'toString',
+        value: function toString() {
+            return 'Suggestion(' + this.key + ': ' + this.value + ')';
+        }
+    }]);
+    return Suggestion;
+}();
+
+/**
  * Test the string against item's value
  * @param {string} queryString
  * @returns {function}
  */
+
+
 var valuePredicate = function valuePredicate(queryString) {
     return (
         /**
-         * @function
-         * @param {{key:string, value:string}} item
+         * @param {Suggestion} item
          */
         function (item) {
             return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
@@ -804,7 +843,7 @@ var DataSource = function (_HTMLElement) {
 
     /**
      * @param {string} queryString
-     * @return {Promise<Array<{key: string, value: string}>>}
+     * @return {Promise.<Array<Suggestion>>}
      */
 
 
@@ -827,10 +866,7 @@ var DataSource = function (_HTMLElement) {
         key: 'extractKeyValues',
         value: function extractKeyValues() {
             return Array.prototype.slice.call(this.querySelectorAll('item')).map(function (tag) {
-                return {
-                    key: tag.getAttribute('key'),
-                    value: tag.getAttribute('value')
-                };
+                return new Suggestion(tag.getAttribute('key'), tag.getAttribute('value'));
             });
         }
     }]);

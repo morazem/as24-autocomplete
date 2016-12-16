@@ -314,6 +314,11 @@ as24-autocomplete {
     border: 1px solid #3d648c;
     border-top-width: 0; }
 
+.as24-autocomplete__hidden {
+  visibility: hidden;
+  position: absolute;
+  z-index: -1; }
+
 .as24-autocomplete__input-wrapper {
   position: relative; }
 

@@ -1,12 +1,30 @@
 /**
+ * @class
+ * @typedef Suggestion
+ */
+class Suggestion {
+    /**
+     * @property {string} key
+     * @property {string} value
+     */
+    constructor(key, value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    toString() {
+        return `Suggestion(${this.key}: ${this.value})`
+    }
+}
+
+/**
  * Test the string against item's value
  * @param {string} queryString
  * @returns {function}
  */
 const valuePredicate = queryString =>
     /**
-     * @function
-     * @param {{key:string, value:string}} item
+     * @param {Suggestion} item
      */
     item =>
         item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
@@ -23,7 +41,7 @@ class DataSource extends HTMLElement {
 
     /**
      * @param {string} queryString
-     * @return {Promise<Array<{key: string, value: string}>>}
+     * @return {Promise.<Array<Suggestion>>}
      */
     fetchItems(queryString) {
         return new Promise(res => res(
@@ -36,10 +54,9 @@ class DataSource extends HTMLElement {
      * @returns {Array<{key:string, value:string}>}
      */
     extractKeyValues() {
-        return Array.prototype.slice.call(this.querySelectorAll('item')).map(tag => ({
-            key: tag.getAttribute('key'),
-            value: tag.getAttribute('value')
-        }));
+        return Array.prototype.slice.call(this.querySelectorAll('item')).map(tag =>
+            new Suggestion(tag.getAttribute('key'), tag.getAttribute('value'))
+        );
     }
 }
 

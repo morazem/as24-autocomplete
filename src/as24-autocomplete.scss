@@ -44,6 +44,12 @@ as24-autocomplete {
     @extend %customInputStyles;
   }
 
+  &__hidden {
+    visibility: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+
   &__input-wrapper {
     position: relative;
   }

@@ -16,11 +16,6 @@
 
 
 /**
- * @class DataSourceElement
- * @property {fetchItemsFn} fetchItems
- */
-
-/**
  * Finds a closest element by class name
  * @param className
  * @returns {function}
@@ -79,7 +74,7 @@ const appendTo = target =>
 
 /**
  * Shows the suggestions list
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @return {boolean}
  */
 const showList = list => {
@@ -92,6 +87,7 @@ const showList = list => {
 /**
  * Finds the currently selected suggestion item
  * @param {HTMLUListElement} list
+ * @returns {HTMLLIElement}
  */
 const getSelectedSuggestionItem = list =>
     $('.as24-autocomplete__list-item--selected', list);
@@ -140,9 +136,9 @@ const cleanup = (valueInput, labelInput, root) => {
  * @param {Element} rootElement
  * @return {*}
  */
-const dirtifyInput = (rootElement) => {
-    return rootElement.classList.add('as24-autocomplete--user-input');
-};
+const dirtifyInput = (rootElement) =>
+    rootElement.classList.add('as24-autocomplete--user-input');
+
 
 
 /**
@@ -152,9 +148,8 @@ const dirtifyInput = (rootElement) => {
  */
 const renderLI = searchStr =>
     /**
-     * @function
-     * @param {{key:string, value:string}} item
-     * @return {HTMLLIElement}
+     * @param {Suggestion} item
+     * @returns {HTMLLIElement}
      */
     item => {
         const li = document.createElement('li');
@@ -195,25 +190,29 @@ const renderEmptyListItem = emptyMessage => {
  * @param {HTMLInputElement} labelInput
  * @returns {Function}
  */
-const renderList = (emptyMessage, list, labelInput) => itemsModel => {
-    list.innerHTML = '';
-    const df = document.createDocumentFragment();
+const renderList = (emptyMessage, list, labelInput) =>
+    /**
+     * @param {Array<Suggestion>} suggestions
+     */
+    suggestions => {
+        list.innerHTML = '';
+        const df = document.createDocumentFragment();
 
-    (itemsModel.length
-        ? itemsModel.map(renderLI(labelInput.value))
-        : [renderEmptyListItem(emptyMessage)]
-    ).forEach(appendTo(df));
+        (suggestions.length
+            ? suggestions.map(renderLI(labelInput.value))
+            : [renderEmptyListItem(emptyMessage)]
+        ).forEach(appendTo(df));
 
-    list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
-    appendTo(list)(df);
-    showList(list);
-};
+        list.classList[suggestions.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
+        appendTo(list)(df);
+        showList(list);
+    };
 
 
 
 /**
  * Fetch data according to user input and renders the list
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} labelInput
  * @param {Element} list
  * @param {String} emptyMessage
@@ -233,6 +232,17 @@ const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
     };
 
 
+/**
+ *
+ * @param {string} eventName
+ * @param {HTMLInputElement} el
+ */
+const triggerChangeEvent = (eventName, el) => {
+    const evt = document.createEvent("Event");
+    evt.initEvent(eventName, true, true);
+    el.dispatchEvent(evt);
+};
+
 
 /**
  * This is what happens after the user selected an item
@@ -244,6 +254,7 @@ const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
 const selectItem = (valueInput, labelInput, li, rootElement) => {
     valueInput.value = li.dataset.key;
     labelInput.value = li.innerText;
+    triggerChangeEvent('change', valueInput);
     dirtifyInput(rootElement);
 };
 
@@ -326,10 +337,11 @@ const moveSelection = (dir, list) => {
 
 /**
  * Handles key down event from the label input
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
  * @param {HTMLUListElement} list
+ * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
@@ -368,7 +380,7 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, r
 
 /**
  * Handles key up event from the label input
- * @param {DataSourceElement} dataSource
+ * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
  * @param {HTMLUListElement} list
@@ -512,7 +524,7 @@ function elementAttached() {
 
     /**
      * DataSource element
-     * @type {DataSourceElement}
+     * @type {DataSource}
      */
     const dataSource = $('#' + dataSourceName, document);
 
