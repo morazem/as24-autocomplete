@@ -894,3 +894,5 @@ var as24Autocomplete = (function init() {
 })();
 
 export default as24Autocomplete;
+
+//# sourceMappingURL=as24-autocomplete.es6.js.map

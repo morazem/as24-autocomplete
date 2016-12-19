@@ -15,10 +15,14 @@
     "url": "git+https://github.com/AutoScout24/as24-autocomplete.git"
   },
   "keywords": [
-    "autocomplete"
+    "autocomplete",
+    "nodeps",
+    "no dependencies",
+    "suggestions",
+    "data list"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "AutoScout24",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/AutoScout24/as24-autocomplete/issues"
   },

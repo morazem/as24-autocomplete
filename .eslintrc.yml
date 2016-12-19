@@ -1,3 +1,6 @@
+env:
+  browser: true
+  node: true
 extends: airbnb-base
 installedESLint: true
 rules:
@@ -17,13 +20,10 @@ rules:
   no-nested-ternary: 0
   no-param-reassign: 0
   no-unused-labels: ["error"]
+  dot-notation: 0
   no-unused-vars: ["error", {
     vars: "all",
     args: "all"
   }]
 plugins:
   - import
-globals:
-  window: true
-  document: true
-  HTMLElement: true
