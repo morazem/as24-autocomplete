@@ -17,7 +17,6 @@
  * @param className
  * @returns {function}
  */
-
 var closestByClassName = function closestByClassName(className) {
     return (
         /**
@@ -71,6 +70,45 @@ var appendTo = function appendTo(target) {
 };
 
 /**
+* Finds the currently selected suggestion item
+* @param {HTMLUListElement} list
+* @returns {HTMLLIElement}
+*/
+var getSelectedSuggestionItem = function getSelectedSuggestionItem(list) {
+    return $('.as24-autocomplete__list-item--selected', list);
+};
+
+/**
+*
+* @param {HTMLElement} list
+* @param {HTMLElement} selected
+*/
+var followSelectedItem = function followSelectedItem(list, selected) {
+    var listHeight = list.getBoundingClientRect().height;
+    var selectedTop = selected.offsetTop;
+    var selectedHeight = selected.offsetHeight;
+    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
+};
+
+/**
+ * Selected next/prev suggestion item
+ * @param {number} dir
+ * @param {HTMLUListElement} list
+ * @return {boolean}
+ */
+var moveSelection = function moveSelection(dir, list) {
+    var next = dir === 1 ? 'nextSibling' : 'previousSibling';
+    var currActiveItem = getSelectedSuggestionItem(list);
+    var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : currActiveItem[next] !== null ? currActiveItem[next] : currActiveItem;
+    if (currActiveItem) {
+        currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+    }
+    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+    followSelectedItem(list, nextActiveItem);
+    return false;
+};
+
+/**
  * Shows the suggestions list
  * @param {HTMLUListElement} list
  * @return {boolean}
@@ -79,15 +117,6 @@ var showList = function showList(list) {
     list.classList.add('as24-autocomplete__list--visible');
     moveSelection(1, list);
     return false;
-};
-
-/**
- * Finds the currently selected suggestion item
- * @param {HTMLUListElement} list
- * @returns {HTMLLIElement}
- */
-var getSelectedSuggestionItem = function getSelectedSuggestionItem(list) {
-    return $('.as24-autocomplete__list-item--selected', list);
 };
 
 /**
@@ -227,7 +256,7 @@ var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, r
  * @param {HTMLInputElement} el
  */
 var triggerChangeEvent = function triggerChangeEvent(eventName, el) {
-    var evt = document.createEvent("Event");
+    var evt = document.createEvent('Event');
     evt.initEvent(eventName, true, true);
     el.dispatchEvent(evt);
 };
@@ -262,18 +291,6 @@ var onItemClicked = function onItemClicked(valueInput, labelInput, list, rootEle
 };
 
 /**
- *
- * @param {HTMLElement} list
- * @param {HTMLElement} selected
- */
-var followSelectedItem = function followSelectedItem(list, selected) {
-    var listHeight = list.getBoundingClientRect().height;
-    var selectedTop = selected.offsetTop;
-    var selectedHeight = selected.offsetHeight;
-    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
-};
-
-/**
  * When mouse goes over the suggestion item
  * @param {HTMLUListElement} list
  * @return {function} a function that accepts an event
@@ -296,22 +313,6 @@ var onItemMouseOver = function onItemMouseOver(list) {
             }
         }
     );
-};
-
-/**
- * Selected next/prev suggestion item
- * @param {number} dir
- * @param {HTMLUListElement} list
- * @return {boolean}
- */
-var moveSelection = function moveSelection(dir, list) {
-    var next = dir === 1 ? 'nextSibling' : 'previousSibling';
-    var currActiveItem = getSelectedSuggestionItem(list);
-    var nextActiveItem = currActiveItem === null ? $('.as24-autocomplete__list-item', list) : !!currActiveItem[next] ? currActiveItem[next] : currActiveItem;
-    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-    followSelectedItem(list, nextActiveItem);
-    return false;
 };
 
 /**
@@ -354,6 +355,7 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emp
                     return hideList(list, rootElement)();
                 }
             }
+            return null;
         }
     );
 };
@@ -392,6 +394,7 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyLi
                 e.stopPropagation();
                 return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
             }
+            return null;
         }
     );
 };
@@ -464,7 +467,7 @@ function elementAttached() {
      * The message about no items has been found
      * @type {string}
      */
-    var emptyListMessage = root.getAttribute('empty-list-message') || "---";
+    var emptyListMessage = root.getAttribute('empty-list-message') || '---';
 
     /**
      * The id of the data-source element
@@ -473,7 +476,7 @@ function elementAttached() {
     var dataSourceName = root.getAttribute('data-source');
 
     if (!dataSourceName) {
-        throw new Error("The data source is missing");
+        throw new Error('The data source is missing');
     }
 
     /**
@@ -553,6 +556,7 @@ var input = function () {
             return null;
         }
     }
+    return true;
 };
 
 var asyncGenerator = function () {
@@ -838,17 +842,16 @@ var DataSource = function (_HTMLElement) {
 
     function DataSource() {
         classCallCheck(this, DataSource);
-        return possibleConstructorReturn(this, (DataSource.__proto__ || Object.getPrototypeOf(DataSource)).call(this));
+        return possibleConstructorReturn(this, (DataSource.__proto__ || Object.getPrototypeOf(DataSource)).apply(this, arguments));
     }
-
-    /**
-     * @param {string} queryString
-     * @return {Promise.<Array<Suggestion>>}
-     */
-
 
     createClass(DataSource, [{
         key: 'fetchItems',
+
+        /**
+         * @param {string} queryString
+         * @return {Promise.<Array<Suggestion>>}
+         */
         value: function fetchItems(queryString) {
             var _this2 = this;
 

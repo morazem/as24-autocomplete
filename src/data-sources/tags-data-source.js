@@ -13,7 +13,7 @@ class Suggestion {
     }
 
     toString() {
-        return `Suggestion(${this.key}: ${this.value})`
+        return `Suggestion(${this.key}: ${this.value})`;
     }
 }
 
@@ -27,7 +27,7 @@ const valuePredicate = queryString =>
      * @param {Suggestion} item
      */
     item =>
-        item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+        item.value.match(new RegExp(`^${queryString}`, 'ig')) !== null;
 
 
 /**
@@ -35,18 +35,16 @@ const valuePredicate = queryString =>
  * @typedef DataSource
  */
 class DataSource extends HTMLElement {
-    constructor() {
-        super();
-    }
-
     /**
      * @param {string} queryString
      * @return {Promise.<Array<Suggestion>>}
      */
     fetchItems(queryString) {
-        return new Promise(res => res(
-            this.extractKeyValues().filter(valuePredicate(queryString))
-        ));
+        return new Promise(res =>
+            res(this.extractKeyValues().filter(
+                valuePredicate(queryString)
+            ))
+        );
     }
 
     /**
@@ -60,12 +58,10 @@ class DataSource extends HTMLElement {
     }
 }
 
-
-
 export default function() {
     try {
         return document.registerElement('as24-tags-data-source', DataSource);
-    } catch(e) {
+    } catch (e) {
         return null;
     }
 }

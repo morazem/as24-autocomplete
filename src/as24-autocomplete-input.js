@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @class DOMEvent
  * @property {HTMLElement} target
@@ -8,11 +6,14 @@
  * @property {function} preventDefault
  */
 
+
+
 /**
  * @callback fetchItemsFn
  * @param {string} userInput
  * @return {Promise}
  */
+
 
 
 /**
@@ -73,6 +74,54 @@ const appendTo = target =>
 
 
 /**
+* Finds the currently selected suggestion item
+* @param {HTMLUListElement} list
+* @returns {HTMLLIElement}
+*/
+const getSelectedSuggestionItem = list =>
+    $('.as24-autocomplete__list-item--selected', list);
+
+
+
+/**
+*
+* @param {HTMLElement} list
+* @param {HTMLElement} selected
+*/
+const followSelectedItem = (list, selected) => {
+    const listHeight = list.getBoundingClientRect().height;
+    const selectedTop = selected.offsetTop;
+    const selectedHeight = selected.offsetHeight;
+    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
+};
+
+
+
+/**
+ * Selected next/prev suggestion item
+ * @param {number} dir
+ * @param {HTMLUListElement} list
+ * @return {boolean}
+ */
+const moveSelection = (dir, list) => {
+    const next = dir === 1 ? 'nextSibling' : 'previousSibling';
+    const currActiveItem = getSelectedSuggestionItem(list);
+    const nextActiveItem = currActiveItem === null
+        ? $('.as24-autocomplete__list-item', list)
+        : currActiveItem[next] !== null
+            ? currActiveItem[next]
+            : currActiveItem;
+    if (currActiveItem) {
+        currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+    }
+    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+    followSelectedItem(list, nextActiveItem);
+    return false;
+};
+
+
+
+/**
  * Shows the suggestions list
  * @param {HTMLUListElement} list
  * @return {boolean}
@@ -82,15 +131,6 @@ const showList = list => {
     moveSelection(1, list);
     return false;
 };
-
-
-/**
- * Finds the currently selected suggestion item
- * @param {HTMLUListElement} list
- * @returns {HTMLLIElement}
- */
-const getSelectedSuggestionItem = list =>
-    $('.as24-autocomplete__list-item--selected', list);
 
 
 
@@ -154,11 +194,11 @@ const renderLI = searchStr =>
     item => {
         const li = document.createElement('li');
         const searchValue = searchStr;
-        const resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
+        const resultValue = item.value.replace(new RegExp(`^${searchValue}`, 'gi'), '');
         li.classList.add('as24-autocomplete__list-item');
         li.dataset.key = item.key;
         (li.innerHTML = searchStr.length
-            ? '<strong>' + searchValue + '</strong>' + resultValue
+            ? `<strong>${searchValue}</strong>${resultValue}`
             : resultValue);
         return li;
     };
@@ -238,7 +278,7 @@ const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
  * @param {HTMLInputElement} el
  */
 const triggerChangeEvent = (eventName, el) => {
-    const evt = document.createEvent("Event");
+    const evt = document.createEvent('Event');
     evt.initEvent(eventName, true, true);
     el.dispatchEvent(evt);
 };
@@ -276,20 +316,6 @@ const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
 
 
 /**
- *
- * @param {HTMLElement} list
- * @param {HTMLElement} selected
- */
-const followSelectedItem = (list, selected) => {
-    const listHeight = list.getBoundingClientRect().height;
-    const selectedTop = selected.offsetTop;
-    const selectedHeight = selected.offsetHeight;
-    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
-};
-
-
-
-/**
  * When mouse goes over the suggestion item
  * @param {HTMLUListElement} list
  * @return {function} a function that accepts an event
@@ -304,34 +330,12 @@ const onItemMouseOver = list =>
         e.stopPropagation();
         const preselected = $('.as24-autocomplete__list-item--preselected', list);
         if (e.target.tagName === 'LI') {
-            if(preselected) {
+            if (preselected) {
                 preselected.classList.remove('as24-autocomplete__list-item--preselected');
             }
             e.target.classList.add('as24-autocomplete__list-item--preselected');
         }
     };
-
-
-
-/**
- * Selected next/prev suggestion item
- * @param {number} dir
- * @param {HTMLUListElement} list
- * @return {boolean}
- */
-const moveSelection = (dir, list) => {
-    const next = dir === 1 ? 'nextSibling' : 'previousSibling';
-    const currActiveItem = getSelectedSuggestionItem(list);
-    const nextActiveItem = currActiveItem === null
-        ? $('.as24-autocomplete__list-item', list)
-        : !!currActiveItem[next]
-        ? currActiveItem[next]
-        : currActiveItem;
-    currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-    followSelectedItem(list, nextActiveItem);
-    return false;
-};
 
 
 
@@ -359,7 +363,10 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, r
             }
             if (e.which === 9) {
                 if (isListVisible(list)) {
-                    selectItem(valueInput, labelInput, getSelectedSuggestionItem(list), rootElement);
+                    selectItem(valueInput, labelInput,
+                        getSelectedSuggestionItem(list),
+                        rootElement
+                    );
                     hideList(list, rootElement)(e);
                 }
             }
@@ -367,13 +374,17 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, r
                 return moveSelection(-1, list);
             }
             if (e.which === 40) {
-                return isListVisible(list) ? moveSelection(1, list) : fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
+                return isListVisible(list)
+                    ? moveSelection(1, list)
+                    : fetchList(dataSource, labelInput, list,
+                        emptyListMessage, rootElement)(e);
             }
             if (e.which === 27) {
                 cleanup(valueInput, labelInput, rootElement);
                 return hideList(list, rootElement)();
             }
         }
+        return null;
     };
 
 
@@ -411,6 +422,7 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, roo
             e.stopPropagation();
             return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
         }
+        return null;
     };
 
 
@@ -431,8 +443,8 @@ const handleArrowClick = (list, labelInput, fetchListFn, root) =>
      */
     e => {
         e.stopPropagation();
-        if(isListVisible(list)) {
-            hideList(list, root)(e)
+        if (isListVisible(list)) {
+            hideList(list, root)(e);
         } else {
             labelInput.focus();
             fetchListFn(e);
@@ -480,7 +492,7 @@ function elementAttached() {
      * The message about no items has been found
      * @type {string}
      */
-    const emptyListMessage = root.getAttribute('empty-list-message') || "---";
+    const emptyListMessage = root.getAttribute('empty-list-message') || '---';
 
     /**
      * The id of the data-source element
@@ -489,7 +501,7 @@ function elementAttached() {
     const dataSourceName = root.getAttribute('data-source');
 
     if (!dataSourceName) {
-        throw new Error("The data source is missing");
+        throw new Error('The data source is missing');
     }
 
     /**
@@ -526,7 +538,7 @@ function elementAttached() {
      * DataSource element
      * @type {DataSource}
      */
-    const dataSource = $('#' + dataSourceName, document);
+    const dataSource = $(`#${dataSourceName}`, document);
 
     /**
      * The function that takes an Event and does call to DataSource
@@ -550,19 +562,21 @@ function elementAttached() {
     on('mouseover', onItemMouseOver(list), list, true);
 }
 
-function elementDetached() {
-}
 
-export default function () {
+
+function elementDetached() { }
+
+
+
+export default function() {
     try {
         return document.registerElement('as24-autocomplete', {
             prototype: Object.assign(
                 Object.create(HTMLElement.prototype, {
-                    attachedCallback: {value: elementAttached},
-                    detachedCallback: {value: elementDetached},
+                    attachedCallback: { value: elementAttached },
+                    detachedCallback: { value: elementDetached },
                     attributeChangedCallback: {
-                        value: function () {
-                        }
+                        value() {}
                     }
                 })
             )
@@ -573,4 +587,5 @@ export default function () {
             return null;
         }
     }
+    return true;
 }
