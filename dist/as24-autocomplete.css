@@ -2,8 +2,7 @@ input[type="text"].sc-input,
 input[type="tel"].sc-input,
 input[type="number"].sc-input,
 input[type="email"].sc-input,
-textarea.sc-input,
-select.sc-input, .as24-autocomplete__input {
+textarea.sc-input, select.sc-input, .as24-autocomplete__input {
   font-size: 1rem;
   padding: 4px 12px;
   height: 40px; }
@@ -36,8 +35,7 @@ input[type="text"].sc-input,
 input[type="tel"].sc-input,
 input[type="number"].sc-input,
 input[type="email"].sc-input,
-textarea.sc-input,
-select.sc-input, .as24-autocomplete__input {
+textarea.sc-input, select.sc-input, .as24-autocomplete__input {
   font-size: 1rem;
   padding: 4px 12px;
   height: 40px; }
@@ -70,8 +68,7 @@ input[type="text"].sc-input,
 input[type="tel"].sc-input,
 input[type="number"].sc-input,
 input[type="email"].sc-input,
-textarea.sc-input,
-select.sc-input, .as24-autocomplete__input {
+textarea.sc-input, select.sc-input, .as24-autocomplete__input {
   font-size: 1rem;
   padding: 4px 12px;
   height: 40px; }
@@ -108,8 +105,7 @@ input[type="text"].sc-input,
 input[type="tel"].sc-input,
 input[type="number"].sc-input,
 input[type="email"].sc-input,
-textarea.sc-input,
-select.sc-input, custom-dropdown.sc-input, .as24-autocomplete__input {
+textarea.sc-input, select.sc-input, custom-dropdown.sc-input, .as24-autocomplete__input {
   font-family: inherit;
   border-radius: 4px;
   border: 1px solid #959595;
@@ -123,32 +119,28 @@ select.sc-input, custom-dropdown.sc-input, .as24-autocomplete__input {
   input.error[type="tel"].sc-input,
   input.error[type="number"].sc-input,
   input.error[type="email"].sc-input,
-  textarea.error.sc-input,
-  select.error.sc-input, custom-dropdown.error.sc-input, .error.as24-autocomplete__input {
+  textarea.error.sc-input, select.error.sc-input, custom-dropdown.error.sc-input, .error.as24-autocomplete__input {
     border-color: #d91a2a;
     background-color: #ffdddc; }
   input.success[type="text"].sc-input,
   input.success[type="tel"].sc-input,
   input.success[type="number"].sc-input,
   input.success[type="email"].sc-input,
-  textarea.success.sc-input,
-  select.success.sc-input, custom-dropdown.success.sc-input, .success.as24-autocomplete__input {
+  textarea.success.sc-input, select.success.sc-input, custom-dropdown.success.sc-input, .success.as24-autocomplete__input {
     border-color: #217306;
     background-color: #e6f5cf; }
   input.info[type="text"].sc-input,
   input.info[type="tel"].sc-input,
   input.info[type="number"].sc-input,
   input.info[type="email"].sc-input,
-  textarea.info.sc-input,
-  select.info.sc-input, custom-dropdown.info.sc-input, .info.as24-autocomplete__input {
+  textarea.info.sc-input, select.info.sc-input, custom-dropdown.info.sc-input, .info.as24-autocomplete__input {
     border-color: #994200;
     background-color: #fff1c0; }
   input[type="text"].sc-input:disabled,
   input[type="tel"].sc-input:disabled,
   input[type="number"].sc-input:disabled,
   input[type="email"].sc-input:disabled,
-  textarea.sc-input:disabled,
-  select.sc-input:disabled, custom-dropdown.sc-input:disabled, .as24-autocomplete__input:disabled {
+  textarea.sc-input:disabled, select.sc-input:disabled, custom-dropdown.sc-input:disabled, .as24-autocomplete__input:disabled {
     background-color: #fff;
     border-color: #c4c4c4;
     color: #c4c4c4;
@@ -157,80 +149,76 @@ select.sc-input, custom-dropdown.sc-input, .as24-autocomplete__input {
   input[type="tel"].sc-input:hover:enabled,
   input[type="number"].sc-input:hover:enabled,
   input[type="email"].sc-input:hover:enabled,
-  textarea.sc-input:hover:enabled,
-  select.sc-input:hover:enabled, custom-dropdown.sc-input:hover:enabled, .as24-autocomplete__input:hover:enabled {
+  textarea.sc-input:hover:enabled, select.sc-input:hover:enabled, custom-dropdown.sc-input:hover:enabled, .as24-autocomplete__input:hover:enabled {
     border-color: #333; }
   input[type="text"].sc-input:focus:enabled,
   input[type="tel"].sc-input:focus:enabled,
   input[type="number"].sc-input:focus:enabled,
   input[type="email"].sc-input:focus:enabled,
-  textarea.sc-input:focus:enabled,
-  select.sc-input:focus:enabled, custom-dropdown.sc-input:focus:enabled, .as24-autocomplete__input:focus:enabled {
+  textarea.sc-input:focus:enabled, select.sc-input:focus:enabled, custom-dropdown.sc-input:focus:enabled, .as24-autocomplete__input:focus:enabled {
     box-shadow: 0 0 1px 0 #3d648c;
     border-color: #3d648c; }
   input[type="text"].sc-input:invalid,
   input[type="tel"].sc-input:invalid,
   input[type="number"].sc-input:invalid,
   input[type="email"].sc-input:invalid,
-  textarea.sc-input:invalid,
-  select.sc-input:invalid, custom-dropdown.sc-input:invalid, .as24-autocomplete__input:invalid {
+  textarea.sc-input:invalid, select.sc-input:invalid, custom-dropdown.sc-input:invalid, .as24-autocomplete__input:invalid {
     box-shadow: none; }
   input[type="text"].sc-input::-webkit-input-placeholder,
   input[type="tel"].sc-input::-webkit-input-placeholder,
   input[type="number"].sc-input::-webkit-input-placeholder,
   input[type="email"].sc-input::-webkit-input-placeholder,
-  textarea.sc-input::-webkit-input-placeholder,
-  select.sc-input::-webkit-input-placeholder, custom-dropdown.sc-input::-webkit-input-placeholder, .as24-autocomplete__input::-webkit-input-placeholder {
+  textarea.sc-input::-webkit-input-placeholder, select.sc-input::-webkit-input-placeholder, custom-dropdown.sc-input::-webkit-input-placeholder, .as24-autocomplete__input::-webkit-input-placeholder {
     color: #939393; }
   input[type="text"].sc-input:-moz-placeholder,
   input[type="tel"].sc-input:-moz-placeholder,
   input[type="number"].sc-input:-moz-placeholder,
   input[type="email"].sc-input:-moz-placeholder,
-  textarea.sc-input:-moz-placeholder,
-  select.sc-input:-moz-placeholder, custom-dropdown.sc-input:-moz-placeholder, .as24-autocomplete__input:-moz-placeholder {
+  textarea.sc-input:-moz-placeholder, select.sc-input:-moz-placeholder, custom-dropdown.sc-input:-moz-placeholder, .as24-autocomplete__input:-moz-placeholder {
     color: #939393; }
   input[type="text"].sc-input::-moz-placeholder,
   input[type="tel"].sc-input::-moz-placeholder,
   input[type="number"].sc-input::-moz-placeholder,
   input[type="email"].sc-input::-moz-placeholder,
-  textarea.sc-input::-moz-placeholder,
-  select.sc-input::-moz-placeholder, custom-dropdown.sc-input::-moz-placeholder, .as24-autocomplete__input::-moz-placeholder {
+  textarea.sc-input::-moz-placeholder, select.sc-input::-moz-placeholder, custom-dropdown.sc-input::-moz-placeholder, .as24-autocomplete__input::-moz-placeholder {
     color: #939393; }
   input[type="text"].sc-input:-ms-input-placeholder,
   input[type="tel"].sc-input:-ms-input-placeholder,
   input[type="number"].sc-input:-ms-input-placeholder,
   input[type="email"].sc-input:-ms-input-placeholder,
-  textarea.sc-input:-ms-input-placeholder,
-  select.sc-input:-ms-input-placeholder, custom-dropdown.sc-input:-ms-input-placeholder, .as24-autocomplete__input:-ms-input-placeholder {
+  textarea.sc-input:-ms-input-placeholder, select.sc-input:-ms-input-placeholder, custom-dropdown.sc-input:-ms-input-placeholder, .as24-autocomplete__input:-ms-input-placeholder {
     color: #939393; }
   input[type="text"].sc-input:focus::-webkit-input-placeholder,
   input[type="tel"].sc-input:focus::-webkit-input-placeholder,
   input[type="number"].sc-input:focus::-webkit-input-placeholder,
   input[type="email"].sc-input:focus::-webkit-input-placeholder,
-  textarea.sc-input:focus::-webkit-input-placeholder,
-  select.sc-input:focus::-webkit-input-placeholder, custom-dropdown.sc-input:focus::-webkit-input-placeholder, .as24-autocomplete__input:focus::-webkit-input-placeholder {
+  textarea.sc-input:focus::-webkit-input-placeholder, select.sc-input:focus::-webkit-input-placeholder, custom-dropdown.sc-input:focus::-webkit-input-placeholder, .as24-autocomplete__input:focus::-webkit-input-placeholder {
     color: transparent; }
   input[type="text"].sc-input:focus:-moz-placeholder,
   input[type="tel"].sc-input:focus:-moz-placeholder,
   input[type="number"].sc-input:focus:-moz-placeholder,
   input[type="email"].sc-input:focus:-moz-placeholder,
-  textarea.sc-input:focus:-moz-placeholder,
-  select.sc-input:focus:-moz-placeholder, custom-dropdown.sc-input:focus:-moz-placeholder, .as24-autocomplete__input:focus:-moz-placeholder {
+  textarea.sc-input:focus:-moz-placeholder, select.sc-input:focus:-moz-placeholder, custom-dropdown.sc-input:focus:-moz-placeholder, .as24-autocomplete__input:focus:-moz-placeholder {
     color: transparent; }
   input[type="text"].sc-input:focus::-moz-placeholder,
   input[type="tel"].sc-input:focus::-moz-placeholder,
   input[type="number"].sc-input:focus::-moz-placeholder,
   input[type="email"].sc-input:focus::-moz-placeholder,
-  textarea.sc-input:focus::-moz-placeholder,
-  select.sc-input:focus::-moz-placeholder, custom-dropdown.sc-input:focus::-moz-placeholder, .as24-autocomplete__input:focus::-moz-placeholder {
+  textarea.sc-input:focus::-moz-placeholder, select.sc-input:focus::-moz-placeholder, custom-dropdown.sc-input:focus::-moz-placeholder, .as24-autocomplete__input:focus::-moz-placeholder {
     color: transparent; }
   input[type="text"].sc-input:focus:-ms-input-placeholder,
   input[type="tel"].sc-input:focus:-ms-input-placeholder,
   input[type="number"].sc-input:focus:-ms-input-placeholder,
   input[type="email"].sc-input:focus:-ms-input-placeholder,
-  textarea.sc-input:focus:-ms-input-placeholder,
-  select.sc-input:focus:-ms-input-placeholder, custom-dropdown.sc-input:focus:-ms-input-placeholder, .as24-autocomplete__input:focus:-ms-input-placeholder {
+  textarea.sc-input:focus:-ms-input-placeholder, select.sc-input:focus:-ms-input-placeholder, custom-dropdown.sc-input:focus:-ms-input-placeholder, .as24-autocomplete__input:focus:-ms-input-placeholder {
     color: transparent; }
+
+input[type="text"].sc-input,
+input[type="tel"].sc-input,
+input[type="number"].sc-input,
+input[type="email"].sc-input,
+textarea.sc-input {
+  cursor: auto; }
 
 custom-dropdown.sc-input {
   height: 40px; }
