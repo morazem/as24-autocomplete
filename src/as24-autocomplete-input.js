@@ -470,6 +470,7 @@ const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
      */
     e => {
         cleanup(valueInput, labelInput, root);
+        triggerChangeEvent('change', valueInput);
         if (isListVisible(list)) {
             fetchListFn(e);
             labelInput.focus();
@@ -568,6 +569,7 @@ function elementAttached() {
                 .then(suggestion => {
                     if (suggestion) {
                         userFacingInput.value = suggestion.value;
+                        dirtifyInput(root);
                     }
                     return true;
                 });

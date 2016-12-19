@@ -444,6 +444,7 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
          */
         function (e) {
             cleanup(valueInput, labelInput, root);
+            triggerChangeEvent('change', valueInput);
             if (isListVisible(list)) {
                 fetchListFn(e);
                 labelInput.focus();
@@ -540,6 +541,7 @@ function elementAttached() {
             getInitialValueByKey(dataSource, valueInput.value).then(function (suggestion) {
                 if (suggestion) {
                     userFacingInput.value = suggestion.value;
+                    dirtifyInput(root);
                 }
                 return true;
             });
