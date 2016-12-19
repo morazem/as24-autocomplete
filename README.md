@@ -22,7 +22,7 @@ Check the [demo](https://autoscout24.github.io/as24-autocomplete/) out
 
 ```
 npm install
-npm run serve 
+npm run serve
 ```
 
 ### Use/Add to you project
@@ -55,23 +55,32 @@ Or just `@import` it from `node_modules`:
 
 *Note: the `package.json` contains `jsnext:main` entry for the ES2015 modules so that you can use `import` statement from ES6*
 
+
+### Attributes of autocomplete
+
+- `data-source` [required] - the `id` of the data source element
+- `initial-query` [optional] - the initial text that user can in the input. Useful for the situation with server-side rendering
+- `empty-list-message` [optional] - the message that user  will see when there's nothing to suggest
+
 ### Code
 
 This is how you add the autocomplete itself:
 
 ```html
-<as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
+<as24-autocomplete data-source="your-data-source-id" initial-query="as" empty-list-message="No items satisfying your request">
   <input type="hidden" name="makeId">
-
   <div class="as24-autocomplete__input-wrapper">
     <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
     <div class="as24-autocomplete__icon-wrapper">
-      <svg class="as24-autocomplete__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7">
+      <svg class="as24-autocomplete__icon-dropdown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
+      </svg>
+      <svg class="as24-autocomplete__icon-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+        <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
+        <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
       </svg>
     </div>
   </div>
-
   <ul class="as24-autocomplete__list"></ul>
 </as24-autocomplete>
 ```

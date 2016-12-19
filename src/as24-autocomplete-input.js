@@ -510,6 +510,11 @@ function elementAttached() {
      */
     const userFacingInput = $('[type=text]', root);
 
+    // Set the predefined query
+    userFacingInput.value = this.getAttribute('initial-query')
+        ? this.getAttribute('initial-query')
+        : '';
+
     /**
      * Hidden input in which we actually set the value
      * @type {HTMLInputElement}
