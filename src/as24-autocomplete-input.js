@@ -477,6 +477,18 @@ const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
     };
 
 
+
+/**
+ * Returns promised Suggestion by key
+ * @param  {DataSource} dataSource
+ * @param  {string} keyValue
+ * @return {Promise.<Suggestion>}
+ */
+const getInitialValueByKey = (dataSource, keyValue) =>
+    dataSource.getSuggestionByKey(keyValue);
+
+
+
 /**
  * When the custom tag has been attached to DOM
  * @this HTMLElement
@@ -510,11 +522,6 @@ function elementAttached() {
      */
     const userFacingInput = $('[type=text]', root);
 
-    // Set the predefined query
-    userFacingInput.value = this.getAttribute('initial-query')
-        ? this.getAttribute('initial-query')
-        : '';
-
     /**
      * Hidden input in which we actually set the value
      * @type {HTMLInputElement}
@@ -545,11 +552,27 @@ function elementAttached() {
      */
     const dataSource = $(`#${dataSourceName}`, document);
 
+    if (!dataSource) {
+        throw new Error(`The DataSource ${dataSourceName} has not been found`);
+    }
+
     /**
      * The function that takes an Event and does call to DataSource
      * @type {Function}
      */
     const fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
+
+    setTimeout(() => {
+        if (valueInput.value) {
+            getInitialValueByKey(dataSource, valueInput.value)
+                .then(suggestion => {
+                    if (suggestion) {
+                        userFacingInput.value = suggestion.value;
+                    }
+                    return true;
+                });
+        }
+    });
 
     if (iconDropdown) {
         on('click', handleArrowClick(list, userFacingInput, fetchListFn, this), iconDropdown);

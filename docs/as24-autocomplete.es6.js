@@ -453,6 +453,16 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
 };
 
 /**
+ * Returns promised Suggestion by key
+ * @param  {DataSource} dataSource
+ * @param  {string} keyValue
+ * @return {Promise.<Suggestion>}
+ */
+var getInitialValueByKey = function getInitialValueByKey(dataSource, keyValue) {
+    return dataSource.getSuggestionByKey(keyValue);
+};
+
+/**
  * When the custom tag has been attached to DOM
  * @this HTMLElement
  */
@@ -485,9 +495,6 @@ function elementAttached() {
      */
     var userFacingInput = $('[type=text]', root);
 
-    // Set the predefined query
-    userFacingInput.value = this.getAttribute('initial-query') ? this.getAttribute('initial-query') : '';
-
     /**
      * Hidden input in which we actually set the value
      * @type {HTMLInputElement}
@@ -518,11 +525,26 @@ function elementAttached() {
      */
     var dataSource = $('#' + dataSourceName, document);
 
+    if (!dataSource) {
+        throw new Error('The DataSource ' + dataSourceName + ' has not been found');
+    }
+
     /**
      * The function that takes an Event and does call to DataSource
      * @type {Function}
      */
     var fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
+
+    setTimeout(function () {
+        if (valueInput.value) {
+            getInitialValueByKey(dataSource, valueInput.value).then(function (suggestion) {
+                if (suggestion) {
+                    userFacingInput.value = suggestion.value;
+                }
+                return true;
+            });
+        }
+    });
 
     if (iconDropdown) {
         on('click', handleArrowClick(list, userFacingInput, fetchListFn, this), iconDropdown);
@@ -747,6 +769,27 @@ var DataSource = function (_HTMLElement) {
         }
 
         /**
+         * @param {string} keyValue
+         * @return {Promise.<Suggestion>}
+         */
+
+    }, {
+        key: 'getSuggestionByKey',
+        value: function getSuggestionByKey(keyValue) {
+            var _this3 = this;
+
+            return new Promise(function (res, rej) {
+                var items = _this3.extractKeyValues();
+                if (keyValue && items) {
+                    return res(items.filter(function (item) {
+                        return item.key === keyValue;
+                    })[0]);
+                }
+                return rej(null);
+            });
+        }
+
+        /**
          * Extracts a list of objects like { key:string, value:string }
          * @returns {Array<{key:string, value:string}>}
          */
@@ -777,3 +820,5 @@ var as24Autocomplete = (function init() {
 })();
 
 export default as24Autocomplete;
+
+//# sourceMappingURL=as24-autocomplete.es6.js.map

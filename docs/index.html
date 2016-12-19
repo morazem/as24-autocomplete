@@ -17,7 +17,7 @@
 
   <h3>Autocomplete using tags</h3>
 
-  <as24-autocomplete data-source="makes-data-source" initial-query="as" empty-list-message="No items satisfying your request">
+  <as24-autocomplete data-source="test-data-source" empty-list-message="No items satisfying your request">
     <input type="hidden" name="makeId">
     <div class="as24-autocomplete__input-wrapper">
       <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
@@ -34,7 +34,7 @@
     <ul class="as24-autocomplete__list"></ul>
   </as24-autocomplete>
 
-  <as24-tags-data-source id="makes-data-source">
+  <as24-tags-data-source id="test-data-source">
     <item key="1" value="qwer"></item>
     <item key="2" value="asdf"></item>
     <item key="20" value="aser"></item>
@@ -50,10 +50,10 @@
 
   <h3>Autocomplete using XHR simulation</h3>
 
-  <as24-autocomplete data-source="makes-data-source2" empty-list-message="Well... nothing.">
-    <input type="text" name="makeId" class="as24-autocomplete__hidden" data-value-input>
+  <as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
+    <input type="hidden" name="makeId" value="30">
     <div class="as24-autocomplete__input-wrapper">
-      <input id="3" type="text" class="as24-autocomplete__input" placeholder="Optional placeholder" data-query-input>
+      <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
       <div class="as24-autocomplete__icon-wrapper">
         <svg class="as24-autocomplete__icon-dropdown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
@@ -67,7 +67,7 @@
     <ul class="as24-autocomplete__list"></ul>
   </as24-autocomplete>
 
-  <as24-tags-data-source id="makes-data-source2">
+  <as24-tags-data-source id="makes-data-source">
     <item key="10" value="Audi"></item>
     <item key="20" value="BMW"></item>
     <item key="30" value="Ford"></item>

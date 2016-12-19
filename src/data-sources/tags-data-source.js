@@ -48,6 +48,20 @@ class DataSource extends HTMLElement {
     }
 
     /**
+     * @param {string} keyValue
+     * @return {Promise.<Suggestion>}
+     */
+    getSuggestionByKey(keyValue) {
+        return new Promise((res, rej) => {
+            const items = this.extractKeyValues();
+            if (keyValue && items) {
+                return res(items.filter(item => item.key === keyValue)[0]);
+            }
+            return rej(null);
+        });
+    }
+
+    /**
      * Extracts a list of objects like { key:string, value:string }
      * @returns {Array<{key:string, value:string}>}
      */

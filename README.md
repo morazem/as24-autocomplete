@@ -59,7 +59,6 @@ Or just `@import` it from `node_modules`:
 ### Attributes of autocomplete
 
 - `data-source` [required] - the `id` of the data source element
-- `initial-query` [optional] - the initial text that user can in the input. Useful for the situation with server-side rendering
 - `empty-list-message` [optional] - the message that user  will see when there's nothing to suggest
 
 ### Code
@@ -67,8 +66,8 @@ Or just `@import` it from `node_modules`:
 This is how you add the autocomplete itself:
 
 ```html
-<as24-autocomplete data-source="your-data-source-id" initial-query="as" empty-list-message="No items satisfying your request">
-  <input type="hidden" name="makeId">
+<as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
+  <input type="hidden" name="makeId" value="10"> <!-- Predefined value -->
   <div class="as24-autocomplete__input-wrapper">
     <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
     <div class="as24-autocomplete__icon-wrapper">
@@ -83,6 +82,12 @@ This is how you add the autocomplete itself:
   </div>
   <ul class="as24-autocomplete__list"></ul>
 </as24-autocomplete>
+
+<as24-tags-data-source id="makes-data-source">
+  <item key="10" value="Audi"></item>
+  <!-- ... -->
+  <item key="60" value="Volkswagen"></item>
+</as24-tags-data-source>
 ```
 
 Autocomplete needs a data source. This package provides the default one:
