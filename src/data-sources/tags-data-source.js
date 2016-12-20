@@ -18,16 +18,16 @@ class Suggestion {
 }
 
 /**
- * Test the string against item's value
- * @param {string} queryString
+ * Test the string against item's value\
+ * @param {RegExp} regexp
  * @returns {function}
  */
-const valuePredicate = queryString =>
+const valuePredicate = (regexp) =>
     /**
      * @param {Suggestion} item
      */
     item =>
-        item.value.match(new RegExp(`^${queryString}`, 'ig')) !== null;
+        item.value.match(regexp) !== null;
 
 
 /**
@@ -40,11 +40,15 @@ class DataSource extends HTMLElement {
      * @return {Promise.<Array<Suggestion>>}
      */
     fetchItems(queryString) {
-        return new Promise(res =>
-            res(this.extractKeyValues().filter(
-                valuePredicate(queryString)
-            ))
-        );
+        return new Promise(res => {
+            const keyVals = this.extractKeyValues();
+            const startingWith = keyVals
+                .filter(valuePredicate(new RegExp(`^${queryString}`, 'ig')));
+            const theRestContaining = keyVals
+                .filter(x => startingWith.indexOf(x) === -1)
+                .filter(valuePredicate(new RegExp(`${queryString}`, 'ig')));
+            return res(startingWith.concat(theRestContaining));
+        });
     }
 
     /**

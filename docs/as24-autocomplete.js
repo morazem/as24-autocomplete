@@ -178,11 +178,9 @@ var renderLI = function renderLI(searchStr) {
          */
         function (item) {
             var li = document.createElement('li');
-            var searchValue = searchStr;
-            var resultValue = item.value.replace(new RegExp('^' + searchValue, 'gi'), '');
             li.classList.add('as24-autocomplete__list-item');
             li.dataset.key = item.key;
-            li.innerHTML = searchStr.length ? '<strong>' + searchValue + '</strong>' + resultValue : resultValue;
+            li.innerHTML = item.value.replace(new RegExp('(' + searchStr + ')', 'ig'), '<strong>$1</strong>');
             return li;
         }
     );
@@ -447,6 +445,7 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
          */
         function (e) {
             cleanup(valueInput, labelInput, root);
+            triggerChangeEvent('change', valueInput);
             if (isListVisible(list)) {
                 fetchListFn(e);
                 labelInput.focus();
@@ -543,6 +542,7 @@ function elementAttached() {
             getInitialValueByKey(dataSource, valueInput.value).then(function (suggestion) {
                 if (suggestion) {
                     userFacingInput.value = suggestion.value;
+                    dirtifyInput(root);
                 }
                 return true;
             });
@@ -726,19 +726,19 @@ var Suggestion = function () {
 }();
 
 /**
- * Test the string against item's value
- * @param {string} queryString
+ * Test the string against item's value\
+ * @param {RegExp} regexp
  * @returns {function}
  */
 
 
-var valuePredicate = function valuePredicate(queryString) {
+var valuePredicate = function valuePredicate(regexp) {
     return (
         /**
          * @param {Suggestion} item
          */
         function (item) {
-            return item.value.match(new RegExp('^' + queryString, 'ig')) !== null;
+            return item.value.match(regexp) !== null;
         }
     );
 };
@@ -767,7 +767,12 @@ var DataSource = function (_HTMLElement) {
             var _this2 = this;
 
             return new Promise(function (res) {
-                return res(_this2.extractKeyValues().filter(valuePredicate(queryString)));
+                var keyVals = _this2.extractKeyValues();
+                var startingWith = keyVals.filter(valuePredicate(new RegExp('^' + queryString, 'ig')));
+                var theRestContaining = keyVals.filter(function (x) {
+                    return startingWith.indexOf(x) === -1;
+                }).filter(valuePredicate(new RegExp('' + queryString, 'ig')));
+                return res(startingWith.concat(theRestContaining));
             });
         }
 
