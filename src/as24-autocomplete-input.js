@@ -604,7 +604,20 @@ export default function() {
                     attributeChangedCallback: {
                         value() {}
                     }
-                })
+                }), {
+                    /**
+                     * @this {HTMLElement}
+                     */
+                    selectedValue() {
+                        return $('[type=hidden]', this).value;
+                    },
+                    userQuery() {
+                        return $('[type=text]', this).value;
+                    },
+                    dataSourceElement() {
+                        return document.getElementById(this.getAttribute('data-source'));
+                    }
+                }
             )
         });
     } catch (e) {

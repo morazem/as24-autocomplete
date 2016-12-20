@@ -56,10 +56,29 @@ Or just `@import` it from `node_modules`:
 *Note: the `package.json` contains `jsnext:main` entry for the ES2015 modules so that you can use `import` statement from ES6*
 
 
-### Attributes of autocomplete
+### Attributes of `autocomplete`
 
 - `data-source` [required] - the `id` of the data source element
 - `empty-list-message` [optional] - the message that user  will see when there's nothing to suggest
+
+### Public APi
+
+- `.selectedValue()` - returns the selected value
+- `.userQuery()` - returns the query that user has entered
+- `.dataSourceElement()` - returns the data source element
+
+Example:
+
+```html
+<as24-autocomplete id="my-ac">
+<!-- ... -->
+</as24-autocomplete>
+```
+
+```js
+document.querySelector('#my-ac').selectedValue();
+// > selected value or ""
+```
 
 ### Code
 

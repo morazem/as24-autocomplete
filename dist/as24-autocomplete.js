@@ -576,7 +576,20 @@ var input = function () {
                 attributeChangedCallback: {
                     value: function value() {}
                 }
-            }))
+            }), {
+                /**
+                 * @this {HTMLElement}
+                 */
+                selectedValue: function selectedValue() {
+                    return $('[type=hidden]', this).value;
+                },
+                userQuery: function userQuery() {
+                    return $('[type=text]', this).value;
+                },
+                dataSourceElement: function dataSourceElement() {
+                    return document.getElementById(this.getAttribute('data-source'));
+                }
+            })
         });
     } catch (e) {
         if (window && window.console) {
