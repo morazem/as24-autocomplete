@@ -558,7 +558,7 @@ function elementAttached() {
     const dataSource = this.querySelector('[role=data-source]');
 
     if (!dataSource) {
-        throw new Error(`The DataSource has not been found`);
+        throw new Error('The DataSource has not been found');
     }
 
     /**
@@ -638,7 +638,7 @@ export default function() {
                      * @this {HTMLElement}
                      */
                     dataSourceElement() {
-                        return document.getElementById(this.getAttribute('data-source'));
+                        return this.querySelector('[role=data-source]');
                     },
                     /**
                      * Resets the component

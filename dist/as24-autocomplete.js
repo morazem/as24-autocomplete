@@ -609,7 +609,7 @@ var input = function () {
                  * @this {HTMLElement}
                  */
                 dataSourceElement: function dataSourceElement() {
-                    return document.getElementById(this.getAttribute('data-source'));
+                    return this.querySelector('[role=data-source]');
                 },
 
                 /**
