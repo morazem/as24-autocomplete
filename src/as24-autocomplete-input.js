@@ -253,7 +253,7 @@ const renderList = (emptyMessage, list, labelInput) =>
  * Fetch data according to user input and renders the list
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} labelInput
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
  * @returns {function}
@@ -482,7 +482,7 @@ const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
      * @return {undefined}
      */
     e => {
-        reset();
+        reset(valueInput, labelInput, root);
         if (isListVisible(list)) {
             fetchListFn(e);
             labelInput.focus();

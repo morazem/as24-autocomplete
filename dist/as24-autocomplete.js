@@ -233,7 +233,7 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
  * Fetch data according to user input and renders the list
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} labelInput
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
  * @returns {function}
@@ -458,7 +458,7 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
          * @return {undefined}
          */
         function (e) {
-            _reset();
+            _reset(valueInput, labelInput, root);
             if (isListVisible(list)) {
                 fetchListFn(e);
                 labelInput.focus();

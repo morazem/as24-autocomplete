@@ -233,7 +233,7 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
  * Fetch data according to user input and renders the list
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} labelInput
- * @param {Element} list
+ * @param {HTMLUListElement} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
  * @returns {function}
@@ -430,6 +430,18 @@ var handleArrowClick = function handleArrowClick(list, labelInput, fetchListFn, 
 };
 
 /**
+ * Reset the state of the component
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLInputElement} labelInput
+ * @param {HTMLElement} root
+ */
+var _reset = function _reset(valueInput, labelInput, root) {
+    cleanup(valueInput, labelInput, root);
+    triggerChangeEvent('change', valueInput);
+    return true;
+};
+
+/**
  * Handles the click on the arrow icon
  * @param {HTMLUListElement} list
  * @param {HTMLInputElement} valueInput
@@ -446,8 +458,7 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
          * @return {undefined}
          */
         function (e) {
-            cleanup(valueInput, labelInput, root);
-            triggerChangeEvent('change', valueInput);
+            _reset(valueInput, labelInput, root);
             if (isListVisible(list)) {
                 fetchListFn(e);
                 labelInput.focus();
@@ -578,18 +589,58 @@ var input = function () {
                 attributeChangedCallback: {
                     value: function value() {}
                 }
-            }), {
+            }),
+            /**
+             * Public API
+             */
+            {
                 /**
+                 * Returns the selected value
                  * @this {HTMLElement}
                  */
                 selectedValue: function selectedValue() {
                     return $('[type=hidden]', this).value;
                 },
+
+                /**
+                 * Returns what user has written
+                 * @this {HTMLElement}
+                 */
                 userQuery: function userQuery() {
                     return $('[type=text]', this).value;
                 },
+
+                /**
+                 * returns the bounded data source element
+                 * @this {HTMLElement}
+                 */
                 dataSourceElement: function dataSourceElement() {
                     return document.getElementById(this.getAttribute('data-source'));
+                },
+
+                /**
+                 * Resets the component
+                 * @this {HTMLElement}
+                 */
+                reset: function reset() {
+                    /** @type {HTMLInputElement} */
+                    var userFacingInput = $('[type=text]', this);
+
+                    /** @type {HTMLInputElement} */
+                    var valueInput = $('[type=hidden]', this);
+
+                    return _reset(valueInput, userFacingInput, this);
+                },
+
+                /**
+                 * Resets the component
+                 * @param {Boolean} flag
+                 * @this {HTMLElement}
+                 */
+                toggleDisabled: function toggleDisabled(flag) {
+                    /** @type {HTMLInputElement} */
+                    $('[type=text]', this).disabled = flag;
+                    return true;
                 }
             })
         });
