@@ -160,13 +160,14 @@ const isListVisible = list =>
  * When user clicks cross icon, all the input must be removed
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
- * @param {Element} root
+ * @param {HTMLElement} rootElement
  * @return {*}
  */
-const cleanup = (valueInput, labelInput, root) => {
+const cleanup = (valueInput, labelInput, rootElement) => {
     valueInput.value = '';
     labelInput.value = '';
-    root.classList.remove('as24-autocomplete--user-input');
+    rootElement.isDirty = false;
+    rootElement.classList.remove('as24-autocomplete--user-input');
 };
 
 
@@ -176,8 +177,10 @@ const cleanup = (valueInput, labelInput, root) => {
  * @param {Element} rootElement
  * @return {*}
  */
-const dirtifyInput = (rootElement) =>
+const dirtifyInput = (rootElement) => {
+    rootElement.isDirty = true;
     rootElement.classList.add('as24-autocomplete--user-input');
+};
 
 
 
@@ -222,7 +225,7 @@ const renderEmptyListItem = emptyMessage => {
 /**
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
- * @param {HTMLElement} list
+ * @param {HTMLUListElement} list
  * @param {HTMLInputElement} labelInput
  * @returns {Function}
  */

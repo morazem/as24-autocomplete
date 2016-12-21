@@ -144,13 +144,14 @@ var isListVisible = function isListVisible(list) {
  * When user clicks cross icon, all the input must be removed
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} labelInput
- * @param {Element} root
+ * @param {HTMLElement} rootElement
  * @return {*}
  */
-var cleanup = function cleanup(valueInput, labelInput, root) {
+var cleanup = function cleanup(valueInput, labelInput, rootElement) {
     valueInput.value = '';
     labelInput.value = '';
-    root.classList.remove('as24-autocomplete--user-input');
+    rootElement.isDirty = false;
+    rootElement.classList.remove('as24-autocomplete--user-input');
 };
 
 /**
@@ -159,7 +160,8 @@ var cleanup = function cleanup(valueInput, labelInput, root) {
  * @return {*}
  */
 var dirtifyInput = function dirtifyInput(rootElement) {
-    return rootElement.classList.add('as24-autocomplete--user-input');
+    rootElement.isDirty = true;
+    rootElement.classList.add('as24-autocomplete--user-input');
 };
 
 /**
@@ -202,7 +204,7 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
 /**
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
- * @param {HTMLElement} list
+ * @param {HTMLUListElement} list
  * @param {HTMLInputElement} labelInput
  * @returns {Function}
  */
