@@ -402,12 +402,12 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyLi
 /**
  * Handles the click on the arrow icon
  * @param {HTMLUListElement} list
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {Function} fetchListFn
  * @param {Element} root
  * @returns {function}
  */
-var handleArrowClick = function handleArrowClick(list, labelInput, fetchListFn, root) {
+var handleArrowClick = function handleArrowClick(list, userFacingInput, fetchListFn, root) {
     return (
         /**
          * @function
@@ -416,11 +416,13 @@ var handleArrowClick = function handleArrowClick(list, labelInput, fetchListFn, 
          */
         function (e) {
             e.stopPropagation();
-            if (isListVisible(list)) {
-                hideList(list, root)(e);
-            } else {
-                labelInput.focus();
-                fetchListFn(e);
+            if (!userFacingInput.disabled) {
+                if (isListVisible(list)) {
+                    hideList(list, root)(e);
+                } else {
+                    userFacingInput.focus();
+                    fetchListFn(e);
+                }
             }
         }
     );

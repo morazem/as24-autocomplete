@@ -552,6 +552,8 @@ function elementAttached() {
      */
     var fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
 
+    root.isDirty = false;
+
     setTimeout(function () {
         if (valueInput.value) {
             getInitialValueByKey(dataSource, valueInput.value).then(function (suggestion) {

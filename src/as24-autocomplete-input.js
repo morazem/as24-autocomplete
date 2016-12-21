@@ -577,6 +577,8 @@ function elementAttached() {
      */
     const fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
 
+    root.isDirty = false;
+
     setTimeout(() => {
         if (valueInput.value) {
             getInitialValueByKey(dataSource, valueInput.value)
