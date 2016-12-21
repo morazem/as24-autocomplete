@@ -429,12 +429,12 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, roo
 /**
  * Handles the click on the arrow icon
  * @param {HTMLUListElement} list
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {Function} fetchListFn
  * @param {Element} root
  * @returns {function}
  */
-const handleArrowClick = (list, labelInput, fetchListFn, root) =>
+const handleArrowClick = (list, userFacingInput, fetchListFn, root) =>
     /**
      * @function
      * @param {DOMEvent} e
@@ -442,11 +442,13 @@ const handleArrowClick = (list, labelInput, fetchListFn, root) =>
      */
     e => {
         e.stopPropagation();
-        if (isListVisible(list)) {
-            hideList(list, root)(e);
-        } else {
-            labelInput.focus();
-            fetchListFn(e);
+        if (!userFacingInput.disabled) {
+            if (isListVisible(list)) {
+                hideList(list, root)(e);
+            } else {
+                userFacingInput.focus();
+                fetchListFn(e);
+            }
         }
     };
 
