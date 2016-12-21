@@ -42,11 +42,12 @@ class DataSource extends HTMLElement {
     fetchItems(queryString) {
         return new Promise(res => {
             const keyVals = this.extractKeyValues();
+            const escapedQueryString = queryString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
             const startingWith = keyVals
-                .filter(valuePredicate(new RegExp(`^${queryString}`, 'ig')));
+                .filter(valuePredicate(new RegExp(`^${escapedQueryString}`, 'ig')));
             const theRestContaining = keyVals
                 .filter(x => startingWith.indexOf(x) === -1)
-                .filter(valuePredicate(new RegExp(`${queryString}`, 'ig')));
+                .filter(valuePredicate(new RegExp(`${escapedQueryString}`, 'ig')));
             return res(startingWith.concat(theRestContaining));
         });
     }

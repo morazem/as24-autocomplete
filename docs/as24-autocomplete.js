@@ -180,9 +180,10 @@ var renderLI = function renderLI(searchStr) {
          */
         function (item) {
             var li = document.createElement('li');
+            var escapedSearchStr = searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
             li.classList.add('as24-autocomplete__list-item');
             li.dataset.key = item.key;
-            li.innerHTML = item.value.replace(new RegExp('(' + searchStr + ')', 'ig'), '<strong>$1</strong>');
+            li.innerHTML = item.value.replace(new RegExp('(' + escapedSearchStr + ')', 'ig'), '<strong>$1</strong>');
             return li;
         }
     );
@@ -609,7 +610,7 @@ var input = function () {
                  * @this {HTMLElement}
                  */
                 dataSourceElement: function dataSourceElement() {
-                    return document.getElementById(this.getAttribute('data-source'));
+                    return this.querySelector('[role=data-source]');
                 },
 
                 /**
@@ -828,10 +829,11 @@ var DataSource = function (_HTMLElement) {
 
             return new Promise(function (res) {
                 var keyVals = _this2.extractKeyValues();
-                var startingWith = keyVals.filter(valuePredicate(new RegExp('^' + queryString, 'ig')));
+                var escapedQueryString = queryString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+                var startingWith = keyVals.filter(valuePredicate(new RegExp('^' + escapedQueryString, 'ig')));
                 var theRestContaining = keyVals.filter(function (x) {
                     return startingWith.indexOf(x) === -1;
-                }).filter(valuePredicate(new RegExp('' + queryString, 'ig')));
+                }).filter(valuePredicate(new RegExp('' + escapedQueryString, 'ig')));
                 return res(startingWith.concat(theRestContaining));
             });
         }
@@ -890,5 +892,3 @@ var as24Autocomplete = (function init() {
 return as24Autocomplete;
 
 }());
-
-//# sourceMappingURL=as24-autocomplete.js.map

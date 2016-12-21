@@ -196,9 +196,10 @@ const renderLI = searchStr =>
      */
     item => {
         const li = document.createElement('li');
+        const escapedSearchStr = searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
         li.classList.add('as24-autocomplete__list-item');
         li.dataset.key = item.key;
-        li.innerHTML = item.value.replace(new RegExp(`(${searchStr})`, 'ig'), '<strong>$1</strong>');
+        li.innerHTML = item.value.replace(new RegExp(`(${escapedSearchStr})`, 'ig'), '<strong>$1</strong>');
         return li;
     };
 
