@@ -87,7 +87,7 @@ document.querySelector('#my-ac').selectedValue();
 This is how you add the autocomplete itself:
 
 ```html
-<as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
+<as24-autocomplete empty-list-message="No items satisfying your request">
   <input type="hidden" name="makeId" value="10"> <!-- Predefined value -->
   <div class="as24-autocomplete__input-wrapper">
     <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
@@ -102,16 +102,15 @@ This is how you add the autocomplete itself:
     </div>
   </div>
   <ul class="as24-autocomplete__list"></ul>
+  <as24-tags-data-source role="data-source">
+    <item key="10" value="Audi"></item>
+    <!-- ... -->
+    <item key="60" value="Volkswagen"></item>
+  </as24-tags-data-source>
 </as24-autocomplete>
-
-<as24-tags-data-source id="makes-data-source">
-  <item key="10" value="Audi"></item>
-  <!-- ... -->
-  <item key="60" value="Volkswagen"></item>
-</as24-tags-data-source>
 ```
 
-Autocomplete needs a data source. This package provides the default one:
+Autocomplete needs a data source. This package provides the default one. It uses tags to hold raw data. Those tags are being parsed and JSON data is being extracted.
 
 ```html
 <as24-tags-data-source id="your-data-source-id">
@@ -119,6 +118,14 @@ Autocomplete needs a data source. This package provides the default one:
     <!-- ... -->
     <item key="N" value="xxxx"></item>
 </as24-tags-data-source>
+```
+
+```
+[
+    {key:"1", value:"Option 1"}
+    ...
+    {key:"N", value:"xxxx"}
+]
 ```
 
 Happy autocompleting :)

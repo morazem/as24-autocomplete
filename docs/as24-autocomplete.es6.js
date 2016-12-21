@@ -494,16 +494,6 @@ function elementAttached() {
     var emptyListMessage = root.getAttribute('empty-list-message') || '---';
 
     /**
-     * The id of the data-source element
-     * @type {string}
-     */
-    var dataSourceName = root.getAttribute('data-source');
-
-    if (!dataSourceName) {
-        throw new Error('The data source is missing');
-    }
-
-    /**
      * The input with which the user can interact
      * @type {HTMLInputElement}
      */
@@ -537,10 +527,10 @@ function elementAttached() {
      * DataSource element
      * @type {DataSource}
      */
-    var dataSource = $('#' + dataSourceName, document);
+    var dataSource = this.querySelector('[role=data-source]');
 
     if (!dataSource) {
-        throw new Error('The DataSource ' + dataSourceName + ' has not been found');
+        throw new Error('The DataSource has not been found');
     }
 
     /**
@@ -548,6 +538,8 @@ function elementAttached() {
      * @type {Function}
      */
     var fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
+
+    root.isDirty = false;
 
     setTimeout(function () {
         if (valueInput.value) {

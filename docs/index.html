@@ -17,7 +17,7 @@
 
   <h3>Autocomplete using tags</h3>
 
-  <as24-autocomplete data-source="test-data-source" empty-list-message="No items satisfying your request">
+  <as24-autocomplete empty-list-message="No items satisfying your request">
     <input type="hidden" name="makeId">
     <div class="as24-autocomplete__input-wrapper">
       <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
@@ -32,25 +32,24 @@
       </div>
     </div>
     <ul class="as24-autocomplete__list"></ul>
+    <as24-tags-data-source role="data-source">
+      <item key="1" value="qwer"></item>
+      <item key="2" value="asdf"></item>
+      <item key="20" value="aser"></item>
+      <item key="3" value="erty"></item>
+      <item key="4" value="sdfg"></item>
+      <item key="5" value="xcvb"></item>
+      <item key="6" value="ghjk"></item>
+      <item key="7" value="xcvb"></item>
+      <item key="8" value="vbnm"></item>
+      <item key="9" value="fghj"></item>
+      <item key="10" value="sdfg"></item>
+    </as24-tags-data-source>
   </as24-autocomplete>
-
-  <as24-tags-data-source id="test-data-source">
-    <item key="1" value="qwer"></item>
-    <item key="2" value="asdf"></item>
-    <item key="20" value="aser"></item>
-    <item key="3" value="erty"></item>
-    <item key="4" value="sdfg"></item>
-    <item key="5" value="xcvb"></item>
-    <item key="6" value="ghjk"></item>
-    <item key="7" value="xcvb"></item>
-    <item key="8" value="vbnm"></item>
-    <item key="9" value="fghj"></item>
-    <item key="10" value="sdfg"></item>
-  </as24-tags-data-source>
 
   <h3>Autocomplete using XHR simulation</h3>
 
-  <as24-autocomplete data-source="makes-data-source" empty-list-message="No items satisfying your request">
+  <as24-autocomplete empty-list-message="No items satisfying your request">
     <input type="hidden" name="makeId" value="30">
     <div class="as24-autocomplete__input-wrapper">
       <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
@@ -65,16 +64,15 @@
       </div>
     </div>
     <ul class="as24-autocomplete__list"></ul>
+    <as24-tags-data-source role="data-source">
+      <item key="10" value="Audi"></item>
+      <item key="20" value="BMW"></item>
+      <item key="30" value="Ford"></item>
+      <item key="40" value="Mercedes-Benz"></item>
+      <item key="50" value="Opel"></item>
+      <item key="60" value="Volkswagen"></item>
+    </as24-tags-data-source>
   </as24-autocomplete>
-
-  <as24-tags-data-source id="makes-data-source">
-    <item key="10" value="Audi"></item>
-    <item key="20" value="BMW"></item>
-    <item key="30" value="Ford"></item>
-    <item key="40" value="Mercedes-Benz"></item>
-    <item key="50" value="Opel"></item>
-    <item key="60" value="Volkswagen"></item>
-  </as24-tags-data-source>
 
 </div>
 
