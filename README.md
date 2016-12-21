@@ -66,6 +66,8 @@ Or just `@import` it from `node_modules`:
 - `.selectedValue()` - returns the selected value
 - `.userQuery()` - returns the query that user has entered
 - `.dataSourceElement()` - returns the data source element
+- `.reset()` - resets the component (clears values)
+- `.toggleDisabled(flag)` - flag:boolean - specifies whether the component is disabled
 
 Example:
 

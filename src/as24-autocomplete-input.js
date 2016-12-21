@@ -453,6 +453,20 @@ const handleArrowClick = (list, labelInput, fetchListFn, root) =>
 
 
 /**
+ * Reset the state of the component
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLInputElement} labelInput
+ * @param {HTMLElement} root
+ */
+const reset = (valueInput, labelInput, root) => {
+    cleanup(valueInput, labelInput, root);
+    triggerChangeEvent('change', valueInput);
+    return true;
+};
+
+
+
+/**
  * Handles the click on the arrow icon
  * @param {HTMLUListElement} list
  * @param {HTMLInputElement} valueInput
@@ -468,8 +482,7 @@ const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
      * @return {undefined}
      */
     e => {
-        cleanup(valueInput, labelInput, root);
-        triggerChangeEvent('change', valueInput);
+        reset();
         if (isListVisible(list)) {
             fetchListFn(e);
             labelInput.focus();
@@ -607,18 +620,54 @@ export default function() {
                     attributeChangedCallback: {
                         value() {}
                     }
-                }), {
+                }),
+                /**
+                 * Public API
+                 */
+                {
                     /**
+                     * Returns the selected value
                      * @this {HTMLElement}
                      */
                     selectedValue() {
                         return $('[type=hidden]', this).value;
                     },
+                    /**
+                     * Returns what user has written
+                     * @this {HTMLElement}
+                     */
                     userQuery() {
                         return $('[type=text]', this).value;
                     },
+                    /**
+                     * returns the bounded data source element
+                     * @this {HTMLElement}
+                     */
                     dataSourceElement() {
                         return document.getElementById(this.getAttribute('data-source'));
+                    },
+                    /**
+                     * Resets the component
+                     * @this {HTMLElement}
+                     */
+                    reset() {
+                        /** @type {HTMLInputElement} */
+                        const userFacingInput = $('[type=text]', this);
+
+                        /** @type {HTMLInputElement} */
+                        const valueInput = $('[type=hidden]', this);
+
+                        return reset(valueInput, userFacingInput, this);
+                    },
+                    /**
+                     * Resets the component
+                     * @param {Boolean} flag
+                     * @this {HTMLElement}
+                     */
+                    toggleDisabled(flag) {
+                        /** @type {HTMLInputElement} */
+                        $('[type=text]', this).disabled = flag;
+                        return true;
                     }
                 }
             )
