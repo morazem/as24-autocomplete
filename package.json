@@ -1,11 +1,12 @@
 {
   "name": "as24-autocomplete",
-  "version": "0.11.3",
+  "version": "0.11.4",
   "description": "Autocomplete component",
   "main": "dist/as24-autocomplete.js",
   "jsnext:main": "dist/as24-autocomplete.es6.js",
   "style": "src/as24-autocomplete.scss",
   "scripts": {
+    "patch": "npm run build && npm --no-git-tag-version version patch && git add . && git ci && git changelog && git add . && git ci --amend && git release && npm publish",
     "build": "gulp",
     "serve": "gulp serve",
     "test": "echo \"Error: no test specified\" && exit 1"
