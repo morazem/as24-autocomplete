@@ -289,8 +289,8 @@ as24-autocomplete {
   cursor: not-allowed; }
   .as24-autocomplete--disabled .as24-autocomplete__icon-wrapper {
     cursor: not-allowed; }
-    .as24-autocomplete--disabled .as24-autocomplete__icon-wrapper svg path {
-      fill: #c4c4c4; }
+  .as24-autocomplete--disabled svg path {
+    fill: #c4c4c4; }
 
 .as24-autocomplete--active .as24-autocomplete__icon-wrapper {
   transform: rotate(180deg); }
