@@ -9,6 +9,20 @@ as24-autocomplete {
 
 .as24-autocomplete {
 
+    &--disabled {
+        cursor: not-allowed;
+        .as24-autocomplete {
+            &__icon-wrapper {
+                cursor: not-allowed;
+            }
+        }
+        svg {
+            path {
+                fill: $black-40;
+            }
+        }
+    }
+
     &--active {
         .as24-autocomplete {
             &__icon-wrapper {
@@ -69,7 +83,6 @@ as24-autocomplete {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        cursor: pointer;
     }
 
     &__icon-dropdown {

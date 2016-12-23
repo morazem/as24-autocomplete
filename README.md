@@ -58,7 +58,7 @@ Or just `@import` it from `node_modules`:
 
 ### Attributes of `autocomplete`
 
-- `data-source` [required] - the `id` of the data source element
+- `disabled` [optional] - self-explanatory
 - `empty-list-message` [optional] - the message that user  will see when there's nothing to suggest
 
 ### Public APi
@@ -67,7 +67,6 @@ Or just `@import` it from `node_modules`:
 - `.userQuery()` - returns the query that user has entered
 - `.dataSourceElement()` - returns the data source element
 - `.reset()` - resets the component (clears values)
-- `.toggleDisabled(flag)` - flag:boolean - specifies whether the component is disabled
 
 Example:
 

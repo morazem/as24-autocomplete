@@ -608,7 +608,25 @@ function elementAttached() {
 
 function elementDetached() { }
 
+/**
+ * @this {HTMLElement}
+ * @param attrName
+ * @param oldVal
+ * @param newVal
+ */
+function onAttributeChanged(attrName, oldVal, newVal) {
+    /** @type {HTMLInputElement} */
+    const userFacingInput = $('[type=text]', this);
 
+    /** @type {HTMLUListElement} */
+    const list = $('.as24-autocomplete__list', this);
+
+    if (attrName === 'disabled') {
+        userFacingInput.disabled = newVal === 'true' || newVal === 'disabled';
+        this.classList[userFacingInput.disabled ? 'add' : 'remove']('as24-autocomplete--disabled');
+        hideList(list, this)();
+    }
+}
 
 export default function() {
     try {
@@ -617,9 +635,7 @@ export default function() {
                 Object.create(HTMLElement.prototype, {
                     attachedCallback: { value: elementAttached },
                     detachedCallback: { value: elementDetached },
-                    attributeChangedCallback: {
-                        value() {}
-                    }
+                    attributeChangedCallback: { value: onAttributeChanged }
                 }),
                 /**
                  * Public API
@@ -658,16 +674,6 @@ export default function() {
                         const valueInput = $('[type=hidden]', this);
 
                         return reset(valueInput, userFacingInput, this);
-                    },
-                    /**
-                     * Resets the component
-                     * @param {Boolean} flag
-                     * @this {HTMLElement}
-                     */
-                    toggleDisabled(flag) {
-                        /** @type {HTMLInputElement} */
-                        $('[type=text]', this).disabled = flag;
-                        return true;
                     }
                 }
             )

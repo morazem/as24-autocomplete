@@ -285,6 +285,13 @@ as24-autocomplete {
   position: relative;
   display: block; }
 
+.as24-autocomplete--disabled {
+  cursor: not-allowed; }
+  .as24-autocomplete--disabled .as24-autocomplete__icon-wrapper {
+    cursor: not-allowed; }
+  .as24-autocomplete--disabled svg path {
+    fill: #c4c4c4; }
+
 .as24-autocomplete--active .as24-autocomplete__icon-wrapper {
   transform: rotate(180deg); }
 
@@ -322,8 +329,7 @@ as24-autocomplete {
 .as24-autocomplete__icon-dropdown, .as24-autocomplete__icon-cross {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer; }
+  transform: translateY(-50%); }
 
 .as24-autocomplete__icon-dropdown {
   display: block; }
