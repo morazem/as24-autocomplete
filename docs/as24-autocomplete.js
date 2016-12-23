@@ -199,7 +199,8 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
      * @type {HTMLLIElement}
      */
     var li = document.createElement('li');
-    li.classList.add('as24-autocomplete__list-item');
+    li.dataset.unselectable = true;
+    ['as24-autocomplete__list-item', 'as24-autocomplete__list-item--empty'].forEach(li.classList.add.bind(li.classList));
     li.dataset.key = '';
     li.innerText = emptyMessage;
     return li;
@@ -223,7 +224,6 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
 
             (suggestions.length ? suggestions.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
 
-            list.classList[suggestions.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
             appendTo(list)(df);
             showList(list);
         }
@@ -288,7 +288,12 @@ var selectItem = function selectItem(valueInput, labelInput, li, rootElement) {
  */
 var onItemClicked = function onItemClicked(valueInput, labelInput, list, rootElement) {
     return function (e) {
-        selectItem(valueInput, labelInput, closestByClassName('as24-autocomplete__list-item')(e.target), rootElement);
+        var theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
+        if (theItem.dataset.unselectable) {
+            e.stopPropagation();
+            return;
+        }
+        selectItem(valueInput, labelInput, theItem, rootElement);
         rootElement.classList.add('as24-autocomplete--user-input');
         hideList(list, rootElement)(e);
     };
@@ -892,3 +897,5 @@ var as24Autocomplete = (function init() {
 return as24Autocomplete;
 
 }());
+
+//# sourceMappingURL=as24-autocomplete.js.map

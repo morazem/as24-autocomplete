@@ -215,7 +215,8 @@ const renderEmptyListItem = emptyMessage => {
      * @type {HTMLLIElement}
      */
     const li = document.createElement('li');
-    li.classList.add('as24-autocomplete__list-item');
+    li.dataset.unselectable = true;
+    ['as24-autocomplete__list-item', 'as24-autocomplete__list-item--empty'].forEach(li.classList.add.bind(li.classList));
     li.dataset.key = '';
     li.innerText = emptyMessage;
     return li;
@@ -243,7 +244,6 @@ const renderList = (emptyMessage, list, labelInput) =>
             : [renderEmptyListItem(emptyMessage)]
         ).forEach(appendTo(df));
 
-        list.classList[suggestions.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
         appendTo(list)(df);
         showList(list);
     };
@@ -308,7 +308,12 @@ const selectItem = (valueInput, labelInput, li, rootElement) => {
  * @param {HTMLElement} rootElement
  */
 const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
-    selectItem(valueInput, labelInput, closestByClassName('as24-autocomplete__list-item')(e.target), rootElement);
+    const theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
+    if (theItem.dataset.unselectable) {
+        e.stopPropagation();
+        return;
+    }
+    selectItem(valueInput, labelInput, theItem, rootElement);
     rootElement.classList.add('as24-autocomplete--user-input');
     hideList(list, rootElement)(e);
 };

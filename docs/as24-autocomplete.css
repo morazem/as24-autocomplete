@@ -349,12 +349,14 @@ as24-autocomplete {
   top: -3px; }
   .as24-autocomplete__list--visible {
     display: block; }
-  .as24-autocomplete__list--empty {
-    color: red; }
 
 .as24-autocomplete__list-item {
-  padding: 4px 12px; }
+  padding: 4px 12px;
+  user-select: none; }
   .as24-autocomplete__list-item--preselected {
     background: #dcdcdc; }
   .as24-autocomplete__list-item--selected {
     background: #ff7500; }
+  .as24-autocomplete__list-item--empty {
+    color: #d91a2a;
+    background: #dcdcdc; }
