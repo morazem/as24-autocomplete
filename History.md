@@ -1,9 +1,4 @@
 
-v0.11.4 / 2016-12-23
-==================
-
-  * Automate release process
-
 v0.11.3 / 2016-12-23
 ====================
 
@@ -17,7 +12,7 @@ v0.11.2 / 2016-12-21
 v0.11.1 / 2016-12-21
 ====================
 
-  * small bug fixes
+  * fixes
 
 v0.11.0 / 2016-12-21
 ====================
@@ -57,6 +52,7 @@ v0.8.0 / 2016-12-20
 v0.7.2 / 2016-12-20
 ===================
 
+  * Release v0.7.2
   * Improved the way the suggestion list is being formed. Refactored rendering of items
 
 v0.7.1 / 2016-12-19
@@ -83,12 +79,13 @@ v0.5.0 / 2016-12-19
 v0.4.3 / 2016-12-19
 ===================
 
+  * Release v0.4.3
   * Fixed code style
 
 0.4.2 / 2016-12-16
 ==================
 
-  * Fixed autocomplete triggering onchange event on hidden input
+  * Andrey/Ivan: Fixed autocomplete triggering onchange event on hidden input
   * Refactored the data source to be more developer friendly. Removed an ugly hack with global cache
 
 v0.4.1 / 2016-12-14
@@ -125,6 +122,7 @@ v0.3.1 / 2016-12-12
 v0.2.3 / 2016-11-11
 ===================
 
+  * 0.2.3
   * added highlightning to result list
   * added placeholder and changed box-sizing for list
 
@@ -150,7 +148,10 @@ v0.1.1 / 2016-10-21
   * Added new build target, fixed modules
   * Added another build artifact
   * Update README.md
-
+  * Update README.md
+  * Update README.md
+  * Update README.md
+  * Update README.md
 
 v0.1.0 / 2016-10-21
 ===================
@@ -160,11 +161,11 @@ v0.1.0 / 2016-10-21
 v0.0.8 / 2016-10-21
 ===================
 
-  * Fixed readme
-  * Fixed keyboard navigation
-  * Further refactoring
-  * Fixed filtering and hover
-  * Keyboards nav works
+  * Diana/Ivan: Fixed readme
+  * Diana/Ivan: Fixed keyboard navigation
+  * Diana/Ivan: Further refactoring
+  * Diana/Ivan: Fixed filtering and hover
+  * Diana/Ivan: Keyboards nav works
   * Huge improvements
   * Added browser sync
   * Diana/Ivan: first results
