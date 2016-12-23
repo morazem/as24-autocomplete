@@ -17,17 +17,38 @@ var as24Autocomplete = (function () {
 
 /**
  * Finds a closest element by class name
- * @param className
+ * @param {string} className
  * @returns {function}
  */
 var closestByClassName = function closestByClassName(className) {
     return (
         /**
          * @param {HTMLElement} elem
-         * @return {HTMLElement}
+         * @return {HTMLElement|null}
          */
         function (elem) {
-            return elem.classList.contains(className) ? elem : closestByClassName(className)(elem.parentElement);
+            if (elem === null) {
+                return null;
+            } else {
+                return elem.classList.contains(className) ? elem : closestByClassName(className)(elem.parentElement);
+            }
+        }
+    );
+};
+
+/**
+ * Checks whether elem has tag as a parent
+ * @param {HTMLElement} tag
+ * @returns {function}
+ */
+var closestByTag = function closestByTag(tag) {
+    return (
+        /**
+         * @param {HTMLElement} elem
+         * @return {HTMLElement|null}
+         */
+        function (elem) {
+            return elem === null ? null : elem === tag ? tag : closestByTag(tag)(elem.parentNode);
         }
     );
 };
@@ -146,13 +167,13 @@ var isListVisible = function isListVisible(list) {
 /**
  * When user clicks cross icon, all the input must be removed
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLElement} rootElement
  * @return {*}
  */
-var cleanup = function cleanup(valueInput, labelInput, rootElement) {
+var cleanup = function cleanup(valueInput, userFacingInput, rootElement) {
     valueInput.value = '';
-    labelInput.value = '';
+    userFacingInput.value = '';
     rootElement.isDirty = false;
     rootElement.classList.remove('as24-autocomplete--user-input');
 };
@@ -210,10 +231,10 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
  * @param {HTMLUListElement} list
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @returns {Function}
  */
-var renderList = function renderList(emptyMessage, list, labelInput) {
+var renderList = function renderList(emptyMessage, list, userFacingInput) {
     return (
         /**
          * @param {Array<Suggestion>} suggestions
@@ -222,7 +243,7 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
             list.innerHTML = '';
             var df = document.createDocumentFragment();
 
-            (suggestions.length ? suggestions.map(renderLI(labelInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+            (suggestions.length ? suggestions.map(renderLI(userFacingInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
 
             appendTo(list)(df);
             showList(list);
@@ -233,13 +254,13 @@ var renderList = function renderList(emptyMessage, list, labelInput) {
 /**
  * Fetch data according to user input and renders the list
  * @param {DataSource} dataSource
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
  * @returns {function}
  */
-var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, rootElement) {
+var fetchList = function fetchList(dataSource, userFacingInput, list, emptyMessage, rootElement) {
     return (
         /**
          * @function
@@ -249,7 +270,7 @@ var fetchList = function fetchList(dataSource, labelInput, list, emptyMessage, r
         function (e) {
             e.stopPropagation();
             rootElement.classList.add('as24-autocomplete--active');
-            dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
+            dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput));
         }
     );
 };
@@ -268,35 +289,15 @@ var triggerChangeEvent = function triggerChangeEvent(eventName, el) {
 /**
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLLIElement} li
  * @param {Element} rootElement
  */
-var selectItem = function selectItem(valueInput, labelInput, li, rootElement) {
+var selectItem = function selectItem(valueInput, userFacingInput, li, rootElement) {
     valueInput.value = li.dataset.key;
-    labelInput.value = li.innerText;
+    userFacingInput.value = li.innerText;
     triggerChangeEvent('change', valueInput);
     dirtifyInput(rootElement);
-};
-
-/**
- * This is what happens then user clicked in the suggestion item
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
- * @param {HTMLUListElement} list
- * @param {HTMLElement} rootElement
- */
-var onItemClicked = function onItemClicked(valueInput, labelInput, list, rootElement) {
-    return function (e) {
-        var theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
-        if (theItem.dataset.unselectable) {
-            e.stopPropagation();
-            return;
-        }
-        selectItem(valueInput, labelInput, theItem, rootElement);
-        rootElement.classList.add('as24-autocomplete--user-input');
-        hideList(list, rootElement)(e);
-    };
 };
 
 /**
@@ -328,13 +329,13 @@ var onItemMouseOver = function onItemMouseOver(list) {
  * Handles key down event from the label input
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
-var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) {
+var onKeyDown = function onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) {
     return (
         /**
          * @function
@@ -342,14 +343,14 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emp
          * @return {undefined}
          */
         function (e) {
-            if (e.target === labelInput) {
+            if (e.target === userFacingInput) {
                 if ([38, 40, 27].indexOf(e.which) >= 0) {
                     e.stopPropagation();
                     e.preventDefault();
                 }
                 if (e.which === 9) {
                     if (isListVisible(list)) {
-                        selectItem(valueInput, labelInput, getSelectedSuggestionItem(list), rootElement);
+                        selectItem(valueInput, userFacingInput, getSelectedSuggestionItem(list), rootElement);
                         hideList(list, rootElement)(e);
                     }
                 }
@@ -357,10 +358,10 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emp
                     return moveSelection(-1, list);
                 }
                 if (e.which === 40) {
-                    return isListVisible(list) ? moveSelection(1, list) : fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
+                    return isListVisible(list) ? moveSelection(1, list) : fetchList(dataSource, userFacingInput, list, emptyListMessage, rootElement)(e);
                 }
                 if (e.which === 27) {
-                    cleanup(valueInput, labelInput, rootElement);
+                    cleanup(valueInput, userFacingInput, rootElement);
                     return hideList(list, rootElement)();
                 }
             }
@@ -373,13 +374,13 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, labelInput, list, emp
  * Handles key up event from the label input
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
-var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) {
+var onKeyUp = function onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) {
     return (
         /**
          * @function
@@ -387,21 +388,21 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyLi
          * @return {*}
          */
         function (e) {
-            if (labelInput.value) {
+            if (userFacingInput.value) {
                 dirtifyInput(rootElement);
             } else {
-                cleanup(valueInput, labelInput, rootElement);
+                cleanup(valueInput, userFacingInput, rootElement);
             }
             if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
                 e.stopPropagation();
                 e.preventDefault();
-                selectItem(valueInput, labelInput, getSelectedSuggestionItem(list), rootElement);
+                selectItem(valueInput, userFacingInput, getSelectedSuggestionItem(list), rootElement);
                 hideList(list, rootElement)();
                 return false;
             }
             if ([38, 40, 27].indexOf(e.which) === -1) {
                 e.stopPropagation();
-                return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
+                return fetchList(dataSource, userFacingInput, list, emptyListMessage, rootElement)(e);
             }
             return null;
         }
@@ -409,70 +410,15 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, labelInput, list, emptyLi
 };
 
 /**
- * Handles the click on the arrow icon
- * @param {HTMLUListElement} list
- * @param {HTMLInputElement} userFacingInput
- * @param {Function} fetchListFn
- * @param {Element} root
- * @returns {function}
- */
-var handleArrowClick = function handleArrowClick(list, userFacingInput, fetchListFn, root) {
-    return (
-        /**
-         * @function
-         * @param {DOMEvent} e
-         * @return {undefined}
-         */
-        function (e) {
-            e.stopPropagation();
-            if (!userFacingInput.disabled) {
-                if (isListVisible(list)) {
-                    hideList(list, root)(e);
-                } else {
-                    userFacingInput.focus();
-                    fetchListFn(e);
-                }
-            }
-        }
-    );
-};
-
-/**
  * Reset the state of the component
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLElement} root
  */
-var _reset = function _reset(valueInput, labelInput, root) {
-    cleanup(valueInput, labelInput, root);
+var _reset = function _reset(valueInput, userFacingInput, root) {
+    cleanup(valueInput, userFacingInput, root);
     triggerChangeEvent('change', valueInput);
     return true;
-};
-
-/**
- * Handles the click on the arrow icon
- * @param {HTMLUListElement} list
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
- * @param {Function} fetchListFn
- * @param {Element} root
- * @returns {function}
- */
-var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, fetchListFn, root) {
-    return (
-        /**
-         * @function
-         * @param {DOMEvent} e
-         * @return {undefined}
-         */
-        function (e) {
-            _reset(valueInput, labelInput, root);
-            if (isListVisible(list)) {
-                fetchListFn(e);
-                labelInput.focus();
-            }
-        }
-    );
 };
 
 /**
@@ -483,6 +429,55 @@ var handleCrossClick = function handleCrossClick(list, valueInput, labelInput, f
  */
 var getInitialValueByKey = function getInitialValueByKey(dataSource, keyValue) {
     return dataSource.getSuggestionByKey(keyValue);
+};
+
+/**
+ * Handles click on the component
+ * @param {function} fetchListFn
+ * @param {HTMLInputElement} userFacingInput
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLUListElement} list
+ * @param {HTMLElement} rootElement
+ */
+var componentClicked = function componentClicked(fetchListFn, userFacingInput, valueInput, list, rootElement) {
+    return function (e) {
+        var isInput = closestByClassName('as24-autocomplete__input')(e.target);
+        var isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
+        var isList = closestByClassName('as24-autocomplete__list')(e.target);
+        if (closestByTag(rootElement)(e.target) === rootElement) {
+            if (isInput) {
+                fetchListFn(e);
+            } else if (isIcon) {
+                if (!userFacingInput.disabled) {
+                    if (rootElement.isDirty) {
+                        _reset(valueInput, userFacingInput, rootElement);
+                        if (isListVisible(list)) {
+                            fetchListFn(e);
+                            userFacingInput.focus();
+                        }
+                        return;
+                    }
+                    if (isListVisible(list)) {
+                        hideList(list, rootElement)(e);
+                    } else {
+                        userFacingInput.focus();
+                        fetchListFn(e);
+                    }
+                }
+            } else if (isList) {
+                var theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
+                if (theItem.dataset.unselectable) {
+                    e.stopPropagation();
+                    return;
+                }
+                selectItem(valueInput, userFacingInput, theItem, rootElement);
+                rootElement.classList.add('as24-autocomplete--user-input');
+                hideList(list, rootElement)(e);
+            }
+        } else {
+            hideList(list, rootElement)(e);
+        }
+    };
 };
 
 /**
@@ -521,18 +516,6 @@ function elementAttached() {
     var list = $('.as24-autocomplete__list', root);
 
     /**
-     * The arrow down icon
-     * @type {HTMLDivElement}
-     */
-    var iconDropdown = $('.as24-autocomplete__icon-dropdown', root);
-
-    /**
-     * The cross-arrow icon
-     * @type {*}
-     */
-    var iconCross = $('.as24-autocomplete__icon-cross', root);
-
-    /**
      * DataSource element
      * @type {DataSource}
      */
@@ -562,17 +545,7 @@ function elementAttached() {
         }
     });
 
-    if (iconDropdown) {
-        on('click', handleArrowClick(list, userFacingInput, fetchListFn, this), iconDropdown);
-    }
-
-    if (iconCross) {
-        on('click', handleCrossClick(list, valueInput, userFacingInput, fetchListFn, this), iconCross);
-    }
-
-    on('click', hideList(list, root), document);
-    on('click', fetchListFn, userFacingInput);
-    on('click', onItemClicked(valueInput, userFacingInput, list, root), list);
+    on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
@@ -582,9 +555,9 @@ function elementDetached() {}
 
 /**
  * @this {HTMLElement}
- * @param attrName
- * @param oldVal
- * @param newVal
+ * @param {string} attrName
+ * @param {string} oldVal
+ * @param {string} newVal
  */
 function onAttributeChanged(attrName, oldVal, newVal) {
     /** @type {HTMLInputElement} */

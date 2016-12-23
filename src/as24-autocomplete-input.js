@@ -18,18 +18,42 @@
 
 /**
  * Finds a closest element by class name
- * @param className
+ * @param {string} className
  * @returns {function}
  */
 const closestByClassName = className =>
     /**
      * @param {HTMLElement} elem
-     * @return {HTMLElement}
+     * @return {HTMLElement|null}
+     */
+    elem => {
+        if (elem === null) {
+            return null;
+        } else {
+            return elem.classList.contains(className)
+                ? elem
+                : closestByClassName(className)(elem.parentElement);
+        }
+    };
+
+
+
+/**
+ * Checks whether elem has tag as a parent
+ * @param {HTMLElement} tag
+ * @returns {function}
+ */
+const closestByTag = tag =>
+    /**
+     * @param {HTMLElement} elem
+     * @return {HTMLElement|null}
      */
     elem =>
-        elem.classList.contains(className)
-            ? elem
-            : closestByClassName(className)(elem.parentElement);
+        elem === null
+            ? null
+            : (elem === tag)
+                ? tag
+                : closestByTag(tag)(elem.parentNode);
 
 
 
@@ -159,13 +183,13 @@ const isListVisible = list =>
 /**
  * When user clicks cross icon, all the input must be removed
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLElement} rootElement
  * @return {*}
  */
-const cleanup = (valueInput, labelInput, rootElement) => {
+const cleanup = (valueInput, userFacingInput, rootElement) => {
     valueInput.value = '';
-    labelInput.value = '';
+    userFacingInput.value = '';
     rootElement.isDirty = false;
     rootElement.classList.remove('as24-autocomplete--user-input');
 };
@@ -228,10 +252,10 @@ const renderEmptyListItem = emptyMessage => {
  * Renders a collection of raw suggestions to the list
  * @param {string} emptyMessage
  * @param {HTMLUListElement} list
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @returns {Function}
  */
-const renderList = (emptyMessage, list, labelInput) =>
+const renderList = (emptyMessage, list, userFacingInput) =>
     /**
      * @param {Array<Suggestion>} suggestions
      */
@@ -240,7 +264,7 @@ const renderList = (emptyMessage, list, labelInput) =>
         const df = document.createDocumentFragment();
 
         (suggestions.length
-            ? suggestions.map(renderLI(labelInput.value))
+            ? suggestions.map(renderLI(userFacingInput.value))
             : [renderEmptyListItem(emptyMessage)]
         ).forEach(appendTo(df));
 
@@ -253,13 +277,13 @@ const renderList = (emptyMessage, list, labelInput) =>
 /**
  * Fetch data according to user input and renders the list
  * @param {DataSource} dataSource
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {String} emptyMessage
  * @param {Element} rootElement
  * @returns {function}
  */
-const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
+const fetchList = (dataSource, userFacingInput, list, emptyMessage, rootElement) =>
     /**
      * @function
      * @param {DOMEvent} e
@@ -268,7 +292,7 @@ const fetchList = (dataSource, labelInput, list, emptyMessage, rootElement) =>
     e => {
         e.stopPropagation();
         rootElement.classList.add('as24-autocomplete--active');
-        dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
+        dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput));
     };
 
 
@@ -287,35 +311,15 @@ const triggerChangeEvent = (eventName, el) => {
 /**
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLLIElement} li
  * @param {Element} rootElement
  */
-const selectItem = (valueInput, labelInput, li, rootElement) => {
+const selectItem = (valueInput, userFacingInput, li, rootElement) => {
     valueInput.value = li.dataset.key;
-    labelInput.value = li.innerText;
+    userFacingInput.value = li.innerText;
     triggerChangeEvent('change', valueInput);
     dirtifyInput(rootElement);
-};
-
-
-
-/**
- * This is what happens then user clicked in the suggestion item
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
- * @param {HTMLUListElement} list
- * @param {HTMLElement} rootElement
- */
-const onItemClicked = (valueInput, labelInput, list, rootElement) => e => {
-    const theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
-    if (theItem.dataset.unselectable) {
-        e.stopPropagation();
-        return;
-    }
-    selectItem(valueInput, labelInput, theItem, rootElement);
-    rootElement.classList.add('as24-autocomplete--user-input');
-    hideList(list, rootElement)(e);
 };
 
 
@@ -348,27 +352,27 @@ const onItemMouseOver = list =>
  * Handles key down event from the label input
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
-const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) =>
+const onKeyDown = (dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) =>
     /**
      * @function
      * @param {DOMEvent} e
      * @return {undefined}
      */
     e => {
-        if (e.target === labelInput) {
+        if (e.target === userFacingInput) {
             if ([38, 40, 27].indexOf(e.which) >= 0) {
                 e.stopPropagation();
                 e.preventDefault();
             }
             if (e.which === 9) {
                 if (isListVisible(list)) {
-                    selectItem(valueInput, labelInput,
+                    selectItem(valueInput, userFacingInput,
                         getSelectedSuggestionItem(list),
                         rootElement
                     );
@@ -381,11 +385,11 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, r
             if (e.which === 40) {
                 return isListVisible(list)
                     ? moveSelection(1, list)
-                    : fetchList(dataSource, labelInput, list,
+                    : fetchList(dataSource, userFacingInput, list,
                         emptyListMessage, rootElement)(e);
             }
             if (e.which === 27) {
-                cleanup(valueInput, labelInput, rootElement);
+                cleanup(valueInput, userFacingInput, rootElement);
                 return hideList(list, rootElement)();
             }
         }
@@ -398,34 +402,34 @@ const onKeyDown = (dataSource, valueInput, labelInput, list, emptyListMessage, r
  * Handles key up event from the label input
  * @param {DataSource} dataSource
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLUListElement} list
  * @param {string} emptyListMessage
  * @param {Element} rootElement
  * @return {function}
  */
-const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, rootElement) =>
+const onKeyUp = (dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) =>
     /**
      * @function
      * @param {DOMEvent} e
      * @return {*}
      */
     e => {
-        if (labelInput.value) {
+        if (userFacingInput.value) {
             dirtifyInput(rootElement);
         } else {
-            cleanup(valueInput, labelInput, rootElement);
+            cleanup(valueInput, userFacingInput, rootElement);
         }
         if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
             e.stopPropagation();
             e.preventDefault();
-            selectItem(valueInput, labelInput, getSelectedSuggestionItem(list), rootElement);
+            selectItem(valueInput, userFacingInput, getSelectedSuggestionItem(list), rootElement);
             hideList(list, rootElement)();
             return false;
         }
         if ([38, 40, 27].indexOf(e.which) === -1) {
             e.stopPropagation();
-            return fetchList(dataSource, labelInput, list, emptyListMessage, rootElement)(e);
+            return fetchList(dataSource, userFacingInput, list, emptyListMessage, rootElement)(e);
         }
         return null;
     };
@@ -433,69 +437,16 @@ const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage, roo
 
 
 /**
- * Handles the click on the arrow icon
- * @param {HTMLUListElement} list
- * @param {HTMLInputElement} userFacingInput
- * @param {Function} fetchListFn
- * @param {Element} root
- * @returns {function}
- */
-const handleArrowClick = (list, userFacingInput, fetchListFn, root) =>
-    /**
-     * @function
-     * @param {DOMEvent} e
-     * @return {undefined}
-     */
-    e => {
-        e.stopPropagation();
-        if (!userFacingInput.disabled) {
-            if (isListVisible(list)) {
-                hideList(list, root)(e);
-            } else {
-                userFacingInput.focus();
-                fetchListFn(e);
-            }
-        }
-    };
-
-
-
-/**
  * Reset the state of the component
  * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
+ * @param {HTMLInputElement} userFacingInput
  * @param {HTMLElement} root
  */
-const reset = (valueInput, labelInput, root) => {
-    cleanup(valueInput, labelInput, root);
+const reset = (valueInput, userFacingInput, root) => {
+    cleanup(valueInput, userFacingInput, root);
     triggerChangeEvent('change', valueInput);
     return true;
 };
-
-
-
-/**
- * Handles the click on the arrow icon
- * @param {HTMLUListElement} list
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} labelInput
- * @param {Function} fetchListFn
- * @param {Element} root
- * @returns {function}
- */
-const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
-    /**
-     * @function
-     * @param {DOMEvent} e
-     * @return {undefined}
-     */
-    e => {
-        reset(valueInput, labelInput, root);
-        if (isListVisible(list)) {
-            fetchListFn(e);
-            labelInput.focus();
-        }
-    };
 
 
 
@@ -507,6 +458,56 @@ const handleCrossClick = (list, valueInput, labelInput, fetchListFn, root) =>
  */
 const getInitialValueByKey = (dataSource, keyValue) =>
     dataSource.getSuggestionByKey(keyValue);
+
+
+/**
+ * Handles click on the component
+ * @param {function} fetchListFn
+ * @param {HTMLInputElement} userFacingInput
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLUListElement} list
+ * @param {HTMLElement} rootElement
+ */
+const componentClicked = (fetchListFn, userFacingInput, valueInput, list, rootElement) => (e) => {
+    const isInput = closestByClassName('as24-autocomplete__input')(e.target);
+    const isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
+    const isList = closestByClassName('as24-autocomplete__list')(e.target);
+    if (closestByTag(rootElement)(e.target) === rootElement) {
+        if (isInput) {
+            fetchListFn(e);
+        }
+        else if (isIcon) {
+            if (!userFacingInput.disabled) {
+                if (rootElement.isDirty) {
+                    reset(valueInput, userFacingInput, rootElement);
+                    if (isListVisible(list)) {
+                        fetchListFn(e);
+                        userFacingInput.focus();
+                    }
+                    return;
+                }
+                if (isListVisible(list)) {
+                    hideList(list, rootElement)(e);
+                } else {
+                    userFacingInput.focus();
+                    fetchListFn(e);
+                }
+            }
+        }
+        else if (isList) {
+            const theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
+            if (theItem.dataset.unselectable) {
+                e.stopPropagation();
+                return;
+            }
+            selectItem(valueInput, userFacingInput, theItem, rootElement);
+            rootElement.classList.add('as24-autocomplete--user-input');
+            hideList(list, rootElement)(e);
+        }
+    } else {
+        hideList(list, rootElement)(e);
+    }
+};
 
 
 
@@ -546,18 +547,6 @@ function elementAttached() {
     const list = $('.as24-autocomplete__list', root);
 
     /**
-     * The arrow down icon
-     * @type {HTMLDivElement}
-     */
-    const iconDropdown = $('.as24-autocomplete__icon-dropdown', root);
-
-    /**
-     * The cross-arrow icon
-     * @type {*}
-     */
-    const iconCross = $('.as24-autocomplete__icon-cross', root);
-
-    /**
      * DataSource element
      * @type {DataSource}
      */
@@ -588,17 +577,7 @@ function elementAttached() {
         }
     });
 
-    if (iconDropdown) {
-        on('click', handleArrowClick(list, userFacingInput, fetchListFn, this), iconDropdown);
-    }
-
-    if (iconCross) {
-        on('click', handleCrossClick(list, valueInput, userFacingInput, fetchListFn, this), iconCross);
-    }
-
-    on('click', hideList(list, root), document);
-    on('click', fetchListFn, userFacingInput);
-    on('click', onItemClicked(valueInput, userFacingInput, list, root), list);
+    on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
@@ -610,9 +589,9 @@ function elementDetached() { }
 
 /**
  * @this {HTMLElement}
- * @param attrName
- * @param oldVal
- * @param newVal
+ * @param {string} attrName
+ * @param {string} oldVal
+ * @param {string} newVal
  */
 function onAttributeChanged(attrName, oldVal, newVal) {
     /** @type {HTMLInputElement} */
