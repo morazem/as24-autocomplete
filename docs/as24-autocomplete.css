@@ -345,8 +345,8 @@ as24-autocomplete {
   max-height: 12rem;
   z-index: 1;
   width: 100%;
-  position: relative;
-  top: -3px; }
+  position: absolute;
+  margin-top: -3px; }
   .as24-autocomplete__list--visible {
     display: block; }
 
