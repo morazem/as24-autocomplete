@@ -192,6 +192,7 @@ const cleanup = (valueInput, userFacingInput, rootElement) => {
     userFacingInput.value = '';
     rootElement.isDirty = false;
     rootElement.classList.remove('as24-autocomplete--user-input');
+    removeInputError(rootElement);
 };
 
 
@@ -227,14 +228,34 @@ const renderLI = searchStr =>
         return li;
     };
 
+/**
+ * Highlight an error when there is nothing to suggest
+ * @param {HTMLElement} rootElement
+ * @return {*}
+ */
+const setInputError = rootElement =>{
+    const input = $('.as24-autocomplete__input', rootElement)
+    input.classList.add('error');
+}
 
+/**
+ * Remove error highlighting when there is something to suggest
+ * @param {HTMLElement} rootElement
+ * @return {*}
+ */
+const removeInputError = rootElement =>{
+    const input = $('.as24-autocomplete__input', rootElement)
+    input.classList.remove('error');
+}
 
 /**
  * What to render when there is nothing to suggest
  * @param {String} emptyMessage
+ * @param {HTMLElement} rootElement
  * @returns {HTMLLIElement}
  */
-const renderEmptyListItem = emptyMessage => {
+const renderEmptyListItem = (emptyMessage, rootElement) => {
+    setInputError(rootElement);
     /**
      * @type {HTMLLIElement}
      */
@@ -253,9 +274,10 @@ const renderEmptyListItem = emptyMessage => {
  * @param {string} emptyMessage
  * @param {HTMLUListElement} list
  * @param {HTMLInputElement} userFacingInput
+ * @param {HTMLElement} rootElement
  * @returns {Function}
  */
-const renderList = (emptyMessage, list, userFacingInput) =>
+const renderList = (emptyMessage, list, userFacingInput, rootElement) =>
     /**
      * @param {Array<Suggestion>} suggestions
      */
@@ -265,7 +287,7 @@ const renderList = (emptyMessage, list, userFacingInput) =>
 
         (suggestions.length
             ? suggestions.map(renderLI(userFacingInput.value))
-            : [renderEmptyListItem(emptyMessage)]
+            : [renderEmptyListItem(emptyMessage, rootElement)]
         ).forEach(appendTo(df));
 
         appendTo(list)(df);
@@ -292,7 +314,8 @@ const fetchList = (dataSource, userFacingInput, list, emptyMessage, rootElement)
     e => {
         e.stopPropagation();
         rootElement.classList.add('as24-autocomplete--active');
-        dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput));
+        removeInputError(rootElement);
+        dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput, rootElement));
     };
 
 

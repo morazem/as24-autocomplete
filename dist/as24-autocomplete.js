@@ -176,6 +176,7 @@ var cleanup = function cleanup(valueInput, userFacingInput, rootElement) {
     userFacingInput.value = '';
     rootElement.isDirty = false;
     rootElement.classList.remove('as24-autocomplete--user-input');
+    removeInputError(rootElement);
 };
 
 /**
@@ -211,11 +212,33 @@ var renderLI = function renderLI(searchStr) {
 };
 
 /**
+ * Highlight an error when there is nothing to suggest
+ * @param {HTMLElement} rootElement
+ * @return {*}
+ */
+var setInputError = function setInputError(rootElement) {
+    var input = $('.as24-autocomplete__input', rootElement);
+    input.classList.add('error');
+};
+
+/**
+ * Remove error highlighting when there is something to suggest
+ * @param {HTMLElement} rootElement
+ * @return {*}
+ */
+var removeInputError = function removeInputError(rootElement) {
+    var input = $('.as24-autocomplete__input', rootElement);
+    input.classList.remove('error');
+};
+
+/**
  * What to render when there is nothing to suggest
  * @param {String} emptyMessage
+ * @param {HTMLElement} rootElement
  * @returns {HTMLLIElement}
  */
-var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
+var renderEmptyListItem = function renderEmptyListItem(emptyMessage, rootElement) {
+    setInputError(rootElement);
     /**
      * @type {HTMLLIElement}
      */
@@ -232,9 +255,10 @@ var renderEmptyListItem = function renderEmptyListItem(emptyMessage) {
  * @param {string} emptyMessage
  * @param {HTMLUListElement} list
  * @param {HTMLInputElement} userFacingInput
+ * @param {HTMLElement} rootElement
  * @returns {Function}
  */
-var renderList = function renderList(emptyMessage, list, userFacingInput) {
+var renderList = function renderList(emptyMessage, list, userFacingInput, rootElement) {
     return (
         /**
          * @param {Array<Suggestion>} suggestions
@@ -243,7 +267,7 @@ var renderList = function renderList(emptyMessage, list, userFacingInput) {
             list.innerHTML = '';
             var df = document.createDocumentFragment();
 
-            (suggestions.length ? suggestions.map(renderLI(userFacingInput.value)) : [renderEmptyListItem(emptyMessage)]).forEach(appendTo(df));
+            (suggestions.length ? suggestions.map(renderLI(userFacingInput.value)) : [renderEmptyListItem(emptyMessage, rootElement)]).forEach(appendTo(df));
 
             appendTo(list)(df);
             showList(list);
@@ -270,7 +294,8 @@ var fetchList = function fetchList(dataSource, userFacingInput, list, emptyMessa
         function (e) {
             e.stopPropagation();
             rootElement.classList.add('as24-autocomplete--active');
-            dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput));
+            removeInputError(rootElement);
+            dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput, rootElement));
         }
     );
 };

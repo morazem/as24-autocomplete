@@ -97,7 +97,7 @@ This is how you add the autocomplete itself:
         </svg>
       </div>
       <div class="as24-autocomplete__icon-cross">
-         <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+         <svg class="as24-autocomplete__icon-cross__ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
             <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
             <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
         </svg>
