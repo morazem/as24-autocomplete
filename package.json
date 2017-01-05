@@ -1,6 +1,6 @@
 {
   "name": "as24-autocomplete",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "description": "Autocomplete component",
   "main": "dist/as24-autocomplete.js",
   "jsnext:main": "dist/as24-autocomplete.es6.js",
