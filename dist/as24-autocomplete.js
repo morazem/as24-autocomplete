@@ -877,5 +877,3 @@ var as24Autocomplete = (function init() {
 return as24Autocomplete;
 
 }());
-
-//# sourceMappingURL=as24-autocomplete.js.map

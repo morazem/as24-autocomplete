@@ -328,8 +328,21 @@ as24-autocomplete {
 
 .as24-autocomplete__icon-dropdown, .as24-autocomplete__icon-cross {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%); }
+  top: 0;
+  height: 16px;
+  width: 16px; }
+  .as24-autocomplete__icon-dropdown__icon, .as24-autocomplete__icon-cross__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); }
+  .as24-autocomplete__icon-dropdown:before, .as24-autocomplete__icon-cross:before {
+    content: '';
+    z-index: 0;
+    position: absolute;
+    top: -11px;
+    left: -16px;
+    width: 48px;
+    height: 38px; }
 
 .as24-autocomplete__icon-dropdown {
   display: block; }
@@ -361,7 +374,7 @@ as24-autocomplete {
   .as24-autocomplete__list-item--preselected {
     background: #dcdcdc; }
   .as24-autocomplete__list-item--selected {
-    background: #ff7500; }
+    background: #dcdcdc; }
   .as24-autocomplete__list-item--empty {
     color: #d91a2a;
     background: #dcdcdc; }

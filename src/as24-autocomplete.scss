@@ -77,12 +77,30 @@ as24-autocomplete {
         margin-top: -.5rem;
         cursor: pointer;
     }
-
+    
     &__icon-dropdown,
     &__icon-cross {
         position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0;
+        height: 16px;
+        width:16px;
+        
+        &__icon{
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        &:before{
+            content: '';
+            z-index: 0;
+            position: absolute;
+            top: -11px;
+            left: -16px;
+            width: 48px;
+            height: 38px;
+        }
+        
     }
 
     &__icon-dropdown {
@@ -92,7 +110,7 @@ as24-autocomplete {
     &__icon-cross {
         display: none;
     }
-
+    
     &__list {
         box-sizing: border-box;
         background: $white;
@@ -124,7 +142,7 @@ as24-autocomplete {
         }
 
         &--selected {
-            background: $orange-100;
+            background: $black-30;
         }
 
         &--empty {
