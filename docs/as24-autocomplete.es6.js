@@ -312,15 +312,18 @@ var triggerChangeEvent = function triggerChangeEvent(eventName, el) {
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
- * @param {HTMLLIElement} list
+ * @param {HTMLLIElement} li
  * @param {Element} rootElement
  */
-var selectItem = function selectItem(valueInput, userFacingInput, list, rootElement) {
-    var li = getSelectedSuggestionItem(list);
-    if (li.classList.contains('as24-autocomplete__list-item--empty')) {
-        return;
+var selectItem = function selectItem(valueInput, userFacingInput, li, rootElement, list) {
+    if (!li) {
+        li = getSelectedSuggestionItem(list);
+        if (li.classList.contains('as24-autocomplete__list-item--empty')) {
+            return;
+        }
+        hideList(list, rootElement)();
     }
-    hideList(list, rootElement)();
+
     valueInput.value = li.dataset.key;
     userFacingInput.value = li.innerText;
     triggerChangeEvent('change', valueInput);
@@ -423,7 +426,7 @@ var onKeyUp = function onKeyUp(dataSource, valueInput, userFacingInput, list, em
             if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
                 e.stopPropagation();
                 e.preventDefault();
-                selectItem(valueInput, userFacingInput, list, rootElement);
+                selectItem(valueInput, userFacingInput, null, rootElement, list);
                 return false;
             }
             if ([38, 40, 27].indexOf(e.which) === -1) {
