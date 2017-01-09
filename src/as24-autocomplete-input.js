@@ -335,7 +335,7 @@ const triggerChangeEvent = (eventName, el) => {
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
- * @param {HTMLLIElement} li
+ * @param {Element} li
  * @param {Element} rootElement
  * @param {HTMLLIElement} list
  */
@@ -406,7 +406,8 @@ const onKeyDown = (dataSource, valueInput, userFacingInput, list, emptyListMessa
                 if (isListVisible(list)) {
                     selectItem(valueInput, userFacingInput,
                         getSelectedSuggestionItem(list),
-                        rootElement
+                        rootElement,
+                        null
                     );
                     hideList(list, rootElement)(e);
                 }
@@ -499,7 +500,9 @@ const getInitialValueByKey = (dataSource, keyValue) =>
  * @param {HTMLUListElement} list
  * @param {HTMLElement} rootElement
  */
+let i =1;
 const componentClicked = (fetchListFn, userFacingInput, valueInput, list, rootElement) => (e) => {
+
     const isInput = closestByClassName('as24-autocomplete__input')(e.target);
     const isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
     const isList = closestByClassName('as24-autocomplete__list')(e.target);
@@ -540,6 +543,14 @@ const componentClicked = (fetchListFn, userFacingInput, valueInput, list, rootEl
     }
 };
 
+const onBlur = (list, userFacingInput, valueInput, rootElement) => {
+    if(list){
+        const itemSelected = $('.as24-autocomplete__list-item--selected', list);
+        if(itemSelected && !itemSelected.classList.contains('as24-autocomplete__list-item--empty')){
+            selectItem(valueInput, userFacingInput, itemSelected, rootElement, list);
+        }
+    }
+}
 
 
 /**
@@ -607,14 +618,13 @@ function elementAttached() {
                 });
         }
     });
-
+    
+    on('blur', ()=>onBlur(list,userFacingInput, valueInput,root), userFacingInput, true);
     on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
 }
-
-
 
 function elementDetached() { }
 

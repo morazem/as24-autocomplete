@@ -312,7 +312,7 @@ var triggerChangeEvent = function triggerChangeEvent(eventName, el) {
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
- * @param {HTMLLIElement} li
+ * @param {Element} li
  * @param {Element} rootElement
  * @param {HTMLLIElement} list
  */
@@ -381,7 +381,7 @@ var onKeyDown = function onKeyDown(dataSource, valueInput, userFacingInput, list
                 }
                 if (e.which === 9) {
                     if (isListVisible(list)) {
-                        selectItem(valueInput, userFacingInput, getSelectedSuggestionItem(list), rootElement);
+                        selectItem(valueInput, userFacingInput, getSelectedSuggestionItem(list), rootElement, null);
                         hideList(list, rootElement)(e);
                     }
                 }
@@ -461,16 +461,9 @@ var getInitialValueByKey = function getInitialValueByKey(dataSource, keyValue) {
     return dataSource.getSuggestionByKey(keyValue);
 };
 
-/**
- * Handles click on the component
- * @param {function} fetchListFn
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLInputElement} valueInput
- * @param {HTMLUListElement} list
- * @param {HTMLElement} rootElement
- */
 var componentClicked = function componentClicked(fetchListFn, userFacingInput, valueInput, list, rootElement) {
     return function (e) {
+
         var isInput = closestByClassName('as24-autocomplete__input')(e.target);
         var isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
         var isList = closestByClassName('as24-autocomplete__list')(e.target);
@@ -508,6 +501,15 @@ var componentClicked = function componentClicked(fetchListFn, userFacingInput, v
             hideList(list, rootElement)(e);
         }
     };
+};
+
+var onBlur = function onBlur(list, userFacingInput, valueInput, rootElement) {
+    if (list) {
+        var itemSelected = $('.as24-autocomplete__list-item--selected', list);
+        if (itemSelected && !itemSelected.classList.contains('as24-autocomplete__list-item--empty')) {
+            selectItem(valueInput, userFacingInput, itemSelected, rootElement, list);
+        }
+    }
 };
 
 /**
@@ -575,6 +577,9 @@ function elementAttached() {
         }
     });
 
+    on('blur', function () {
+        return onBlur(list, userFacingInput, valueInput, root);
+    }, userFacingInput, true);
     on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
