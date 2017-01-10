@@ -496,9 +496,15 @@ var componentClicked = function (fetchListFn, userFacingInput, valueInput, list,
             hideList(list, rootElement)(e);
         }
     } else {
-        if (isListVisible(list) && userFacingInput.classList.contains('error')) {
-            valueInput.value = '';
-            triggerChangeEvent('change', valueInput);
+        if (isListVisible(list)) {
+            if (userFacingInput.classList.contains('error')) {
+                valueInput.value = '';
+                triggerChangeEvent('change', valueInput);
+            } else if (userFacingInput.value) {
+                var theFirstItem = $('.as24-autocomplete__list-item--selected', list);
+                selectItem(valueInput, userFacingInput, theFirstItem, rootElement);
+                rootElement.classList.add('as24-autocomplete--user-input');
+            }
         }
         hideList(list, rootElement)(e);
     }
