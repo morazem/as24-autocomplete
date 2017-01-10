@@ -548,6 +548,7 @@ const componentClicked = (fetchListFn, userFacingInput, valueInput, list, rootEl
     } else {
         if (userFacingInput.classList.contains('error')) {
             valueInput.value = '';
+            triggerChangeEvent('change', valueInput);
         }
         hideList(list, rootElement)(e);
     }
