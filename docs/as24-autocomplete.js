@@ -25,11 +25,10 @@ var closestByClassName = function (className) { return function (elem) {
         // Fix for IE.
         if (elem.tagName === 'HTML') {
             return null;
-        } else {
-            return elem.classList.contains(className)
-                ? elem
-                : closestByClassName(className)(elem.parentNode);
         }
+        return elem.classList.contains(className)
+            ? elem
+            : closestByClassName(className)(elem.parentNode);
     }; };
 
 
@@ -166,6 +165,18 @@ var isListVisible = function (list) { return list.classList.contains('as24-autoc
 
 
 /**
+ * Remove error highlighting when there is something to suggest
+ * @param {HTMLElement} rootElement
+ * @return {*}
+ */
+var removeInputError = function (rootElement) {
+    var input = $('.as24-autocomplete__input', rootElement);
+    input.classList.remove('error');
+};
+
+
+
+/**
  * When user clicks cross icon, all the input must be removed
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
@@ -218,15 +229,7 @@ var setInputError = function (rootElement) {
     input.classList.add('error');
 };
 
-/**
- * Remove error highlighting when there is something to suggest
- * @param {HTMLElement} rootElement
- * @return {*}
- */
-var removeInputError = function (rootElement) {
-    var input = $('.as24-autocomplete__input', rootElement);
-    input.classList.remove('error');
-};
+
 
 /**
  * What to render when there is nothing to suggest
@@ -285,7 +288,8 @@ var fetchList = function (dataSource, userFacingInput, list, emptyMessage, rootE
         e.stopPropagation();
         rootElement.classList.add('as24-autocomplete--active');
         removeInputError(rootElement);
-        dataSource.fetchItems(userFacingInput.value).then(renderList(emptyMessage, list, userFacingInput, rootElement));
+        dataSource.fetchItems(userFacingInput.value)
+            .then(renderList(emptyMessage, list, userFacingInput, rootElement));
     }; };
 
 
@@ -305,14 +309,14 @@ var triggerChangeEvent = function (eventName, el) {
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
- * @param {Element} li
+ * @param {HTMLLIElement} li
  * @param {Element} rootElement
- * @param {HTMLLIElement} list
+ * @param {HTMLUListElement} list
  */
 var selectItem = function (valueInput, userFacingInput, li, rootElement, list) {
-    if(!li){
+    if (!li) {
         li = getSelectedSuggestionItem(list);
-        if(li.classList.contains('as24-autocomplete__list-item--empty')){
+        if (li.classList.contains('as24-autocomplete__list-item--empty')) {
             return;
         }
         hideList(list, rootElement)();
@@ -360,13 +364,8 @@ var onKeyDown = function (dataSource, valueInput, userFacingInput, list, emptyLi
                 e.stopPropagation();
                 e.preventDefault();
             }
-            if (e.which === 9) {
+            if (e.which === 9) { // tab
                 if (isListVisible(list)) {
-                    selectItem(valueInput, userFacingInput,
-                        getSelectedSuggestionItem(list),
-                        rootElement,
-                        null
-                    );
                     hideList(list, rootElement)(e);
                 }
             }
@@ -380,8 +379,15 @@ var onKeyDown = function (dataSource, valueInput, userFacingInput, list, emptyLi
                         emptyListMessage, rootElement)(e);
             }
             if (e.which === 27) {
-                cleanup(valueInput, userFacingInput, rootElement);
-                return hideList(list, rootElement)();
+                if (!userFacingInput.value) {
+                    hideList(list, rootElement)();
+                    cleanup(valueInput, userFacingInput, rootElement);
+                    userFacingInput.blur();
+                } else {
+                    cleanup(valueInput, userFacingInput, rootElement);
+                    fetchList(dataSource, userFacingInput, list,
+                        emptyListMessage, rootElement)(e);
+                }
             }
         }
         return null;
@@ -408,7 +414,7 @@ var onKeyUp = function (dataSource, valueInput, userFacingInput, list, emptyList
         if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
             e.stopPropagation();
             e.preventDefault();
-            selectItem(valueInput, userFacingInput, null , rootElement, list);
+            selectItem(valueInput, userFacingInput, null, rootElement, list);
             return false;
         }
         if ([38, 40, 27].indexOf(e.which) === -1) {
@@ -443,16 +449,26 @@ var reset = function (valueInput, userFacingInput, root) {
 var getInitialValueByKey = function (dataSource, keyValue) { return dataSource.getSuggestionByKey(keyValue); };
 
 
-var componentClicked = function (fetchListFn, userFacingInput, valueInput, list, rootElement) { return function (e) {
+/**
+ * Handles click on the component
+ * @param {function} fetchListFn
+ * @param {HTMLInputElement} userFacingInput
+ * @param {HTMLInputElement} valueInput
+ * @param {HTMLUListElement} list
+ * @param {HTMLElement} rootElement
+ */
 
+var componentClicked = function (fetchListFn, userFacingInput, valueInput, list, rootElement) { return function (e) {
     var isInput = closestByClassName('as24-autocomplete__input')(e.target);
     var isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
     var isList = closestByClassName('as24-autocomplete__list')(e.target);
+    if (userFacingInput.disabled) {
+        return;
+    }
     if (closestByTag(rootElement)(e.target) === rootElement) {
         if (isInput) {
             fetchListFn(e);
-        }
-        else if (isIcon) {
+        } else if (isIcon) {
             if (!userFacingInput.disabled) {
                 if (rootElement.isDirty) {
                     reset(valueInput, userFacingInput, rootElement);
@@ -469,8 +485,7 @@ var componentClicked = function (fetchListFn, userFacingInput, valueInput, list,
                     fetchListFn(e);
                 }
             }
-        }
-        else if (isList) {
+        } else if (isList) {
             var theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
             if (theItem.dataset.unselectable) {
                 e.stopPropagation();
@@ -481,18 +496,13 @@ var componentClicked = function (fetchListFn, userFacingInput, valueInput, list,
             hideList(list, rootElement)(e);
         }
     } else {
+        if (userFacingInput.classList.contains('error')) {
+            valueInput.value = '';
+        }
         hideList(list, rootElement)(e);
     }
 }; };
 
-var onBlur = function (list, userFacingInput, valueInput, rootElement) {
-    if(list){
-        var itemSelected = $('.as24-autocomplete__list-item--selected', list);
-        if(itemSelected && !itemSelected.classList.contains('as24-autocomplete__list-item--empty')){
-            selectItem(valueInput, userFacingInput, itemSelected, rootElement, list);
-        }
-    }
-};
 
 
 /**
@@ -560,8 +570,7 @@ function elementAttached() {
                 });
         }
     });
-    
-    on('blur', function (){ return onBlur(list,userFacingInput, valueInput,root); }, userFacingInput, true);
+
     on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
