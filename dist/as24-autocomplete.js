@@ -305,7 +305,7 @@ var triggerChangeEvent = function (eventName, el) {
  * This is what happens after the user selected an item
  * @param {HTMLInputElement} valueInput
  * @param {HTMLInputElement} userFacingInput
- * @param {HTMLLIElement} li
+ * @param {Element} li
  * @param {Element} rootElement
  * @param {HTMLLIElement} list
  */
@@ -364,7 +364,8 @@ var onKeyDown = function (dataSource, valueInput, userFacingInput, list, emptyLi
                 if (isListVisible(list)) {
                     selectItem(valueInput, userFacingInput,
                         getSelectedSuggestionItem(list),
-                        rootElement
+                        rootElement,
+                        null
                     );
                     hideList(list, rootElement)(e);
                 }
@@ -442,15 +443,8 @@ var reset = function (valueInput, userFacingInput, root) {
 var getInitialValueByKey = function (dataSource, keyValue) { return dataSource.getSuggestionByKey(keyValue); };
 
 
-/**
- * Handles click on the component
- * @param {function} fetchListFn
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLInputElement} valueInput
- * @param {HTMLUListElement} list
- * @param {HTMLElement} rootElement
- */
 var componentClicked = function (fetchListFn, userFacingInput, valueInput, list, rootElement) { return function (e) {
+
     var isInput = closestByClassName('as24-autocomplete__input')(e.target);
     var isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
     var isList = closestByClassName('as24-autocomplete__list')(e.target);
@@ -491,6 +485,14 @@ var componentClicked = function (fetchListFn, userFacingInput, valueInput, list,
     }
 }; };
 
+var onBlur = function (list, userFacingInput, valueInput, rootElement) {
+    if(list){
+        var itemSelected = $('.as24-autocomplete__list-item--selected', list);
+        if(itemSelected && !itemSelected.classList.contains('as24-autocomplete__list-item--empty')){
+            selectItem(valueInput, userFacingInput, itemSelected, rootElement, list);
+        }
+    }
+};
 
 
 /**
@@ -558,14 +560,13 @@ function elementAttached() {
                 });
         }
     });
-
+    
+    on('blur', function (){ return onBlur(list,userFacingInput, valueInput,root); }, userFacingInput, true);
     on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
 }
-
-
 
 function elementDetached() { }
 

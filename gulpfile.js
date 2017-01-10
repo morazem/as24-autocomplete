@@ -1,7 +1,7 @@
 const gulp = require('gulp');
 const cbngulp = require('carbon-gulp')(gulp);
 
-cbngulp.config.devmode = true;
+cbngulp.config.devmode = process.argv.indexOf('dev') > -1;
 
 cbngulp.registerTasks({
     js: {
