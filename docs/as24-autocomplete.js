@@ -496,8 +496,9 @@ var componentClicked = function (fetchListFn, userFacingInput, valueInput, list,
             hideList(list, rootElement)(e);
         }
     } else {
-        if (userFacingInput.classList.contains('error')) {
+        if (isListVisible(list) && userFacingInput.classList.contains('error')) {
             valueInput.value = '';
+            triggerChangeEvent('change', valueInput);
         }
         hideList(list, rootElement)(e);
     }
@@ -571,7 +572,7 @@ function elementAttached() {
         }
     });
 
-    on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document);
+    on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document, true);
     on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
     on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
     on('mouseover', onItemMouseOver(list), list, true);
