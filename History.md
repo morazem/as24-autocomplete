@@ -1,4 +1,9 @@
 
+1.0.1 / 2017-01-11
+==================
+
+  * Updated documentation and improved selectors
+
 0.12.1 / 2016-12-23
 ==================
 
