@@ -583,13 +583,13 @@ function elementAttached() {
      * The input with which the user can interact
      * @type {HTMLInputElement}
      */
-    const userFacingInput = $('[type=text]', root);
+    const userFacingInput = $('[data-role="user-query"]', root);
 
     /**
      * Hidden input in which we actually set the value
      * @type {HTMLInputElement}
      */
-    const valueInput = $('[type=hidden]', root);
+    const valueInput = $('[data-role="value"]', root);
 
     /**
      * The UL-element that represents the suggestion list
@@ -644,7 +644,7 @@ function elementDetached() { }
  */
 function onAttributeChanged(attrName, oldVal, newVal) {
     /** @type {HTMLInputElement} */
-    const userFacingInput = $('[type=text]', this);
+    const userFacingInput = $('[data-role="user-query"]', this);
 
     /** @type {HTMLUListElement} */
     const list = $('.as24-autocomplete__list', this);
@@ -674,14 +674,14 @@ export default function registerInput() {
                      * @this {HTMLElement}
                      */
                     selectedValue() {
-                        return $('[type=hidden]', this).value;
+                        return $('[data-role="value"]', this).value;
                     },
                     /**
                      * Returns what user has written
                      * @this {HTMLElement}
                      */
                     userQuery() {
-                        return $('[type=text]', this).value;
+                        return $('[data-role="user-query"]', this).value;
                     },
                     /**
                      * returns the bounded data source element
@@ -696,10 +696,10 @@ export default function registerInput() {
                      */
                     reset() {
                         /** @type {HTMLInputElement} */
-                        const userFacingInput = $('[type=text]', this);
+                        const userFacingInput = $('[data-role="user-query"]', this);
 
                         /** @type {HTMLInputElement} */
-                        const valueInput = $('[type=hidden]', this);
+                        const valueInput = $('[data-role="value"]', this);
 
                         return reset(valueInput, userFacingInput, this);
                     }

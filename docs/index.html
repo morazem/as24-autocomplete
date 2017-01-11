@@ -18,9 +18,9 @@
   <h3>Autocomplete using tags</h3>
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
-    <input type="hidden" name="makeId">
+    <input data-role="value" type="hidden" name="makeId">
     <div class="as24-autocomplete__input-wrapper">
-      <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
+      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
         <div class="as24-autocomplete__icon-wrapper">
             <div class="as24-autocomplete__icon-dropdown">
                 <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
@@ -56,9 +56,9 @@
   <h3>Autocomplete using XHR simulation</h3>
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
-    <input type="hidden" name="makeId" value="30">
+    <input type="hidden" data-role="value" name="makeId" value="30">
     <div class="as24-autocomplete__input-wrapper">
-      <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
+      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
       <div class="as24-autocomplete__icon-wrapper">
           <div class="as24-autocomplete__icon-dropdown">
               <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
@@ -90,9 +90,9 @@
   <p>Disabled</p>
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
-    <input type="hidden" name="makeId" value="30">
+    <input type="hidden" data-role="value" name="makeId" value="30">
     <div class="as24-autocomplete__input-wrapper">
-      <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder" disabled="disabled">
+      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder" disabled="disabled">
       <div class="as24-autocomplete__icon-wrapper">
           <div class="as24-autocomplete__icon-dropdown">
               <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
