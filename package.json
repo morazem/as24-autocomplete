@@ -6,6 +6,7 @@
   "jsnext:main": "dist/as24-autocomplete.es6.js",
   "style": "src/as24-autocomplete.scss",
   "scripts": {
+    "preversion": "git changelog",
     "build": "gulp",
     "serve": "gulp serve",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -87,9 +87,9 @@ This is how you add the autocomplete itself:
 
 ```html
 <as24-autocomplete empty-list-message="No items satisfying your request">
-  <input type="hidden" name="makeId" value="10"> <!-- Predefined value -->
+  <input type="hidden" data-role="value" name="makeId" value="10"> <!-- Predefined value -->
   <div class="as24-autocomplete__input-wrapper">
-    <input type="text" class="as24-autocomplete__input" placeholder="Optional placeholder">
+    <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
     <div class="as24-autocomplete__icon-wrapper">
         <div class="as24-autocomplete__icon-dropdown">
         <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
@@ -130,5 +130,11 @@ Autocomplete needs a data source. This package provides the default one. It uses
     {key:"N", value:"xxxx"}
 ]
 ```
+
+## Migrations
+
+#### Migration to 1.x
+
+Please, pay attention to `data-role="user-query"` and `data-role="value"` attributes for the inputs.
 
 Happy autocompleting :)
