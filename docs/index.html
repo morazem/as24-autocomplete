@@ -19,26 +19,25 @@
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
     <input data-role="value" type="hidden" name="makeId">
-    <div class="as24-autocomplete__input-wrapper">
+    <as24-autocomplete-input class="as24-autocomplete__input-wrapper">
       <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
-        <div class="as24-autocomplete__icon-wrapper">
-            <div class="as24-autocomplete__icon-dropdown">
-                <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
-                     width="16px">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
-                </svg>
-            </div>
-            <div class="as24-autocomplete__icon-cross">
-                <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px"
-                     width="16px">
-                    <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
-                    <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
-                </svg>
-            </div>
+      <div class="as24-autocomplete__icon-wrapper">
+        <div class="as24-autocomplete__icon-dropdown">
+          <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
+          </svg>
         </div>
-    </div>
-    <ul class="as24-autocomplete__list"></ul>
-    <as24-tags-data-source role="data-source">
+        <div class="as24-autocomplete__icon-cross">
+          <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+            <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
+            <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
+          </svg>
+        </div>
+      </div>
+    </as24-autocomplete-input>
+    <!-- <ul class="as24-autocomplete__list"></ul> -->
+    <as24-plain-suggestions-list data-role="list" class="as24-autocomplete__list"></as24-plain-suggestions-list>
+    <as24-plain-data-source role="data-source">
       <item key="1" value="qwer"></item>
       <item key="2" value="asdf"></item>
       <item key="20" value="aser"></item>
@@ -50,69 +49,113 @@
       <item key="8" value="vbnm"></item>
       <item key="9" value="fghj"></item>
       <item key="10" value="sdfg"></item>
-    </as24-tags-data-source>
+    </as24-plain-data-source>
   </as24-autocomplete>
 
-  <h3>Autocomplete using XHR simulation</h3>
+  <h3>Preselected value from plain data source</h3>
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
-    <input type="hidden" data-role="value" name="makeId" value="30">
-    <div class="as24-autocomplete__input-wrapper">
+    <input data-role="value" type="hidden" name="makeId" value="2">
+    <as24-autocomplete-input class="as24-autocomplete__input-wrapper">
       <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
       <div class="as24-autocomplete__icon-wrapper">
-          <div class="as24-autocomplete__icon-dropdown">
-              <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
-                   width="16px">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
-              </svg>
-          </div>
-          <div class="as24-autocomplete__icon-cross">
-              <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px"
-                   width="16px">
-                  <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
-                  <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
-              </svg>
-          </div>
+        <div class="as24-autocomplete__icon-dropdown">
+          <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
+          </svg>
+        </div>
+        <div class="as24-autocomplete__icon-cross">
+          <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+            <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
+            <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
+          </svg>
+        </div>
       </div>
-    </div>
-    <ul class="as24-autocomplete__list"></ul>
-    <as24-tags-data-source role="data-source">
-      <item key="10" value="Audi"></item>
-      <item key="20" value="BMW"></item>
-      <item key="21" value="BMW 1 Series (all)"></item>
-      <item key="30" value="Ford"></item>
-      <item key="40" value="Mercedes-Benz"></item>
-      <item key="50" value="Opel"></item>
-      <item key="60" value="Volkswagen"></item>
-    </as24-tags-data-source>
+    </as24-autocomplete-input>
+    <!-- <ul class="as24-autocomplete__list"></ul> -->
+    <as24-plain-suggestions-list data-role="list" class="as24-autocomplete__list"></as24-plain-suggestions-list>
+    <as24-plain-data-source role="data-source">
+      <item key="1" value="BMW"></item>
+      <item key="2" value="Mercedes"></item>
+      <item key="3" value="Lada"></item>
+    </as24-plain-data-source>
   </as24-autocomplete>
 
-  <p>Disabled</p>
+  <h3>Autocomplete using separators</h3>
 
   <as24-autocomplete empty-list-message="No items satisfying your request">
-    <input type="hidden" data-role="value" name="makeId" value="30">
-    <div class="as24-autocomplete__input-wrapper">
-      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder" disabled="disabled">
+    <input data-role="value" type="hidden" name="makeId">
+    <as24-autocomplete-input class="as24-autocomplete__input-wrapper">
+      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
       <div class="as24-autocomplete__icon-wrapper">
-          <div class="as24-autocomplete__icon-dropdown">
-              <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px"
-                   width="16px">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
-              </svg>
-          </div>
-          <div class="as24-autocomplete__icon-cross">
-              <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px"
-                   width="16px">
-                  <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
-                  <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
-              </svg>
-          </div>
+        <div class="as24-autocomplete__icon-dropdown">
+          <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
+          </svg>
+        </div>
+        <div class="as24-autocomplete__icon-cross">
+          <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+            <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
+            <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
+          </svg>
+        </div>
       </div>
-    </div>
-    <ul class="as24-autocomplete__list"></ul>
-    <as24-tags-data-source role="data-source">
-    </as24-tags-data-source>
+    </as24-autocomplete-input>
+    <as24-grouped-suggestions-list data-role="list" class="as24-autocomplete__list"></as24-grouped-suggestions-list>
+    <as24-grouped-items-data-source role="data-source">
+      <group label="Top Choice">
+        <item key="1" value="qwer"></item>
+        <item key="2" value="asdf"></item>
+        <item key="20" value="aser"></item>
+        <item key="3" value="erty"></item>
+      </group>
+      <group label="Other Options">
+        <item key="4" value="sdfg"></item>
+        <item key="5" value="xcvb"></item>
+        <item key="6" value="ghjk"></item>
+        <item key="7" value="xcvb"></item>
+        <item key="8" value="vbnm"></item>
+        <item key="9" value="fghj"></item>
+        <item key="10" value="sdfe"></item>
+      </group>
+    </as24-grouped-items-data-source>
   </as24-autocomplete>
+
+  <h3>Preselected value from grouped data source</h3>
+
+  <as24-autocomplete empty-list-message="No items satisfying your request">
+    <input data-role="value" type="hidden" name="makeId" value="2">
+    <as24-autocomplete-input class="as24-autocomplete__input-wrapper">
+      <input type="text" data-role="user-query" class="as24-autocomplete__input" placeholder="Optional placeholder">
+      <div class="as24-autocomplete__icon-wrapper">
+        <div class="as24-autocomplete__icon-dropdown">
+          <svg class="as24-autocomplete__icon-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 7" height="16px" width="16px">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7L0 .5.5 0l6 6 5.9-6 .6.5"></path>
+          </svg>
+        </div>
+        <div class="as24-autocomplete__icon-cross">
+          <svg class="as24-autocomplete__icon-cross__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px">
+            <rect x="-2" y="6.8" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -3.2215 7.7782)" width="20" height="1"/>
+            <rect x="-3" y="6.8" transform="matrix(0.7071 0.7071 -0.7071 0.7071 7.7786 -3.2215)" width="20" height="1"/>
+          </svg>
+        </div>
+      </div>
+    </as24-autocomplete-input>
+    <as24-grouped-suggestions-list data-role="list" class="as24-autocomplete__list"></as24-grouped-suggestions-list>
+    <as24-grouped-items-data-source role="data-source">
+      <group label="Top Choice">
+        <item key="1" value="qwer"></item>
+        <item key="2" value="asdf"></item>
+      </group>
+      <group label="Other Options">
+        <item key="4" value="sdfg"></item>
+        <item key="2" value="ewqt"></item>
+        <item key="5" value="xcvb"></item>
+        <item key="6" value="ghjk"></item>
+      </group>
+    </as24-grouped-items-data-source>
+  </as24-autocomplete>
+
 
 </div>
 

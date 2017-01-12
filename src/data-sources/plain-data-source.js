@@ -34,7 +34,7 @@ const valuePredicate = (regexp) =>
  * @class
  * @typedef DataSource
  */
-class DataSource extends HTMLElement {
+class PlainDataSource extends HTMLElement {
     /**
      * @param {string} queryString
      * @return {Promise.<Array<Suggestion>>}
@@ -42,12 +42,11 @@ class DataSource extends HTMLElement {
     fetchItems(queryString) {
         return new Promise(res => {
             const keyVals = this.extractKeyValues();
-            const escapedQueryString = queryString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
             const startingWith = keyVals
-                .filter(valuePredicate(new RegExp(`^${escapedQueryString}`, 'ig')));
+                .filter(valuePredicate(new RegExp(`^${queryString}`, 'ig')));
             const theRestContaining = keyVals
                 .filter(x => startingWith.indexOf(x) === -1)
-                .filter(valuePredicate(new RegExp(`${escapedQueryString}`, 'ig')));
+                .filter(valuePredicate(new RegExp(`${queryString}`, 'ig')));
             return res(startingWith.concat(theRestContaining));
         });
     }
@@ -79,7 +78,7 @@ class DataSource extends HTMLElement {
 
 export default function registerDS() {
     try {
-        return document.registerElement('as24-tags-data-source', DataSource);
+        return document.registerElement('as24-plain-data-source', PlainDataSource);
     } catch (e) {
         return null;
     }

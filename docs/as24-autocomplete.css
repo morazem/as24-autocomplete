@@ -408,4 +408,13 @@ as24-autocomplete {
     color: #d91a2a;
     background: #fff; }
 
+.as24-autocomplete__separator {
+  padding: 4px 12px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  font-size: 12px;
+  font-weight: bold; }
+
 /*# sourceMappingURL=as24-autocomplete.css.map */

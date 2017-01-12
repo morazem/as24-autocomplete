@@ -1,36 +1,13 @@
 /**
- * @class DOMEvent
- * @property {HTMLElement} target
- * @property {number} which
- * @property {function} stopPropagation
- * @property {function} preventDefault
+ * Selects an element using the this element.
+ * @param {string} selector Specifies the selector for lookup
+ * @param {Element} this Specified within which element to perform the lookup
+ * @return {Element}
  */
+var $ = function (selector, root) { return root.querySelector(selector); };
 
 
-
-/**
- * @callback fetchItemsFn
- * @param {string} userInput
- * @return {Promise}
- */
-
-
-
-/**
- * Finds a closest element by class name
- * @param {string} className
- * @returns {function}
- */
-var closestByClassName = function (className) { return function (elem) {
-        // Fix for IE.
-        if (elem.tagName === 'HTML') {
-            return null;
-        }
-        return elem.classList.contains(className)
-            ? elem
-            : closestByClassName(className)(elem.parentNode);
-    }; };
-
+var $$ = function (selector, root) { return root.querySelectorAll(selector); };
 
 
 /**
@@ -38,21 +15,11 @@ var closestByClassName = function (className) { return function (elem) {
  * @param {HTMLElement} tag
  * @returns {function}
  */
-var closestByTag = function (tag) { return function (elem) { return elem === null
+var closestByTag = function (tag) { return function (elem) { return elem.tagName === 'HTML'
             ? null
-            : (elem === tag)
+            : elem === tag
                 ? tag
                 : closestByTag(tag)(elem.parentNode); }; };
-
-
-
-/**
- * Selects an element using the root element.
- * @param {string} selector Specifies the selector for lookup
- * @param {Element} root Specified within which element to perform the lookup
- * @return {Element}
- */
-var $ = function (selector, root) { return root.querySelector(selector); };
 
 
 
@@ -72,6 +39,19 @@ var on = function (event, cb, el, capturing) {
 
 
 /**
+ *
+ * @param {string} eventName
+ * @param {HTMLInputElement} el
+ */
+var triggerEvent = function (eventName, el) {
+    var evt = document.createEvent('Event');
+    evt.initEvent(eventName, true, true);
+    el.dispatchEvent(evt);
+};
+
+
+
+/**
  * Appends a child element to a target element
  * @param {HTMLElement|DocumentFragment} target
  * @returns {function}
@@ -84,585 +64,138 @@ var appendTo = function (target) { return function (child) {
 
 
 /**
-* Finds the currently selected suggestion item
-* @param {HTMLUListElement} list
-* @returns {HTMLLIElement}
-*/
-var getSelectedSuggestionItem = function (list) { return $('.as24-autocomplete__list-item--selected', list); };
-
-
-
-/**
-*
-* @param {HTMLElement} list
-* @param {HTMLElement} selected
-*/
-var followSelectedItem = function (list, selected) {
-    var listHeight = list.getBoundingClientRect().height;
-    var selectedTop = selected.offsetTop;
-    var selectedHeight = selected.offsetHeight;
-    list.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
-};
-
-
-
-/**
- * Selected next/prev suggestion item
- * @param {number} dir
- * @param {HTMLUListElement} list
- * @return {boolean}
- */
-var moveSelection = function (dir, list) {
-    var next = dir === 1 ? 'nextSibling' : 'previousSibling';
-    var currActiveItem = getSelectedSuggestionItem(list);
-    var nextActiveItem = currActiveItem === null
-        ? $('.as24-autocomplete__list-item', list)
-        : currActiveItem[next] !== null
-            ? currActiveItem[next]
-            : currActiveItem;
-    if (currActiveItem) {
-        currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-    }
-    nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-    followSelectedItem(list, nextActiveItem);
-    return false;
-};
-
-
-
-/**
- * Shows the suggestions list
- * @param {HTMLUListElement} list
- * @return {boolean}
- */
-var showList = function (list) {
-    list.classList.add('as24-autocomplete__list--visible');
-    moveSelection(1, list);
-    return false;
-};
-
-
-
-/**
- * Hides the list and deactivates the root element
- * @param {HTMLUListElement} list
- * @param {Element} rootElement
- */
-var hideList = function (list, rootElement) { return function () {
-    rootElement.classList.remove('as24-autocomplete--active');
-    list.classList.remove('as24-autocomplete__list--visible');
-    return false;
-}; };
-
-
-
-/**
- * Checks whether the list is visisible
- * @param {Element} list
- */
-var isListVisible = function (list) { return list.classList.contains('as24-autocomplete__list--visible'); };
-
-
-
-/**
- * Remove error highlighting when there is something to suggest
- * @param {HTMLElement} rootElement
- * @return {*}
- */
-var removeInputError = function (rootElement) {
-    var input = $('.as24-autocomplete__input', rootElement);
-    input.classList.remove('error');
-};
-
-
-
-/**
- * When user clicks cross icon, all the input must be removed
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLElement} rootElement
- * @return {*}
- */
-var cleanup = function (valueInput, userFacingInput, rootElement) {
-    valueInput.value = '';
-    userFacingInput.value = '';
-    rootElement.isDirty = false;
-    rootElement.classList.remove('as24-autocomplete--user-input');
-    removeInputError(rootElement);
-};
-
-
-
-/**
- * When user types something in we mark the component as dirty
- * @param {Element} rootElement
- * @return {*}
- */
-var dirtifyInput = function (rootElement) {
-    rootElement.isDirty = true;
-    rootElement.classList.add('as24-autocomplete--user-input');
-};
-
-
-
-/**
- * Renders a li item for the suggestions list
- * @param {string} searchStr
+ * Finds a closest element by class name
+ * @param {string} className
  * @returns {function}
  */
-var renderLI = function (searchStr) { return function (item) {
-        var li = document.createElement('li');
-        var escapedSearchStr = searchStr.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-        li.classList.add('as24-autocomplete__list-item');
-        li.dataset.key = item.key;
-        li.innerHTML = item.value.replace(new RegExp(("(" + escapedSearchStr + ")"), 'ig'), '<strong>$1</strong>');
-        return li;
-    }; };
+var closestByClassName = function (className) { return function (elem) { return elem.tagName === 'HTML'
+            ? null
+            : elem.classList.contains(className)
+                ? elem
+                : closestByClassName(className)(elem.parentNode); }; };
 
 /**
- * Highlight an error when there is nothing to suggest
- * @param {HTMLElement} rootElement
- * @return {*}
+ * @class
+ * @typedef SeparatedItemsDataSource
  */
-var setInputError = function (rootElement) {
-    var input = $('.as24-autocomplete__input', rootElement);
-    input.classList.add('error');
-};
-
-
-
-/**
- * What to render when there is nothing to suggest
- * @param {String} emptyMessage
- * @param {HTMLElement} rootElement
- * @returns {HTMLLIElement}
- */
-var renderEmptyListItem = function (emptyMessage, rootElement) {
-    setInputError(rootElement);
-    /**
-     * @type {HTMLLIElement}
-     */
-    var li = document.createElement('li');
-    li.dataset.unselectable = true;
-    ['as24-autocomplete__list-item', 'as24-autocomplete__list-item--empty'].forEach(li.classList.add.bind(li.classList));
-    li.dataset.key = '';
-    li.innerText = emptyMessage;
-    return li;
-};
-
-
-
-/**
- * Renders a collection of raw suggestions to the list
- * @param {string} emptyMessage
- * @param {HTMLUListElement} list
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLElement} rootElement
- * @returns {Function}
- */
-var renderList = function (emptyMessage, list, userFacingInput, rootElement) { return function (suggestions) {
-        list.innerHTML = '';
-        var df = document.createDocumentFragment();
-
-        (suggestions.length
-            ? suggestions.map(renderLI(userFacingInput.value))
-            : [renderEmptyListItem(emptyMessage, rootElement)]
-        ).forEach(appendTo(df));
-
-        appendTo(list)(df);
-        showList(list);
-    }; };
-
-
-
-/**
- * Fetch data according to user input and renders the list
- * @param {DataSource} dataSource
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLUListElement} list
- * @param {String} emptyMessage
- * @param {Element} rootElement
- * @returns {function}
- */
-var fetchList = function (dataSource, userFacingInput, list, emptyMessage, rootElement) { return function (e) {
-        e.stopPropagation();
-        rootElement.classList.add('as24-autocomplete--active');
-        removeInputError(rootElement);
-        dataSource.fetchItems(userFacingInput.value)
-            .then(renderList(emptyMessage, list, userFacingInput, rootElement));
-    }; };
-
-
-/**
- *
- * @param {string} eventName
- * @param {HTMLInputElement} el
- */
-var triggerChangeEvent = function (eventName, el) {
-    var evt = document.createEvent('Event');
-    evt.initEvent(eventName, true, true);
-    el.dispatchEvent(evt);
-};
-
-
-/**
- * This is what happens after the user selected an item
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLLIElement} li
- * @param {Element} rootElement
- * @param {HTMLUListElement} list
- */
-var selectItem = function (valueInput, userFacingInput, li, rootElement, list) {
-    if (!li) {
-        li = getSelectedSuggestionItem(list);
-        if (li.classList.contains('as24-autocomplete__list-item--empty')) {
-            return;
-        }
-        hideList(list, rootElement)();
+var AutocompleteInput = (function (HTMLElement) {
+    function AutocompleteInput () {
+        HTMLElement.apply(this, arguments);
     }
 
-    valueInput.value = li.dataset.key;
-    userFacingInput.value = li.innerText;
-    triggerChangeEvent('change', valueInput);
-    dirtifyInput(rootElement);
-};
+    if ( HTMLElement ) AutocompleteInput.__proto__ = HTMLElement;
+    AutocompleteInput.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    AutocompleteInput.prototype.constructor = AutocompleteInput;
 
+    AutocompleteInput.prototype.setValue = function setValue (str) {
+        this.input.value = str;
+    };
 
+    AutocompleteInput.prototype.getValue = function getValue () {
+        return this.input.value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    };
 
-/**
- * When mouse goes over the suggestion item
- * @param {HTMLUListElement} list
- * @return {function} a function that accepts an event
- */
-var onItemMouseOver = function (list) { return function (e) {
-        e.stopPropagation();
-        var preselected = $('.as24-autocomplete__list-item--preselected', list);
-        if (e.target.tagName === 'LI') {
-            if (preselected) {
-                preselected.classList.remove('as24-autocomplete__list-item--preselected');
-            }
-            e.target.classList.add('as24-autocomplete__list-item--preselected');
-        }
-    }; };
-
-
-
-/**
- * Handles key down event from the label input
- * @param {DataSource} dataSource
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLUListElement} list
- * @param {string} emptyListMessage
- * @param {Element} rootElement
- * @return {function}
- */
-var onKeyDown = function (dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) { return function (e) {
-        if (e.target === userFacingInput) {
-            if ([38, 40, 27].indexOf(e.which) >= 0) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
-            if (e.which === 9) { // tab
-                if (isListVisible(list)) {
-                    hideList(list, rootElement)(e);
-                }
-            }
-            if (e.which === 38) {
-                return moveSelection(-1, list);
-            }
-            if (e.which === 40) {
-                return isListVisible(list)
-                    ? moveSelection(1, list)
-                    : fetchList(dataSource, userFacingInput, list,
-                        emptyListMessage, rootElement)(e);
-            }
-            if (e.which === 27) {
-                if (!userFacingInput.value) {
-                    hideList(list, rootElement)();
-                    cleanup(valueInput, userFacingInput, rootElement);
-                    userFacingInput.blur();
-                } else {
-                    cleanup(valueInput, userFacingInput, rootElement);
-                    fetchList(dataSource, userFacingInput, list,
-                        emptyListMessage, rootElement)(e);
-                }
-            }
-        }
-        return null;
-    }; };
-
-
-
-/**
- * Handles key up event from the label input
- * @param {DataSource} dataSource
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLUListElement} list
- * @param {string} emptyListMessage
- * @param {Element} rootElement
- * @return {function}
- */
-var onKeyUp = function (dataSource, valueInput, userFacingInput, list, emptyListMessage, rootElement) { return function (e) {
-        if (userFacingInput.value) {
-            dirtifyInput(rootElement);
+    AutocompleteInput.prototype.setDisabled = function setDisabled (flag) {
+        if (flag) {
+            this.input.setAttribute('disabled', 'disabled');
         } else {
-            cleanup(valueInput, userFacingInput, rootElement);
+            this.input.removeAttribute('disabled');
         }
-        if (isListVisible(list) && (e.which === 13 || e.which === 9)) {
+    };
+
+    AutocompleteInput.prototype.isDisabled = function isDisabled () {
+        return this.input.hasAttribute('disabled');
+    };
+
+    AutocompleteInput.prototype.setError = function setError (flag) {
+        this.input.classList[flag ? 'add' : 'remove']('error');
+    };
+
+    AutocompleteInput.prototype.onKeyDown = function onKeyDown (e) {
+        if (e.which === 9) {
+            triggerEvent('as24-autocomplete:input:focus-lost', this.input);
+        }
+        if (e.which === 40) {
+            triggerEvent('as24-autocomplete:input:go-down', this.input);
+        }
+        if (e.which === 38) {
+            triggerEvent('as24-autocomplete:input:go-up', this.input);
+        }
+    };
+
+    AutocompleteInput.prototype.onKeyUp = function onKeyUp (e) {
+        if (this.isVisible && (e.which === 13 || e.which === 9)) {
             e.stopPropagation();
             e.preventDefault();
-            selectItem(valueInput, userFacingInput, null, rootElement, list);
+            this.selectItem();
             return false;
         }
-        if ([38, 40, 27].indexOf(e.which) === -1) {
-            e.stopPropagation();
-            return fetchList(dataSource, userFacingInput, list, emptyListMessage, rootElement)(e);
+        if (e.which === 13) {
+            triggerEvent('as24-autocomplete:input:enter', this.input);
+        }
+        if (e.which === 27) {
+            this.onCrossClick();
+        }
+        if (e.which !== 40 && e.which !== 38 && e.which !== 13 && e.which !== 27) {
+            triggerEvent('as24-autocomplete:input:query', this.input);
         }
         return null;
-    }; };
+    };
 
-
-
-/**
- * Reset the state of the component
- * @param {HTMLInputElement} valueInput
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLElement} root
- */
-var reset = function (valueInput, userFacingInput, root) {
-    cleanup(valueInput, userFacingInput, root);
-    triggerChangeEvent('change', valueInput);
-    return true;
-};
-
-
-
-/**
- * Returns promised Suggestion by key
- * @param  {DataSource} dataSource
- * @param  {string} keyValue
- * @return {Promise.<Suggestion>}
- */
-var getInitialValueByKey = function (dataSource, keyValue) { return dataSource.getSuggestionByKey(keyValue); };
-
-
-/**
- * Handles click on the component
- * @param {function} fetchListFn
- * @param {HTMLInputElement} userFacingInput
- * @param {HTMLInputElement} valueInput
- * @param {HTMLUListElement} list
- * @param {HTMLElement} rootElement
- */
-
-var componentClicked = function (fetchListFn, userFacingInput, valueInput, list, rootElement) { return function (e) {
-    var isInput = closestByClassName('as24-autocomplete__input')(e.target);
-    var isIcon = closestByClassName('as24-autocomplete__icon-wrapper')(e.target);
-    var isList = closestByClassName('as24-autocomplete__list')(e.target);
-    if (userFacingInput.disabled) {
-        return;
-    }
-    if (closestByTag(rootElement)(e.target) === rootElement) {
-        if (isInput) {
-            fetchListFn(e);
-        } else if (isIcon) {
-            if (!userFacingInput.disabled) {
-                if (rootElement.isDirty) {
-                    reset(valueInput, userFacingInput, rootElement);
-                    if (isListVisible(list)) {
-                        fetchListFn(e);
-                        userFacingInput.focus();
-                    }
-                    return;
-                }
-                if (isListVisible(list)) {
-                    hideList(list, rootElement)(e);
-                } else {
-                    userFacingInput.focus();
-                    fetchListFn(e);
-                }
-            }
-        } else if (isList) {
-            var theItem = closestByClassName('as24-autocomplete__list-item')(e.target);
-            if (theItem.dataset.unselectable) {
-                e.stopPropagation();
-                return;
-            }
-            selectItem(valueInput, userFacingInput, theItem, rootElement);
-            rootElement.classList.add('as24-autocomplete--user-input');
-            hideList(list, rootElement)(e);
+    AutocompleteInput.prototype.onInputClick = function onInputClick () {
+        this.isOpened = true;
+        if (this.isOpened) {
+            triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
         }
-    } else {
-        if (isListVisible(list)) {
-            if (userFacingInput.classList.contains('error')) {
-                valueInput.value = '';
-                triggerChangeEvent('change', valueInput);
-            } else if (userFacingInput.value) {
-                var theFirstItem = $('.as24-autocomplete__list-item--selected', list);
-                selectItem(valueInput, userFacingInput, theFirstItem, rootElement);
-                rootElement.classList.add('as24-autocomplete--user-input');
+    };
+
+    AutocompleteInput.prototype.onDropDownClick = function onDropDownClick () {
+        this.input.focus();
+        if (this.isOpened) {
+            this.isOpened = false;
+            triggerEvent('as24-autocomplete:input:close', this.input);
+        } else {
+            this.isOpened = true;
+            triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
+        }
+    };
+
+    AutocompleteInput.prototype.onCrossClick = function onCrossClick () {
+        this.input.focus();
+        if (this.input.value === '') {
+            this.isOpened = false;
+            triggerEvent('as24-autocomplete:input:close', this.input);
+        } else {
+            this.input.value = '';
+            triggerEvent('as24-autocomplete:input:cleanup', this.input);
+            if (this.isOpened) {
+                triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
             }
         }
-        hideList(list, rootElement)(e);
-    }
-}; };
+    };
 
+    AutocompleteInput.prototype.attachedCallback = function attachedCallback () {
+        this.isOpened = false;
+        this.isDirty = false;
+        this.dropDown = $('.as24-autocomplete__icon-dropdown', this);
+        this.cross = $('.as24-autocomplete__icon-cross', this);
+        this.input = $('input', this);
+        on('click', this.onInputClick.bind(this), this.input);
+        on('click', this.onDropDownClick.bind(this), this.dropDown);
+        on('click', this.onCrossClick.bind(this), this.cross);
+        on('keyup', this.onKeyUp.bind(this), this.input, true);
+        on('keydown', this.onKeyDown.bind(this), this.input, true);
+    };
 
+    return AutocompleteInput;
+}(HTMLElement));
 
-/**
- * When the custom tag has been attached to DOM
- * @this HTMLElement
- */
-function elementAttached() {
-    /**
-     * The as24-autocomplete DOM element
-     * @type {HTMLElement}
-     */
-    var root = this;
-
-    /**
-     * The message about no items has been found
-     * @type {string}
-     */
-    var emptyListMessage = root.getAttribute('empty-list-message') || '---';
-
-    /**
-     * The input with which the user can interact
-     * @type {HTMLInputElement}
-     */
-    var userFacingInput = $('[data-role="user-query"]', root);
-
-    /**
-     * Hidden input in which we actually set the value
-     * @type {HTMLInputElement}
-     */
-    var valueInput = $('[data-role="value"]', root);
-
-    /**
-     * The UL-element that represents the suggestion list
-     * @type {HTMLUListElement}
-     */
-    var list = $('.as24-autocomplete__list', root);
-
-    /**
-     * DataSource element
-     * @type {DataSource}
-     */
-    var dataSource = this.querySelector('[role=data-source]');
-
-    if (!dataSource) {
-        throw new Error('The DataSource has not been found');
-    }
-
-    /**
-     * The function that takes an Event and does call to DataSource
-     * @type {Function}
-     */
-    var fetchListFn = fetchList(dataSource, userFacingInput, list, emptyListMessage, root);
-
-    root.isDirty = false;
-
-    setTimeout(function () {
-        if (valueInput.value) {
-            getInitialValueByKey(dataSource, valueInput.value)
-                .then(function (suggestion) {
-                    if (suggestion) {
-                        userFacingInput.value = suggestion.value;
-                        dirtifyInput(root);
-                    }
-                    return true;
-                });
-        }
-    });
-
-    on('click', componentClicked(fetchListFn, userFacingInput, valueInput, list, root), document, true);
-    on('keyup', onKeyUp(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), userFacingInput, true);
-    on('keydown', onKeyDown(dataSource, valueInput, userFacingInput, list, emptyListMessage, root), window, true);
-    on('mouseover', onItemMouseOver(list), list, true);
-}
-
-function elementDetached() { }
-
-/**
- * @this {HTMLElement}
- * @param {string} attrName
- * @param {string} oldVal
- * @param {string} newVal
- */
-function onAttributeChanged(attrName, oldVal, newVal) {
-    /** @type {HTMLInputElement} */
-    var userFacingInput = $('[data-role="user-query"]', this);
-
-    /** @type {HTMLUListElement} */
-    var list = $('.as24-autocomplete__list', this);
-
-    if (attrName === 'disabled') {
-        userFacingInput.disabled = newVal === 'true' || newVal === 'disabled';
-        this.classList[userFacingInput.disabled ? 'add' : 'remove']('as24-autocomplete--disabled');
-        hideList(list, this)();
-    }
-}
-
-function registerInput() {
+function registerDS() {
     try {
-        return document.registerElement('as24-autocomplete', {
-            prototype: Object.assign(
-                Object.create(HTMLElement.prototype, {
-                    attachedCallback: { value: elementAttached },
-                    detachedCallback: { value: elementDetached },
-                    attributeChangedCallback: { value: onAttributeChanged }
-                }),
-                /**
-                 * Public API
-                 */
-                {
-                    /**
-                     * Returns the selected value
-                     * @this {HTMLElement}
-                     */
-                    selectedValue: function selectedValue() {
-                        return $('[data-role="value"]', this).value;
-                    },
-                    /**
-                     * Returns what user has written
-                     * @this {HTMLElement}
-                     */
-                    userQuery: function userQuery() {
-                        return $('[data-role="user-query"]', this).value;
-                    },
-                    /**
-                     * returns the bounded data source element
-                     * @this {HTMLElement}
-                     */
-                    dataSourceElement: function dataSourceElement() {
-                        return this.querySelector('[role=data-source]');
-                    },
-                    /**
-                     * Resets the component
-                     * @this {HTMLElement}
-                     */
-                    reset: function reset$1() {
-                        /** @type {HTMLInputElement} */
-                        var userFacingInput = $('[data-role="user-query"]', this);
-
-                        /** @type {HTMLInputElement} */
-                        var valueInput = $('[data-role="value"]', this);
-
-                        return reset(valueInput, userFacingInput, this);
-                    }
-                }
-            )
-        });
+        return document.registerElement('as24-autocomplete-input', AutocompleteInput);
     } catch (e) {
-        if (window && window.console) {
-            window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
-            return null;
-        }
+        return null;
     }
-    return true;
 }
 
 /**
@@ -690,26 +223,25 @@ var valuePredicate = function (regexp) { return function (item) { return item.va
  * @class
  * @typedef DataSource
  */
-var DataSource = (function (HTMLElement) {
-    function DataSource () {
+var PlainDataSource = (function (HTMLElement) {
+    function PlainDataSource () {
         HTMLElement.apply(this, arguments);
     }
 
-    if ( HTMLElement ) DataSource.__proto__ = HTMLElement;
-    DataSource.prototype = Object.create( HTMLElement && HTMLElement.prototype );
-    DataSource.prototype.constructor = DataSource;
+    if ( HTMLElement ) PlainDataSource.__proto__ = HTMLElement;
+    PlainDataSource.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    PlainDataSource.prototype.constructor = PlainDataSource;
 
-    DataSource.prototype.fetchItems = function fetchItems (queryString) {
+    PlainDataSource.prototype.fetchItems = function fetchItems (queryString) {
         var this$1 = this;
 
         return new Promise(function (res) {
             var keyVals = this$1.extractKeyValues();
-            var escapedQueryString = queryString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
             var startingWith = keyVals
-                .filter(valuePredicate(new RegExp(("^" + escapedQueryString), 'ig')));
+                .filter(valuePredicate(new RegExp(("^" + queryString), 'ig')));
             var theRestContaining = keyVals
                 .filter(function (x) { return startingWith.indexOf(x) === -1; })
-                .filter(valuePredicate(new RegExp(("" + escapedQueryString), 'ig')));
+                .filter(valuePredicate(new RegExp(("" + queryString), 'ig')));
             return res(startingWith.concat(theRestContaining));
         });
     };
@@ -718,7 +250,7 @@ var DataSource = (function (HTMLElement) {
      * @param {string} keyValue
      * @return {Promise.<Suggestion>}
      */
-    DataSource.prototype.getSuggestionByKey = function getSuggestionByKey (keyValue) {
+    PlainDataSource.prototype.getSuggestionByKey = function getSuggestionByKey (keyValue) {
         var this$1 = this;
 
         return new Promise(function (res, rej) {
@@ -734,23 +266,619 @@ var DataSource = (function (HTMLElement) {
      * Extracts a list of objects like { key:string, value:string }
      * @returns {Array<{key:string, value:string}>}
      */
-    DataSource.prototype.extractKeyValues = function extractKeyValues () {
+    PlainDataSource.prototype.extractKeyValues = function extractKeyValues () {
         return Array.prototype.slice.call(this.querySelectorAll('item')).map(function (tag) { return new Suggestion(tag.getAttribute('key'), tag.getAttribute('value')); }
         );
     };
 
-    return DataSource;
+    return PlainDataSource;
 }(HTMLElement));
 
-function registerDS() {
+function registerDS$1() {
     try {
-        return document.registerElement('as24-tags-data-source', DataSource);
+        return document.registerElement('as24-plain-data-source', PlainDataSource);
     } catch (e) {
         return null;
     }
 }
 
-registerInput();
+/**
+ * @class
+ * @typedef Suggestion
+ */
+var Suggestion$1 = function Suggestion$1(key, value) {
+    this.key = key;
+    this.value = value;
+};
+
+Suggestion$1.prototype.toString = function toString () {
+    return ("Suggestion(" + (this.key) + ": " + (this.value) + ")");
+};
+
+var SuggestionsGroup = function SuggestionsGroup(label, items) {
+    this.label = label;
+    this.items = items;
+};
+
+SuggestionsGroup.prototype.toString = function toString () {
+    return ("SuggestionsGroup(" + (this.label) + ", " + (this.items.length) + " items)");
+};
+
+/**
+ * Test the string against item's value\
+ * @param {RegExp} regexp
+ * @param {string|undefined} key
+ * @returns {function}
+ */
+var valuePredicate$1 = function (regexp, key) { return function (sugg) { return regexp !== null
+            ? sugg.value.match(regexp) !== null
+            : typeof key !== 'undefined'
+                ? sugg.key === key
+                : true; }; };
+
+
+/**
+ * @class
+ * @typedef GroupedItemsDataSource
+ */
+var GroupedItemsDataSource = (function (HTMLElement) {
+    function GroupedItemsDataSource () {
+        HTMLElement.apply(this, arguments);
+    }
+
+    if ( HTMLElement ) GroupedItemsDataSource.__proto__ = HTMLElement;
+    GroupedItemsDataSource.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    GroupedItemsDataSource.prototype.constructor = GroupedItemsDataSource;
+
+    GroupedItemsDataSource.prototype.fetchItems = function fetchItems (queryString) {
+        var this$1 = this;
+
+        return new Promise(function (res) { return res(this$1.buildGroups(queryString)); });
+    };
+
+    /**
+     * @param {string} theKey
+     * @return {Promise.<Suggestion>}
+     */
+    GroupedItemsDataSource.prototype.getSuggestionByKey = function getSuggestionByKey (theKey) {
+        var this$1 = this;
+
+        return new Promise(function (res, rej) {
+            var item = Array.prototype.slice.call(this$1.querySelectorAll('item'))
+                .map(function (i) { return new Suggestion$1(i.getAttribute('key'), i.getAttribute('value')); })
+                .filter(valuePredicate$1(null, theKey));
+            if (item.length) {
+                return res(item[0]);
+            }
+            return rej(null);
+        });
+    };
+
+    /**
+     * Extracts a list of objects like { key:string, value:string }
+     * @param {HTMLElement} group
+     * @param {string} queryString The query from the user
+     * @param {string|undefined} theKey The key to look for
+     * @returns {Array<{key:string, value:string}>}
+     */
+    GroupedItemsDataSource.prototype.buildItems = function buildItems (group, queryString, theKey) {
+        var kvs = Array.prototype.slice.call(group.querySelectorAll('item')).map(function (tag) { return new Suggestion$1(tag.getAttribute('key'), tag.getAttribute('value')); }
+        );
+
+        var startingWith = kvs
+            .filter(valuePredicate$1(new RegExp(("^" + queryString), 'ig'), theKey));
+
+        var theRestContaining = kvs
+            .filter(function (x) { return startingWith.indexOf(x) === -1; })
+            .filter(valuePredicate$1(new RegExp(("" + queryString), 'ig'), theKey));
+
+        return startingWith.concat(theRestContaining);
+    };
+
+    GroupedItemsDataSource.prototype.buildGroups = function buildGroups (queryString, theKey) {
+        var this$1 = this;
+
+        return Array.prototype.slice.call(this.querySelectorAll('group'))
+            .reduce(function (res, group) {
+                var items = this$1.buildItems(group, queryString, theKey);
+                return items.length
+                    ? res.concat(new SuggestionsGroup(group.getAttribute('label'), items))
+                    : res;
+            }, []);
+    };
+
+    return GroupedItemsDataSource;
+}(HTMLElement));
+
+function registerDS$2() {
+    try {
+        return document.registerElement('as24-grouped-items-data-source', GroupedItemsDataSource);
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * @class
+ * @typedef PlainSuggestionsList
+ */
+var PlainSuggestionsList = (function (HTMLElement) {
+    function PlainSuggestionsList () {
+        HTMLElement.apply(this, arguments);
+    }
+
+    if ( HTMLElement ) PlainSuggestionsList.__proto__ = HTMLElement;
+    PlainSuggestionsList.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    PlainSuggestionsList.prototype.constructor = PlainSuggestionsList;
+
+    PlainSuggestionsList.prototype.show = function show () {
+        this.classList.add('as24-autocomplete__list--visible');
+        triggerEvent('as24-autocomplete:suggestions-list:show', this);
+    };
+
+    PlainSuggestionsList.prototype.hide = function hide () {
+        this.classList.remove('as24-autocomplete__list--visible');
+        triggerEvent('as24-autocomplete:suggestions-list:hide', this);
+    };
+
+    PlainSuggestionsList.prototype.isVisible = function isVisible () {
+        return this.classList.contains('as24-autocomplete__list--visible');
+    };
+
+    PlainSuggestionsList.prototype.getSelectedSuggestionItem = function getSelectedSuggestionItem () {
+        return $('.as24-autocomplete__list-item--selected', this);
+    };
+
+    PlainSuggestionsList.prototype.scrollToSelectedItem = function scrollToSelectedItem (selected) {
+        var listHeight = this.getBoundingClientRect().height;
+        var selectedTop = selected.offsetTop;
+        var selectedHeight = selected.offsetHeight;
+        this.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
+    };
+
+    PlainSuggestionsList.prototype.moveSelection = function moveSelection (dir) {
+        var next = dir === 1 ? 'nextSibling' : 'previousSibling';
+        var currActiveItem = this.getSelectedSuggestionItem(this);
+        var nextActiveItem =
+            currActiveItem === null
+                ? $('.as24-autocomplete__list-item', this)
+                : currActiveItem[next] !== null
+                    ? currActiveItem[next]
+                    : currActiveItem;
+        if (currActiveItem) {
+            currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+        }
+        nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+        this.scrollToSelectedItem(nextActiveItem);
+    };
+
+    PlainSuggestionsList.prototype.onItemMouseOver = function onItemMouseOver (e) {
+        e.stopPropagation();
+        var preselected = $('.as24-autocomplete__list-item--preselected', this);
+        if (e.target.tagName === 'LI') {
+            if (preselected) {
+                preselected.classList.remove('as24-autocomplete__list-item--preselected');
+            }
+            e.target.classList.add('as24-autocomplete__list-item--preselected');
+        }
+    };
+
+    PlainSuggestionsList.prototype.selectItem = function selectItem () {
+        var li = this.getSelectedSuggestionItem();
+        if (li && li.dataset.type && li.dataset.type === 'selectable') {
+            triggerEvent('as24-autocomplete:suggestion:selected', li);
+            this.hide();
+        }
+    };
+
+    PlainSuggestionsList.prototype.onClick = function onClick (e) {
+        var li = closestByClassName('as24-autocomplete__list-item')(e.target);
+        if (li && li.dataset.type && li.dataset.type === 'selectable') {
+            this.hide();
+            triggerEvent('as24-autocomplete:suggestion:selected', li);
+        }
+    };
+
+    PlainSuggestionsList.prototype.renderItem = function renderItem (searchStr) {
+        return function liRenderer(item) {
+            var li = document.createElement('li');
+            li.classList.add('as24-autocomplete__list-item');
+            li.dataset.key = item.key;
+            li.dataset.type = 'selectable';
+            li.dataset.label = item.value;
+            li.innerHTML = item.value.replace(new RegExp(("(" + searchStr + ")"), 'ig'), '<strong>$1</strong>');
+            return li;
+        };
+    };
+
+    PlainSuggestionsList.prototype.renderEmptyListItem = function renderEmptyListItem (emptyMessage) {
+        var li = document.createElement('li');
+        ['as24-autocomplete__list-item', 'as24-autocomplete__list-item--empty'].forEach(li.classList.add.bind(li.classList));
+        li.dataset.type = 'unselectable';
+        li.dataset.key = '';
+        li.innerText = emptyMessage;
+        return li;
+    };
+
+    PlainSuggestionsList.prototype.renderItems = function renderItems (userQuery, emptyMessage) {
+        return function suggestionsRenderer(suggestions) {
+            this.innerHTML = '';
+            var df = document.createDocumentFragment();
+
+            (suggestions.length
+                ? suggestions.map(this.renderItem(userQuery))
+                : [this.renderEmptyListItem(emptyMessage)]
+            ).forEach(appendTo(df));
+
+            appendTo(this)(df);
+            this.show();
+        }.bind(this);
+    };
+
+    PlainSuggestionsList.prototype.attachedCallback = function attachedCallback () {
+        on('mouseover', this.onItemMouseOver.bind(this), this);
+        on('click', this.onClick.bind(this), this);
+    };
+
+    return PlainSuggestionsList;
+}(HTMLElement));
+
+function registerDS$3() {
+    try {
+        return document.registerElement('as24-plain-suggestions-list', PlainSuggestionsList);
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * @class
+ * @typedef GroupedSuggestionsList
+ */
+var GroupedSuggestionsList = (function (HTMLElement) {
+    function GroupedSuggestionsList () {
+        HTMLElement.apply(this, arguments);
+    }
+
+    if ( HTMLElement ) GroupedSuggestionsList.__proto__ = HTMLElement;
+    GroupedSuggestionsList.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    GroupedSuggestionsList.prototype.constructor = GroupedSuggestionsList;
+
+    GroupedSuggestionsList.prototype.show = function show () {
+        this.classList.add('as24-autocomplete__list--visible');
+        triggerEvent('as24-autocomplete:suggestions-list:show', this);
+    };
+
+    GroupedSuggestionsList.prototype.hide = function hide () {
+        this.classList.remove('as24-autocomplete__list--visible');
+        triggerEvent('as24-autocomplete:suggestions-list:hide', this);
+    };
+
+    GroupedSuggestionsList.prototype.isVisible = function isVisible () {
+        return this.classList.contains('as24-autocomplete__list--visible');
+    };
+
+    GroupedSuggestionsList.prototype.getSelectedSuggestionItem = function getSelectedSuggestionItem () {
+        return $('.as24-autocomplete__list-item--selected', this);
+    };
+
+    GroupedSuggestionsList.prototype.scrollToSelectedItem = function scrollToSelectedItem (selected) {
+        var listHeight = this.getBoundingClientRect().height;
+        var selectedTop = selected.offsetTop;
+        var selectedHeight = selected.offsetHeight;
+        this.scrollTop = -1 * (listHeight - (selectedTop + selectedHeight));
+    };
+
+    GroupedSuggestionsList.prototype.moveSelection = function moveSelection (dir) {
+        var currActiveItem = this.getSelectedSuggestionItem(this);
+        var allItems = Array.prototype.slice.call($$('.as24-autocomplete__list-item', this))
+            .filter(function (i) { return i.dataset.type === 'selectable'; });
+        var currPos = currActiveItem === null ? -1 : allItems.indexOf(currActiveItem);
+        var nextPos = currPos + dir > allItems.length - 1
+            ? allItems.length - 1
+            : currPos + dir < 0
+                ? 0
+                : currPos + dir;
+        var nextActiveItem = allItems[nextPos];
+        if (currActiveItem) {
+            currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
+        }
+        nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+        this.scrollToSelectedItem(nextActiveItem);
+    };
+
+    GroupedSuggestionsList.prototype.onItemMouseOver = function onItemMouseOver (e) {
+        e.stopPropagation();
+        var preselected = $('.as24-autocomplete__list-item--preselected', this);
+        if (e.target.tagName === 'LI') {
+            if (preselected) {
+                preselected.classList.remove('as24-autocomplete__list-item--preselected');
+            }
+            e.target.classList.add('as24-autocomplete__list-item--preselected');
+        }
+    };
+
+    GroupedSuggestionsList.prototype.selectItem = function selectItem () {
+        var li = this.getSelectedSuggestionItem();
+        if (li && li.dataset.type && li.dataset.type === 'selectable') {
+            triggerEvent('as24-autocomplete:suggestion:selected', li);
+            this.hide();
+        }
+    };
+
+    GroupedSuggestionsList.prototype.onClick = function onClick (e) {
+        var li = closestByClassName('as24-autocomplete__list-item')(e.target);
+        if (li && li.dataset.type && li.dataset.type === 'selectable') {
+            this.hide();
+            triggerEvent('as24-autocomplete:suggestion:selected', li);
+        }
+    };
+
+    GroupedSuggestionsList.prototype.renderItem = function renderItem (userQuery) {
+        return function liRenderer(item) {
+            var li = document.createElement('li');
+            li.classList.add('as24-autocomplete__list-item');
+            li.dataset.key = item.key;
+            li.dataset.type = 'selectable';
+            li.dataset.label = item.value;
+            li.innerHTML = item.value.replace(new RegExp(("(" + userQuery + ")"), 'ig'), '<strong>$1</strong>');
+            return li;
+        };
+    };
+
+    GroupedSuggestionsList.prototype.renderSeparator = function renderSeparator (group) {
+        var div = document.createElement('div');
+        div.classList.add('as24-autocomplete__list-item');
+        div.classList.add('as24-autocomplete__separator');
+        div.dataset.type = 'unselectable';
+        div.innerHTML = group.label;
+        return div;
+    };
+
+    GroupedSuggestionsList.prototype.renderGroup = function renderGroup (userQuery) {
+        return function groupRenderer(group) {
+            var df = document.createDocumentFragment();
+            df.appendChild(this.renderSeparator(group));
+            group.items
+                .map(this.renderItem(userQuery))
+                .forEach(appendTo(df));
+            return df;
+        };
+    };
+
+    GroupedSuggestionsList.prototype.renderEmptyListItem = function renderEmptyListItem (emptyMessage) {
+        var li = document.createElement('li');
+        ['as24-autocomplete__list-item', 'as24-autocomplete__list-item--empty'].forEach(li.classList.add.bind(li.classList));
+        li.dataset.type = 'unselectable';
+        li.innerText = emptyMessage;
+        return li;
+    };
+
+    GroupedSuggestionsList.prototype.renderItems = function renderItems (userQuery, emptyMessage) {
+        return function suggestionsRenderer(suggestions) {
+            this.innerHTML = '';
+            var df = document.createDocumentFragment();
+
+            (suggestions.length
+                ? suggestions.map(this.renderGroup(userQuery).bind(this))
+                : [this.renderEmptyListItem(emptyMessage)]
+            ).forEach(appendTo(df));
+
+            appendTo(this)(df);
+            this.show();
+        }.bind(this);
+    };
+
+    GroupedSuggestionsList.prototype.attachedCallback = function attachedCallback () {
+        on('mouseover', this.onItemMouseOver.bind(this), this);
+        on('click', this.onClick.bind(this), this);
+    };
+
+    return GroupedSuggestionsList;
+}(HTMLElement));
+
+function registerDS$4() {
+    try {
+        return document.registerElement('as24-grouped-suggestions-list', GroupedSuggestionsList);
+    } catch (e) {
+        return null;
+    }
+}
+
+var AutocompleteInput$1 = (function (HTMLElement) {
+    function AutocompleteInput () {
+        HTMLElement.apply(this, arguments);
+    }
+
+    if ( HTMLElement ) AutocompleteInput.__proto__ = HTMLElement;
+    AutocompleteInput.prototype = Object.create( HTMLElement && HTMLElement.prototype );
+    AutocompleteInput.prototype.constructor = AutocompleteInput;
+
+    AutocompleteInput.prototype.selectedValue = function selectedValue () {
+        return this.valueInput.value;
+    };
+
+    AutocompleteInput.prototype.userQuery = function userQuery () {
+        return this.userFacingInput.getValue();
+    };
+
+    AutocompleteInput.prototype.dataSourceElement = function dataSourceElement () {
+        return this.dataSource;
+    };
+
+    AutocompleteInput.prototype.reset = function reset () {
+        this.userFacingInput.setValue('');
+        this.valueInput.value = '';
+        this.list.hide();
+        this.isDirty = false;
+        this.classList.remove('as24-autocomplete--active');
+        this.classList.remove('as24-autocomplete--user-input');
+    };
+
+    AutocompleteInput.prototype.fetchList = function fetchList (userQuery) {
+        return this.dataSource.fetchItems(userQuery)
+            .then(this.list.renderItems(userQuery, this.emptyListMessage));
+    };
+
+    AutocompleteInput.prototype.getInitialValueByKey = function getInitialValueByKey () {
+        return this.dataSource.getSuggestionByKey(this.valueInput.value);
+    };
+
+    AutocompleteInput.prototype.attachedCallback = function attachedCallback () {
+        var this$1 = this;
+
+        this.emptyListMessage = this.getAttribute('empty-list-message') || '---';
+
+        this.userFacingInput = $('as24-autocomplete-input', this);
+
+        this.valueInput = $('input[data-role="value"]', this);
+
+        this.list = $('[data-role="list"]', this);
+
+        this.dataSource = this.querySelector('[role=data-source]');
+
+        if (!this.dataSource) {
+            throw new Error('The DataSource has not been found');
+        }
+
+        this.isDirty = false;
+
+        setTimeout(function () {
+            if (this$1.valueInput.value) {
+                this$1.getInitialValueByKey()
+                    .then(function (suggestion) {
+                        if (suggestion) {
+                            this$1.userFacingInput.setValue(suggestion.value);
+                            this$1.isDirty = true;
+                        }
+                        return true;
+                    });
+            }
+        });
+
+        on('as24-autocomplete:suggestion:selected', function (e) {
+            e.stopPropagation();
+            this$1.valueInput.value = e.target.dataset.key;
+            this$1.userFacingInput.setValue(e.target.dataset.label);
+            this$1.userFacingInput.isOpened = false;
+            this$1.list.hide();
+            this$1.classList.remove('as24-autocomplete--active');
+            this$1.classList.add('as24-autocomplete--user-input');
+        }, this);
+
+        on('as24-autocomplete:input:trigger-suggestions', function (e) {
+            e.stopPropagation();
+            if (!this$1.list.isVisible()) {
+                this$1.list.show();
+            }
+            this$1.classList.add('as24-autocomplete--active');
+            this$1.fetchList(this$1.userFacingInput.getValue()).then(function () { return this$1.list.moveSelection(1); });
+        }, this);
+
+        on('as24-autocomplete:input:focus-lost', function (e) {
+            e.stopPropagation();
+            this$1.list.hide();
+            this$1.classList.remove('as24-autocomplete--active');
+        }, this);
+
+        on('as24-autocomplete:input:enter', function (e) {
+            e.stopPropagation();
+            if (this$1.list.isVisible()) {
+                this$1.list.selectItem();
+                this$1.list.hide();
+            } else {
+                this$1.fetchList(this$1.userFacingInput.getValue())
+                    .then(function () { return this$1.list.moveSelection(1); });
+            }
+            this$1.classList.remove('as24-autocomplete--active');
+        }, this);
+
+        on('as24-autocomplete:input:query', function (e) {
+            e.stopPropagation();
+            if (this$1.userFacingInput.getValue() !== '') {
+                this$1.classList.add('as24-autocomplete--user-input');
+            } else {
+                this$1.classList.remove('as24-autocomplete--user-input');
+            }
+            this$1.fetchList(this$1.userFacingInput.getValue()).then(function () { return this$1.list.moveSelection(1); });
+        }, this);
+
+        on('as24-autocomplete:input:cleanup', function (e) {
+            e.stopPropagation();
+            this$1.classList.remove('as24-autocomplete--user-input');
+            this$1.valueInput.value = '';
+            if (this$1.userFacingInput.isOpened) {
+                this$1.fetchList('').then(function () { return this$1.list.moveSelection(1); });
+            }
+        }, this);
+
+        on('as24-autocomplete:input:close', function (e) {
+            e.stopPropagation();
+            this$1.classList.remove('as24-autocomplete--user-input');
+            this$1.classList.remove('as24-autocomplete--active');
+            this$1.list.hide();
+        }, this);
+
+        on('as24-autocomplete:input:go-down', function (e) {
+            e.stopPropagation();
+            if (this$1.userFacingInput.getValue() !== '') {
+                this$1.classList.add('as24-autocomplete--active');
+            }
+            if (this$1.list.isVisible()) {
+                this$1.list.moveSelection(1);
+            } else {
+                this$1.fetchList(this$1.userFacingInput.getValue())
+                    .then(function () { return this$1.list.moveSelection(1); });
+            }
+        }, this);
+
+        on('as24-autocomplete:input:go-up', function (e) {
+            e.stopPropagation();
+            if (this$1.list.isVisible()) {
+                this$1.list.moveSelection(-1);
+            }
+        }, this);
+
+        on('click', function (e) {
+            if (closestByTag(this$1)(e.target) === this$1) {
+                return;
+            }
+            if (this$1.list.isVisible()) {
+                this$1.list.hide();
+                this$1.userFacingInput.isOpened = false;
+                this$1.classList.remove('as24-autocomplete--active');
+            }
+        }, document);
+    };
+
+    AutocompleteInput.prototype.onAttributeChanged = function onAttributeChanged (attrName, oldVal, newVal) {
+        if (attrName === 'disabled') {
+            this.userFacingInput.setDisabled((oldVal !== newVal) && (newVal === 'true' || newVal === 'disabled'));
+            this.classList[
+                this.userFacingInput.isDisabled() ? 'add' : 'remove'
+            ]('as24-autocomplete--disabled');
+            this.list.hide();
+        }
+    };
+
+    return AutocompleteInput;
+}(HTMLElement));
+
+
+
+function register() {
+    try {
+        return document.registerElement('as24-autocomplete', AutocompleteInput$1);
+    } catch (e) {
+        return null;
+    }
+}
+
 registerDS();
+registerDS$1();
+registerDS$2();
+registerDS$3();
+registerDS$4();
+register();
 
 //# sourceMappingURL=as24-autocomplete.js.map

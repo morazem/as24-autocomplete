@@ -155,4 +155,11 @@ as24-autocomplete {
 
     }
 
+    &__separator {
+        padding: $XS $M;
+        user-select: none;
+        font-size: $M;
+        font-weight: bold;
+    }
+
 }

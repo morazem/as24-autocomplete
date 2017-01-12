@@ -1,8 +1,6 @@
 const gulp = require('gulp');
 const cbngulp = require('carbon-gulp')(gulp);
 
-cbngulp.config.devmode = process.argv.indexOf('dev') > -1;
-
 cbngulp.registerTasks({
     js: {
         entry: './src/as24-autocomplete.js',
@@ -31,5 +29,13 @@ cbngulp.registerTasks({
     }
 });
 
-gulp.task('default', ['scss', 'js']);
-gulp.task('dev', ['serve', 'js:docs:watch', 'scss:docs:watch', 'js', 'scss']);
+gulp.task('set-dev', () => {
+    cbngulp.config.devmode = true;
+});
+
+gulp.task('set-prod', () => {
+    cbngulp.config.devmode = false;
+});
+
+gulp.task('default', ['set-prod', 'scss', 'js']);
+gulp.task('dev', ['set-dev', 'serve', 'js:docs:watch', 'scss:docs:watch', 'js', 'scss']);
