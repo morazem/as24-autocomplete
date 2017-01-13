@@ -4,10 +4,10 @@ A Data Source is a custom element that fetches suggestions for the list. It filt
 
 A Data Source must have the following API:
 
-Name|Arguments|Return value
---|---|--
-fetchItems|`queryString`:string|Promise<Suggestions>
-getSuggestionByKey|`keyValue`:string|Promise<Suggestion>
+| Name               | Arguments           | Return value         |
+| ------------------ | ------------------- | -------------------- |
+| fetchItems         |`queryString`:string | Promise<Suggestions> |
+| getSuggestionByKey | `keyValue`:string   | Promise<Suggestion>  |
 
 A Data Source component must have a `role` attribute with value of `data-source`
 
