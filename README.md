@@ -3,10 +3,10 @@
 Build your autocomplete from the building blocks. Put input, data source and suggestions list inside the `as24-autocomplete` and you get it. For the moment we have these:
 
 - Input (_as24-autocomplete-input_)
-- Suggestions lists ([more info](suggestions-lists/readme.md))
+- Suggestions lists ([more info](src/suggestions-lists/readme.md))
   - Plain list (_as24-plain-suggestions-list_)
   - Grouped list (_as24-grouped-suggestions-list_)
-- Data sources ([more info](data-sources/readme.md))
+- Data sources ([more info](src/data-sources/readme.md))
   - Plain data source (_as24-plain-data-source_)
   - Grouped data source  (_as24-grouped-suggestions-list_)
 
