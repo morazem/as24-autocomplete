@@ -1,4 +1,9 @@
 
+2.0.0 / 2017-01-13
+==================
+
+  * Build customized autocomplete using new elements
+
 1.0.1 / 2017-01-11
 ==================
 
