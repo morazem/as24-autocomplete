@@ -2,15 +2,15 @@
 
 Displays suggestions that comes from a Data Source. Must have the following API:
 
-Name|Arguments|Return value
---|---|--
-show|-|-
-hide|-|-
-isVisible|-|-
-getSelectedSuggestionItem|-|DOMElement
-moveSelection|`dir`:number(`-1` or `1`)|-
-selectItem|-|-
-renderItems|`userQuery`:string, `emptyMessage`:string|`Function(suggestions)`
+|Name|Arguments|Return value|
+|--|---|--|
+|show|-|-|
+|hide|-|-|
+|isVisible|-|-|
+|getSelectedSuggestionItem|-|DOMElement|
+|moveSelection|`dir`:number(`-1` or `1`)|-|
+|selectItem|-|-|
+|renderItems|`userQuery`:string, `emptyMessage`:string|`Function(suggestions)`|
 
 Must have a `role` attribute with value of `list`.
 
