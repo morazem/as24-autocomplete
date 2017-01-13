@@ -1,4 +1,4 @@
-import { $, on, closestByTag } from './helper';
+import { $, on, closestByTag, triggerEvent } from './helper';
 
 
 
@@ -72,6 +72,7 @@ class AutocompleteInput extends HTMLElement {
             this.list.hide();
             this.classList.remove('as24-autocomplete--active');
             this.classList.add('as24-autocomplete--user-input');
+            triggerEvent('change', this);
         }, this);
 
         on('as24-autocomplete:input:trigger-suggestions', (e) => {

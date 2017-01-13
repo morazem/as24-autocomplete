@@ -764,6 +764,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
             this$1.list.hide();
             this$1.classList.remove('as24-autocomplete--active');
             this$1.classList.add('as24-autocomplete--user-input');
+            triggerEvent('change', this$1);
         }, this);
 
         on('as24-autocomplete:input:trigger-suggestions', function (e) {
