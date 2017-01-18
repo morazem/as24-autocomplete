@@ -74,10 +74,6 @@ var closestByClassName = function (className) { return function (elem) { return 
                 ? elem
                 : closestByClassName(className)(elem.parentNode); }; };
 
-/**
- * @class
- * @typedef SeparatedItemsDataSource
- */
 var AutocompleteInput = (function (HTMLElement) {
     function AutocompleteInput () {
         HTMLElement.apply(this, arguments);
@@ -398,10 +394,6 @@ function registerDS$2() {
     }
 }
 
-/**
- * @class
- * @typedef PlainSuggestionsList
- */
 var PlainSuggestionsList = (function (HTMLElement) {
     function PlainSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -531,10 +523,6 @@ function registerDS$3() {
     }
 }
 
-/**
- * @class
- * @typedef GroupedSuggestionsList
- */
 var GroupedSuggestionsList = (function (HTMLElement) {
     function GroupedSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -749,6 +737,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
                     .then(function (suggestion) {
                         if (suggestion) {
                             this$1.userFacingInput.setValue(suggestion.value);
+                            this$1.classList.add('as24-autocomplete--user-input');
                             this$1.isDirty = true;
                         }
                         return true;
@@ -811,6 +800,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
             if (this$1.userFacingInput.isOpened) {
                 this$1.fetchList('').then(function () { return this$1.list.moveSelection(1); });
             }
+            triggerEvent('change', this$1);
         }, this);
 
         on('as24-autocomplete:input:close', function (e) {
