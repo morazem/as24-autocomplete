@@ -57,6 +57,7 @@ class AutocompleteInput extends HTMLElement {
                     .then(suggestion => {
                         if (suggestion) {
                             this.userFacingInput.setValue(suggestion.value);
+                            this.classList.add('as24-autocomplete--user-input');
                             this.isDirty = true;
                         }
                         return true;
@@ -119,6 +120,7 @@ class AutocompleteInput extends HTMLElement {
             if (this.userFacingInput.isOpened) {
                 this.fetchList('').then(() => this.list.moveSelection(1));
             }
+            triggerEvent('change', this);
         }, this);
 
         on('as24-autocomplete:input:close', (e) => {
