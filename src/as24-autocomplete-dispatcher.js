@@ -96,17 +96,19 @@ class AutocompleteInput extends HTMLElement {
             if (this.list.isVisible()) {
                 this.list.selectItem();
                 this.list.hide();
+                this.classList.remove('as24-autocomplete--active');
             } else {
                 this.fetchList(this.userFacingInput.getValue())
                     .then(() => this.list.moveSelection(1));
+                this.classList.add('as24-autocomplete--active');
             }
-            this.classList.remove('as24-autocomplete--active');
         }, this);
 
         on('as24-autocomplete:input:query', (e) => {
             e.stopPropagation();
             if (this.userFacingInput.getValue() !== '') {
                 this.classList.add('as24-autocomplete--user-input');
+                this.classList.add('as24-autocomplete--active');
             } else {
                 this.classList.remove('as24-autocomplete--user-input');
             }
@@ -116,10 +118,9 @@ class AutocompleteInput extends HTMLElement {
         on('as24-autocomplete:input:cleanup', (e) => {
             e.stopPropagation();
             this.classList.remove('as24-autocomplete--user-input');
+            this.classList.add('as24-autocomplete--active');
             this.valueInput.value = '';
-            if (this.userFacingInput.isOpened) {
-                this.fetchList('').then(() => this.list.moveSelection(1));
-            }
+            this.fetchList('').then(() => this.list.moveSelection(1));
             triggerEvent('change', this);
         }, this);
 
