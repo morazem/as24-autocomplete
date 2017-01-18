@@ -102,7 +102,9 @@ class GroupedSuggestionsList extends HTMLElement {
     renderGroup(userQuery) {
         return function groupRenderer(group) {
             const df = document.createDocumentFragment();
-            df.appendChild(this.renderSeparator(group));
+            if (userQuery.length === 0) {
+              df.appendChild(this.renderSeparator(group));
+            }
             group.items
                 .map(this.renderItem(userQuery))
                 .forEach(appendTo(df));

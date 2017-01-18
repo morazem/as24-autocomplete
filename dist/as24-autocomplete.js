@@ -638,7 +638,9 @@ var GroupedSuggestionsList = (function (HTMLElement) {
     GroupedSuggestionsList.prototype.renderGroup = function renderGroup (userQuery) {
         return function groupRenderer(group) {
             var df = document.createDocumentFragment();
-            df.appendChild(this.renderSeparator(group));
+            if (userQuery.length === 0) {
+              df.appendChild(this.renderSeparator(group));
+            }
             group.items
                 .map(this.renderItem(userQuery))
                 .forEach(appendTo(df));
@@ -749,8 +751,8 @@ var AutocompleteInput$1 = (function (HTMLElement) {
                     .then(function (suggestion) {
                         if (suggestion) {
                             this$1.userFacingInput.setValue(suggestion.value);
-                            this$1.isDirty = true;
                             this$1.classList.add('as24-autocomplete--user-input');
+                            this$1.isDirty = true;
                         }
                         return true;
                     });
