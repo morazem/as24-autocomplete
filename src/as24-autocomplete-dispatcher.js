@@ -27,6 +27,7 @@ class AutocompleteInput extends HTMLElement {
 
     fetchList(userQuery) {
         return this.dataSource.fetchItems(userQuery)
+            .then(this.userFacingInput.renderInput())
             .then(this.list.renderItems(userQuery, this.emptyListMessage));
     }
 

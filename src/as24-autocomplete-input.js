@@ -30,6 +30,13 @@ class AutocompleteInput extends HTMLElement {
         this.input.classList[flag ? 'add' : 'remove']('error');
     }
 
+    renderInput() {
+        return function inputRenderer(suggestions) {
+            this.setError(suggestions.length === 0);
+            return suggestions;
+        }.bind(this);
+    }
+
     onKeyDown(e) {
         if (e.which === 9) {
             triggerEvent('as24-autocomplete:input:focus-lost', this.input);

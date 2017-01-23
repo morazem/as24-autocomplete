@@ -74,6 +74,10 @@ var closestByClassName = function (className) { return function (elem) { return 
                 ? elem
                 : closestByClassName(className)(elem.parentNode); }; };
 
+/**
+ * @class
+ * @typedef SeparatedItemsDataSource
+ */
 var AutocompleteInput = (function (HTMLElement) {
     function AutocompleteInput () {
         HTMLElement.apply(this, arguments);
@@ -105,6 +109,13 @@ var AutocompleteInput = (function (HTMLElement) {
 
     AutocompleteInput.prototype.setError = function setError (flag) {
         this.input.classList[flag ? 'add' : 'remove']('error');
+    };
+
+    AutocompleteInput.prototype.renderInput = function renderInput () {
+        return function inputRenderer(suggestions) {
+            this.setError(suggestions.length === 0);
+            return suggestions;
+        }.bind(this);
     };
 
     AutocompleteInput.prototype.onKeyDown = function onKeyDown (e) {
@@ -394,6 +405,10 @@ function registerDS$2() {
     }
 }
 
+/**
+ * @class
+ * @typedef PlainSuggestionsList
+ */
 var PlainSuggestionsList = (function (HTMLElement) {
     function PlainSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -523,6 +538,10 @@ function registerDS$3() {
     }
 }
 
+/**
+ * @class
+ * @typedef GroupedSuggestionsList
+ */
 var GroupedSuggestionsList = (function (HTMLElement) {
     function GroupedSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -571,8 +590,10 @@ var GroupedSuggestionsList = (function (HTMLElement) {
         if (currActiveItem) {
             currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
         }
-        nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-        this.scrollToSelectedItem(nextActiveItem);
+        if (nextActiveItem) {
+            nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+            this.scrollToSelectedItem(nextActiveItem);
+        }
     };
 
     GroupedSuggestionsList.prototype.onItemMouseOver = function onItemMouseOver (e) {
@@ -707,6 +728,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
 
     AutocompleteInput.prototype.fetchList = function fetchList (userQuery) {
         return this.dataSource.fetchItems(userQuery)
+            .then(this.userFacingInput.renderInput())
             .then(this.list.renderItems(userQuery, this.emptyListMessage));
     };
 

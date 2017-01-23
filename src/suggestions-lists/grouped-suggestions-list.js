@@ -47,8 +47,10 @@ class GroupedSuggestionsList extends HTMLElement {
         if (currActiveItem) {
             currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
         }
-        nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-        this.scrollToSelectedItem(nextActiveItem);
+        if (nextActiveItem) {
+            nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+            this.scrollToSelectedItem(nextActiveItem);
+        }
     }
 
     onItemMouseOver(e) {
