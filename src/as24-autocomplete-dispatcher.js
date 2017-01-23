@@ -113,7 +113,13 @@ class AutocompleteInput extends HTMLElement {
             } else {
                 this.classList.remove('as24-autocomplete--user-input');
             }
-            this.fetchList(this.userFacingInput.getValue()).then(() => this.list.moveSelection(1));
+            this.fetchList(this.userFacingInput.getValue()).then(() => {
+              this.list.moveSelection(1);
+              if (this.list.isEmpty()) {
+                  this.valueInput.value = '';
+                  triggerEvent('change', this);
+              }
+            });
         }, this);
 
         on('as24-autocomplete:input:cleanup', (e) => {

@@ -18,6 +18,10 @@ class PlainSuggestionsList extends HTMLElement {
         triggerEvent('as24-autocomplete:suggestions-list:hide', this);
     }
 
+    isEmpty() {
+      return $('.as24-autocomplete__list-item--empty', this);
+    }
+
     isVisible() {
         return this.classList.contains('as24-autocomplete__list--visible');
     }
