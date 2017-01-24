@@ -8,7 +8,11 @@ as24-autocomplete {
 }
 
 .as24-autocomplete {
-
+    
+    &__input{
+        transition: none;
+    }
+    
     &--disabled {
         cursor: not-allowed;
         .as24-autocomplete {
@@ -25,11 +29,11 @@ as24-autocomplete {
 
     &--active {
         .as24-autocomplete {
-            &__icon-wrapper {
-                transform: translateY(-50%) rotate(180deg);
+            &__icon-dropdown{
+                transform: translate(-50%, -50%) rotate(180deg);
             }
             &__input {
-              border-bottom-width: 0;
+              border-bottom: 1px solid $black-40 !important;
               border-bottom-left-radius: 0;
               border-bottom-right-radius: 0;
             }
@@ -137,7 +141,7 @@ as24-autocomplete {
 
         &--visible {
             display: block;
-            border-top: 1px solid $black-40;
+            border-top: none;
             border-left: 1px solid $blue-80;
             border-right: 1px solid $blue-80;
             border-bottom: 1px solid $blue-80;
