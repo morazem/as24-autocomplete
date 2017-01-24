@@ -18,6 +18,10 @@ class GroupedSuggestionsList extends HTMLElement {
         triggerEvent('as24-autocomplete:suggestions-list:hide', this);
     }
 
+    isEmpty() {
+      return $('.as24-autocomplete__list-item--empty', this);
+    }
+
     isVisible() {
         return this.classList.contains('as24-autocomplete__list--visible');
     }
@@ -47,8 +51,10 @@ class GroupedSuggestionsList extends HTMLElement {
         if (currActiveItem) {
             currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
         }
-        nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-        this.scrollToSelectedItem(nextActiveItem);
+        if (nextActiveItem) {
+            nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
+            this.scrollToSelectedItem(nextActiveItem);
+        }
     }
 
     onItemMouseOver(e) {
