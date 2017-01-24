@@ -114,6 +114,14 @@ var AutocompleteInput = (function (HTMLElement) {
         }.bind(this);
     };
 
+    AutocompleteInput.prototype.onBlur = function onBlur (e) {
+      if (this.input.value === '') {
+        triggerEvent('as24-autocomplete:input:cleanup', this.input);
+      } else {
+        triggerEvent('as24-autocomplete:input:focus-lost', this.input);
+      }
+    };
+
     AutocompleteInput.prototype.onKeyDown = function onKeyDown (e) {
         if (e.which === 9) {
             triggerEvent('as24-autocomplete:input:focus-lost', this.input);
@@ -188,6 +196,7 @@ var AutocompleteInput = (function (HTMLElement) {
         on('click', this.onCrossClick.bind(this), this.cross);
         on('keyup', this.onKeyUp.bind(this), this.input, true);
         on('keydown', this.onKeyDown.bind(this), this.input, true);
+        on('blur', this.onBlur.bind(this), this.input);
     };
 
     return AutocompleteInput;
@@ -787,8 +796,12 @@ var AutocompleteInput$1 = (function (HTMLElement) {
 
         on('as24-autocomplete:input:focus-lost', function (e) {
             e.stopPropagation();
-            this$1.list.hide();
-            this$1.classList.remove('as24-autocomplete--active');
+            if (!this$1.list.isEmpty()) {
+              this$1.list.selectItem();
+            } else  {
+              this$1.list.hide();
+              this$1.classList.remove('as24-autocomplete--active');
+            }
         }, this);
 
         on('as24-autocomplete:input:enter', function (e) {

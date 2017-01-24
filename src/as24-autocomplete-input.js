@@ -37,6 +37,14 @@ class AutocompleteInput extends HTMLElement {
         }.bind(this);
     }
 
+    onBlur(e) {
+      if (this.input.value === '') {
+        triggerEvent('as24-autocomplete:input:cleanup', this.input);
+      } else {
+        triggerEvent('as24-autocomplete:input:focus-lost', this.input);
+      }
+    }
+
     onKeyDown(e) {
         if (e.which === 9) {
             triggerEvent('as24-autocomplete:input:focus-lost', this.input);
@@ -111,9 +119,8 @@ class AutocompleteInput extends HTMLElement {
         on('click', this.onCrossClick.bind(this), this.cross);
         on('keyup', this.onKeyUp.bind(this), this.input, true);
         on('keydown', this.onKeyDown.bind(this), this.input, true);
+        on('blur', this.onBlur.bind(this), this.input);
     }
-
-
 
 }
 

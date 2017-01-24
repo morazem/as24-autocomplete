@@ -88,8 +88,12 @@ class AutocompleteInput extends HTMLElement {
 
         on('as24-autocomplete:input:focus-lost', (e) => {
             e.stopPropagation();
-            this.list.hide();
-            this.classList.remove('as24-autocomplete--active');
+            if (!this.list.isEmpty()) {
+              this.list.selectItem();
+            } else  {
+              this.list.hide();
+              this.classList.remove('as24-autocomplete--active');
+            }
         }, this);
 
         on('as24-autocomplete:input:enter', (e) => {
