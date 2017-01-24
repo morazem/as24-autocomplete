@@ -88,7 +88,7 @@ class AutocompleteInput extends HTMLElement {
 
         on('as24-autocomplete:input:focus-lost', (e) => {
             e.stopPropagation();
-            if (!this.list.isEmpty()) {
+            if (this.userFacingInput.getValue() !== '' && !this.list.isEmpty()) {
               this.list.selectItem();
             } else  {
               this.list.hide();
@@ -119,7 +119,7 @@ class AutocompleteInput extends HTMLElement {
             }
             this.fetchList(this.userFacingInput.getValue()).then(() => {
               this.list.moveSelection(1);
-              if (this.list.isEmpty()) {
+              if (this.userFacingInput.getValue() === '' || this.list.isEmpty()) {
                   this.valueInput.value = '';
                   triggerEvent('change', this);
               }
@@ -167,6 +167,9 @@ class AutocompleteInput extends HTMLElement {
                 return;
             }
             if (this.list.isVisible()) {
+                if (this.userFacingInput.getValue() !== '' && !this.list.isEmpty()) {
+                  this.list.selectItem();
+                }
                 this.list.hide();
                 this.userFacingInput.isOpened = false;
                 this.classList.remove('as24-autocomplete--active');
