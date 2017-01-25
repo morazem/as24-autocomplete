@@ -11,6 +11,26 @@ as24-autocomplete {
     
     &__input{
         transition: none;
+
+        &::placeholder {
+            color: $black-100;
+            opacity: 1;
+        }
+
+        &[disabled] {
+            &::placeholder {
+                color: $black-40;
+            }
+        }
+
+        &[type="number"] {
+            appearance: textfield;
+    
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                display: none;
+            }
+        }
     }
     
     &--disabled {
@@ -168,6 +188,9 @@ as24-autocomplete {
             background: $white;
         }
 
+        strong {
+            font-weight: bold;
+        }
     }
 
     &__separator {

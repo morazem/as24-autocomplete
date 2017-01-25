@@ -43,9 +43,11 @@ class AutocompleteInput extends HTMLElement {
         }
         if (e.which === 40) {
             triggerEvent('as24-autocomplete:input:go-down', this.input);
+            e.preventDefault();
         }
         if (e.which === 38) {
             triggerEvent('as24-autocomplete:input:go-up', this.input);
+            e.preventDefault();
         }
     }
 

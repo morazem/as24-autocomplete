@@ -300,6 +300,36 @@ as24-autocomplete {
 .as24-autocomplete__input {
   -webkit-transition: none;
   transition: none; }
+  .as24-autocomplete__input::-webkit-input-placeholder {
+    color: #333;
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
+  .as24-autocomplete__input::-moz-placeholder {
+    color: #333;
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
+  .as24-autocomplete__input:-ms-input-placeholder {
+    color: #333;
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
+  .as24-autocomplete__input::placeholder {
+    color: #333;
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
+  .as24-autocomplete__input[disabled]::-webkit-input-placeholder {
+    color: #c4c4c4; }
+  .as24-autocomplete__input[disabled]::-moz-placeholder {
+    color: #c4c4c4; }
+  .as24-autocomplete__input[disabled]:-ms-input-placeholder {
+    color: #c4c4c4; }
+  .as24-autocomplete__input[disabled]::placeholder {
+    color: #c4c4c4; }
+  .as24-autocomplete__input[type="number"] {
+    -webkit-appearance: textfield;
+       -moz-appearance: textfield;
+            appearance: textfield; }
+    .as24-autocomplete__input[type="number"]::-webkit-outer-spin-button, .as24-autocomplete__input[type="number"]::-webkit-inner-spin-button {
+      display: none; }
 
 .as24-autocomplete--disabled {
   cursor: not-allowed; }
@@ -422,6 +452,8 @@ as24-autocomplete {
   .as24-autocomplete__list-item--empty {
     color: #d91a2a;
     background: #fff; }
+  .as24-autocomplete__list-item strong {
+    font-weight: bold; }
 
 .as24-autocomplete__separator {
   padding: 4px 12px;

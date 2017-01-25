@@ -124,9 +124,11 @@ var AutocompleteInput = (function (HTMLElement) {
         }
         if (e.which === 40) {
             triggerEvent('as24-autocomplete:input:go-down', this.input);
+            e.preventDefault();
         }
         if (e.which === 38) {
             triggerEvent('as24-autocomplete:input:go-up', this.input);
+            e.preventDefault();
         }
     };
 
@@ -403,10 +405,6 @@ function registerDS$2() {
     }
 }
 
-/**
- * @class
- * @typedef PlainSuggestionsList
- */
 var PlainSuggestionsList = (function (HTMLElement) {
     function PlainSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -540,10 +538,6 @@ function registerDS$3() {
     }
 }
 
-/**
- * @class
- * @typedef GroupedSuggestionsList
- */
 var GroupedSuggestionsList = (function (HTMLElement) {
     function GroupedSuggestionsList () {
         HTMLElement.apply(this, arguments);
