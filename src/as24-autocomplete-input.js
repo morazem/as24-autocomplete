@@ -101,7 +101,7 @@ class AutocompleteInput extends HTMLElement {
     attachedCallback() {
         this.isOpened = false;
         this.isDirty = false;
-        this.dropDown = $('.as24-autocomplete__icon-dropdown', this);
+        this.dropDown = $('.as24-autocomplete__icon-wrapper', this);
         this.cross = $('.as24-autocomplete__icon-cross', this);
         this.input = $('input', this);
         on('click', this.onInputClick.bind(this), this.input);
