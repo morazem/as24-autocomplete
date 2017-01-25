@@ -182,7 +182,7 @@ var AutocompleteInput = (function (HTMLElement) {
     AutocompleteInput.prototype.attachedCallback = function attachedCallback () {
         this.isOpened = false;
         this.isDirty = false;
-        this.dropDown = $('.as24-autocomplete__icon-dropdown', this);
+        this.dropDown = $('.as24-autocomplete__icon-wrapper', this);
         this.cross = $('.as24-autocomplete__icon-cross', this);
         this.input = $('input', this);
         on('click', this.onInputClick.bind(this), this.input);
@@ -761,9 +761,9 @@ var AutocompleteInput$1 = (function (HTMLElement) {
 
         this.isDirty = false;
 
-        setTimeout(function () {
-            if (this$1.valueInput.value) {
-                this$1.getInitialValueByKey()
+        //setTimeout(() => {
+            if (this.valueInput.value) {
+                this.getInitialValueByKey()
                     .then(function (suggestion) {
                         if (suggestion) {
                             this$1.userFacingInput.setValue(suggestion.value);
@@ -773,7 +773,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
                         return true;
                     });
             }
-        });
+        //});
 
         on('as24-autocomplete:suggestion:selected', function (e) {
             e.stopPropagation();
@@ -828,7 +828,7 @@ var AutocompleteInput$1 = (function (HTMLElement) {
             }
             this$1.fetchList(this$1.userFacingInput.getValue()).then(function () {
               this$1.list.moveSelection(1);
-              if (this$1.list.isEmpty() || this$1.userFacingInput.getValue() === '') {
+              if (this$1.valueInput.value.length > 0 && (this$1.userFacingInput.getValue() === '' || this$1.list.isEmpty())) {
                   this$1.valueInput.value = '';
                   triggerEvent('change', this$1);
               }

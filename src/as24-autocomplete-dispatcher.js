@@ -52,7 +52,7 @@ class AutocompleteInput extends HTMLElement {
 
         this.isDirty = false;
 
-        setTimeout(() => {
+        //setTimeout(() => {
             if (this.valueInput.value) {
                 this.getInitialValueByKey()
                     .then(suggestion => {
@@ -64,7 +64,7 @@ class AutocompleteInput extends HTMLElement {
                         return true;
                     });
             }
-        });
+        //});
 
         on('as24-autocomplete:suggestion:selected', (e) => {
             e.stopPropagation();
@@ -119,7 +119,7 @@ class AutocompleteInput extends HTMLElement {
             }
             this.fetchList(this.userFacingInput.getValue()).then(() => {
               this.list.moveSelection(1);
-              if (this.userFacingInput.getValue() === '' || this.list.isEmpty()) {
+              if (this.valueInput.value.length > 0 && (this.userFacingInput.getValue() === '' || this.list.isEmpty())) {
                   this.valueInput.value = '';
                   triggerEvent('change', this);
               }
