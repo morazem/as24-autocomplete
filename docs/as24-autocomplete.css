@@ -304,10 +304,6 @@ as24-autocomplete {
     color: #333;
     opacity: 1;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
-  .as24-autocomplete__input::-moz-placeholder {
-    color: #333;
-    opacity: 1;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
   .as24-autocomplete__input:-ms-input-placeholder {
     color: #333;
     opacity: 1;
@@ -317,8 +313,6 @@ as24-autocomplete {
     opacity: 1;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)"; }
   .as24-autocomplete__input[disabled]::-webkit-input-placeholder {
-    color: #c4c4c4; }
-  .as24-autocomplete__input[disabled]::-moz-placeholder {
     color: #c4c4c4; }
   .as24-autocomplete__input[disabled]:-ms-input-placeholder {
     color: #c4c4c4; }

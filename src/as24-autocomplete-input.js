@@ -76,6 +76,7 @@ class AutocompleteInput extends HTMLElement {
     }
 
     onDropDownClick() {
+        if(this.input.disabled) return;
         this.input.focus();
         if (this.isOpened) {
             this.isOpened = false;
@@ -87,6 +88,7 @@ class AutocompleteInput extends HTMLElement {
     }
 
     onCrossClick() {
+        if(this.input.disabled) return;
         this.input.focus();
         if (this.input.value === '') {
             this.isOpened = false;
