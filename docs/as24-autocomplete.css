@@ -300,6 +300,8 @@ as24-autocomplete {
 .as24-autocomplete__input {
   -webkit-transition: none;
   transition: none; }
+  .as24-autocomplete__input::-ms-clear {
+    display: none; }
   .as24-autocomplete__input::-webkit-input-placeholder {
     color: #333;
     opacity: 1;
@@ -332,11 +334,6 @@ as24-autocomplete {
   .as24-autocomplete--disabled svg path {
     fill: #c4c4c4; }
 
-.as24-autocomplete--active .as24-autocomplete__icon-dropdown {
-  -webkit-transform: translate(-50%, -50%) rotate(180deg);
-      -ms-transform: translate(-50%, -50%) rotate(180deg);
-          transform: translate(-50%, -50%) rotate(180deg); }
-
 .as24-autocomplete--active .as24-autocomplete__input {
   border-bottom: 1px solid #c4c4c4 !important;
   border-bottom-left-radius: 0;
@@ -360,9 +357,6 @@ as24-autocomplete {
   visibility: hidden;
   position: absolute;
   z-index: -1; }
-
-.as24-autocomplete__input-wrapper {
-  position: relative; }
 
 .as24-autocomplete__icon-wrapper {
   position: absolute;
@@ -392,7 +386,8 @@ as24-autocomplete {
     top: 50%;
     -webkit-transform: translateY(-50%);
         -ms-transform: translateY(-50%);
-            transform: translateY(-50%); }
+            transform: translateY(-50%);
+    fill: #949494; }
   .as24-autocomplete__icon-dropdown:before, .as24-autocomplete__icon-cross:before {
     content: '';
     z-index: 0;
