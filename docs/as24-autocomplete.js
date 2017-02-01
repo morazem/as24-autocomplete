@@ -157,6 +157,7 @@ var AutocompleteInput = (function (HTMLElement) {
     };
 
     AutocompleteInput.prototype.onDropDownClick = function onDropDownClick () {
+        if(this.input.disabled) { return; }
         this.input.focus();
         if (this.isOpened) {
             this.isOpened = false;
@@ -168,6 +169,7 @@ var AutocompleteInput = (function (HTMLElement) {
     };
 
     AutocompleteInput.prototype.onCrossClick = function onCrossClick () {
+        if(this.input.disabled) { return; }
         this.input.focus();
         if (this.input.value === '') {
             this.isOpened = false;
@@ -405,6 +407,10 @@ function registerDS$2() {
     }
 }
 
+/**
+ * @class
+ * @typedef PlainSuggestionsList
+ */
 var PlainSuggestionsList = (function (HTMLElement) {
     function PlainSuggestionsList () {
         HTMLElement.apply(this, arguments);
@@ -538,6 +544,10 @@ function registerDS$3() {
     }
 }
 
+/**
+ * @class
+ * @typedef GroupedSuggestionsList
+ */
 var GroupedSuggestionsList = (function (HTMLElement) {
     function GroupedSuggestionsList () {
         HTMLElement.apply(this, arguments);

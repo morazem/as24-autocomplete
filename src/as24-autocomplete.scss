@@ -8,9 +8,13 @@ as24-autocomplete {
 }
 
 .as24-autocomplete {
-    
+
     &__input{
         transition: none;
+
+        &::-ms-clear {
+        	  display: none;
+        }
 
         &::placeholder {
             color: $black-100;
@@ -25,14 +29,14 @@ as24-autocomplete {
 
         &[type="number"] {
             appearance: textfield;
-    
+
             &::-webkit-outer-spin-button,
             &::-webkit-inner-spin-button {
                 display: none;
             }
         }
     }
-    
+
     &--disabled {
         cursor: not-allowed;
         .as24-autocomplete {
@@ -49,9 +53,6 @@ as24-autocomplete {
 
     &--active {
         .as24-autocomplete {
-            &__icon-dropdown{
-                transform: translate(-50%, -50%) rotate(180deg);
-            }
             &__input {
               border-bottom: 1px solid $black-40 !important;
               border-bottom-left-radius: 0;
@@ -93,10 +94,6 @@ as24-autocomplete {
         z-index: -1;
     }
 
-    &__input-wrapper {
-        position: relative;
-    }
-
     &__icon-wrapper {
         position: absolute;
         width: 2rem;
@@ -121,6 +118,7 @@ as24-autocomplete {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
+            fill: $black-60;
         }
 
         &:before{
