@@ -1,7 +1,7 @@
 const gulp = require('gulp');
-const cbngulp = require('carbon-gulp')(gulp);
+const scGulp = require('showcar-gulp')(gulp);
 
-cbngulp.registerTasks({
+scGulp.registerTasks({
     js: {
         entry: './src/as24-autocomplete.js',
         out: './dist/as24-autocomplete.js',
@@ -30,11 +30,11 @@ cbngulp.registerTasks({
 });
 
 gulp.task('set-dev', () => {
-    cbngulp.config.devmode = true;
+    scGulp.config.devmode = true;
 });
 
 gulp.task('set-prod', () => {
-    cbngulp.config.devmode = false;
+    scGulp.config.devmode = false;
 });
 
 gulp.task('default', ['set-prod', 'scss', 'js']);
