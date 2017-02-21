@@ -1,177 +1,126 @@
-"use strict";
-
-const $ = (selector, root) => root.querySelector(selector);
-const on = (event, cb, el) => el.addEventListener(event, cb);
-
-const appendTo = target => child => { target.appendChild(child); return target };
-
-const showList = list => {
-  list.classList.add('as24-autocomplete__list--visible');
-  moveSelection(1, list);
-  return false;
-};
-
-const hideList = list => e => {
-  list.classList.remove('as24-autocomplete__list--visible');
-  return false;
-};
-
-const isListVisible = list =>
-  list.classList.contains('as24-autocomplete__list--visible');
+import { $, on, triggerEvent } from './helper';
 
 /**
- * Renders a li item for the suggestions list
- * @param {{key: string, value: string}} item
- * @returns {HTMLElement} {Element}
+ * @class
+ * @typedef SeparatedItemsDataSource
  */
-const renderLI = searchInput => item => {
-  var li = document.createElement('li');
-  var searchValue = searchInput;
-  var resultValue = item.value.replace( new RegExp('^' + searchValue, 'gi'), "");
-  li.classList.add('as24-autocomplete__list-item');
-  li.key = item.key;
-  (li.innerHTML = searchInput.length
-    ? searchValue + "<b>" + resultValue + "</b>"
-    : resultValue);
-  return li;
-};
+class AutocompleteInput extends HTMLElement {
 
-const renderEmptyListItem = (emptyMessage) => {
-  var li = document.createElement('li');
-  li.classList.add('as24-autocomplete__list-item');
-  li.key = '';
-  li.innerText = emptyMessage;
-  return li;
-};
-
-/**
- * Renders a collection of raw suggestions to the list
- * @param {string} emptyMessage
- * @param {HTMLElement} list
- * @returns {Function}
- */
-const renderList = (emptyMessage, list, labelInput) => itemsModel => {
-  list.innerHTML = '';
-  var df = document.createDocumentFragment();
-  (itemsModel.length
-      ? itemsModel.map(renderLI(labelInput.value))
-      : [renderEmptyListItem(emptyMessage)]
-  ).forEach(appendTo(df));
-  list.classList[itemsModel.length ? 'remove' : 'add']('as24-autocomplete__list--empty');
-  appendTo(list)(df);
-  showList(list);
-};
-
-const fetchList = (dataSource, labelInput, list, emptyMessage) => e => {
-  e.stopPropagation();
-  dataSource.fetchItems(labelInput.value).then(renderList(emptyMessage, list, labelInput));
-};
-
-const selectItem = (valueInput, labelInput, li) => {
-  valueInput.value = li.key;
-  labelInput.value = li.innerText;
-};
-
-const onItemClicked = (valueInput, labelInput, list) => e => {
-  selectItem(valueInput, labelInput, e.target);
-  hideList(list)(e);
-};
-
-/**
- *
- * @param {HTMLElement} list
- * @param {HTMLElement} selected
- */
-const followSelectedItem = (list, selected) => {
-  const listHeight = list.getBoundingClientRect().height;
-  const selectedTop = selected.offsetTop;
-  const selectedHeight = selected.offsetHeight;
-  const scrollDist = -1 * (listHeight - (selectedTop + selectedHeight));
-  list.scrollTop = scrollDist;
-};
-
-
-const moveSelection = (dir, list) => {
-  var next = dir === 1 ? 'nextSibling' : 'previousSibling';
-  var currActiveItem = $('.as24-autocomplete__list-item--selected', list);
-  var nextActiveItem = currActiveItem === null
-    ? $('.as24-autocomplete__list-item', list)
-    : !!currActiveItem[next]
-      ? currActiveItem[next]
-      : currActiveItem;
-  currActiveItem && currActiveItem.classList.remove('as24-autocomplete__list-item--selected');
-  nextActiveItem.classList.add('as24-autocomplete__list-item--selected');
-  followSelectedItem(list, nextActiveItem);
-  return false;
-};
-
-const onKeyDown = (dataSource, valueInput, labelInput, list) => e => {
-  if (e.target === labelInput) {
-    if ([38, 40, 27].indexOf(e.which) >= 0) {
-      e.stopPropagation();
-      e.preventDefault();
+    setValue(str) {
+        this.input.value = str;
     }
-    if (e.which === 38) {
-      return moveSelection(-1, list);
+
+    getValue() {
+        return this.input.value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
     }
-    if (e.which === 40) {
-      return isListVisible(list) ? moveSelection(1, list) : showList(list);
+
+    setDisabled(flag) {
+        if (flag) {
+            this.input.setAttribute('disabled', 'disabled');
+        } else {
+            this.input.removeAttribute('disabled');
+        }
     }
-    if (e.which === 27) {
-      return hideList(list)();
+
+    isDisabled() {
+        return this.input.hasAttribute('disabled');
     }
-  }
-};
 
-const onKeyUp = (dataSource, valueInput, labelInput, list, emptyListMessage) => e => {
-  e.stopPropagation();
-  if (e.which === 13) {
-    selectItem(valueInput, labelInput, $('.as24-autocomplete__list-item--selected', list));
-    hideList(list)();
-    return;
-  }
-  if ([38, 40, 27].indexOf(e.which) === -1) {
-    return fetchList(dataSource, labelInput, list, emptyListMessage)(e);
-  }
-};
+    setError(flag) {
+        this.input.classList[flag ? 'add' : 'remove']('error');
+    }
 
-function elementAttached() {
-  var emptyListMessage = this.getAttribute('empty-list-message') || "---";
-  var dataSourceName = this.getAttribute('data-source');
-  if (!dataSourceName) {
-    throw "The data source is missing";
-  }
-  var labelInput = $('[type=text]', this);
-  var valueInput = $('[type=hidden]', this);
-  var list = $('.as24-autocomplete__list', this);
-  var dataSource = $('#' + dataSourceName, document);
-  var fetchListCallback = fetchList(dataSource, labelInput, list, emptyListMessage);
-  on('click', hideList(list), document);
-  on('click', fetchListCallback, labelInput);
-  // on('focus', fetchListCallback, labelInput); - fire twice with click, probobly don't needed'
-  on('click', onItemClicked(valueInput, labelInput, list), list);
-  on('keyup', onKeyUp(dataSource, valueInput, labelInput, list, emptyListMessage), labelInput);
-  // on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), labelInput);
-  on('keydown', onKeyDown(dataSource, valueInput, labelInput, list), window);
-}
+    renderInput() {
+        return function inputRenderer(suggestions) {
+            this.setError(suggestions.length === 0);
+            return suggestions;
+        }.bind(this);
+    }
 
-function elementDetached() {}
+    onKeyDown(e) {
+        if (e.which === 9) {
+            triggerEvent('as24-autocomplete:input:focus-lost', this.input);
+        }
+        if (e.which === 40) {
+            triggerEvent('as24-autocomplete:input:go-down', this.input);
+            e.preventDefault();
+        }
+        if (e.which === 38) {
+            triggerEvent('as24-autocomplete:input:go-up', this.input);
+            e.preventDefault();
+        }
+    }
 
-export default function() {
-  try {
-    return document.registerElement('as24-autocomplete', {
-        prototype: Object.assign(
-            Object.create(HTMLElement.prototype, {
-                attachedCallback: { value: elementAttached },
-                detachedCallback: { value: elementDetached },
-                attributeChangedCallback: { value: function () { } }
-            })
-        )
-    });
-  } catch (e) {
-    if (window && window.console) {
-        window.console.warn('Failed to register CustomElement "as24-autocomplete".', e);
+    onKeyUp(e) {
+        if (this.isVisible && (e.which === 13 || e.which === 9)) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.selectItem();
+            return false;
+        }
+        if (e.which === 13) {
+            triggerEvent('as24-autocomplete:input:enter', this.input);
+        }
+        if (e.which === 27) {
+            this.onCrossClick();
+        }
+        if (e.which !== 40 && e.which !== 38 && e.which !== 13 && e.which !== 27) {
+            triggerEvent('as24-autocomplete:input:query', this.input);
+        }
         return null;
     }
-  }
+
+    onInputClick() {
+        this.isOpened = true;
+        triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
+    }
+
+    onDropDownClick() {
+        if(this.input.disabled) return;
+        this.input.focus();
+        if (this.isOpened) {
+            this.isOpened = false;
+            triggerEvent('as24-autocomplete:input:close', this.input);
+        } else {
+            this.isOpened = true;
+            triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
+        }
+    }
+
+    onCrossClick() {
+        if(this.input.disabled) return;
+        this.input.focus();
+        if (this.input.value === '') {
+            this.isOpened = false;
+            triggerEvent('as24-autocomplete:input:close', this.input);
+        } else {
+            this.input.value = '';
+            triggerEvent('as24-autocomplete:input:cleanup', this.input);
+            if (this.isOpened) {
+                triggerEvent('as24-autocomplete:input:trigger-suggestions', this.input);
+            }
+        }
+    }
+
+    attachedCallback() {
+        this.isOpened = false;
+        this.isDirty = false;
+        this.dropDown = $('.as24-autocomplete__icon-wrapper', this);
+        this.cross = $('.as24-autocomplete__icon-cross', this);
+        this.input = $('input', this);
+        on('click', this.onInputClick.bind(this), this.input);
+        on('click', this.onDropDownClick.bind(this), this.dropDown);
+        on('click', this.onCrossClick.bind(this), this.cross);
+        on('keyup', this.onKeyUp.bind(this), this.input, true);
+        on('keydown', this.onKeyDown.bind(this), this.input, true);
+    }
+
+}
+
+export default function registerDS() {
+    try {
+        return document.registerElement('as24-autocomplete-input', AutocompleteInput);
+    } catch (e) {
+        return null;
+    }
 }
